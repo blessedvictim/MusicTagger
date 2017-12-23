@@ -34,28 +34,6 @@ public class ListAdapter extends BaseQuickAdapter<MusicFile, ViewHolder>
         this.context = context;
     }
 
-    /**
-     * Так как я дебил то это перестнает работать если вы вызовете addData for collection , insert
-     * перестанет работать поиск и вообще пиздец
-     */
-    @Override
-    public void addData(MusicFile file) {
-        super.addData(file);
-        dataModelsFULL.add(file);
-    }
-
-    @Override
-    public void addData(@NonNull Collection file) {
-        super.addData(file);
-        dataModelsFULL.addAll(file);
-    }
-
-    @Override
-    public void remove(int position) {
-        super.remove(position);
-        dataModelsFULL.remove(position);
-    }
-
 
     public void returnFromSearch() {
         setNewData(dataModelsFULL);
