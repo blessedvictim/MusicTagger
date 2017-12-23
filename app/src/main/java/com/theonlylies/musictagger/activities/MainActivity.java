@@ -115,6 +115,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         blockAdapter.bindToRecyclerView(recyclerView);
 
         initPermissions();
+
+        /**
+         * Spinner initialization
+         */
         spinner=findViewById(R.id.spinner);
         ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(this,
                 R.array.spinner_array, android.R.layout.simple_spinner_item);
