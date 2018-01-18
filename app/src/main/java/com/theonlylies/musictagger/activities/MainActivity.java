@@ -1,6 +1,7 @@
 package com.theonlylies.musictagger.activities;
 
 import android.Manifest;
+import android.app.NotificationManager;
 import android.app.SearchManager;
 import android.content.ContentUris;
 import android.content.Context;
@@ -13,6 +14,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -22,33 +24,41 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.theonlylies.musictagger.R;
-import com.theonlylies.musictagger.utils.BlockItem;
-import com.theonlylies.musictagger.utils.MusicFile;
+import com.theonlylies.musictagger.utils.adapters.BlockItem;
+import com.theonlylies.musictagger.utils.adapters.MusicFile;
+import com.theonlylies.musictagger.utils.adapters.ExpandBlockAdapter;
+import com.theonlylies.musictagger.utils.adapters.ListAdapter;
+import com.theonlylies.musictagger.utils.adapters.SimpleListAdapter;
+import com.tingyik90.snackprogressbar.SnackProgressBarManager;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
+import java.util.Map;
+import java.util.Set;
 
-enum ListState{
+enum ListState {
     SIMPLE,
     GROUP_ARTIST,
     GROUP_ALBUM
 
 }
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,BaseQuickAdapter.OnItemClickListener,AdapterView.OnItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, BaseQuickAdapter.OnItemClickListener, BaseQuickAdapter.OnItemLongClickListener, AdapterView.OnItemSelectedListener {
 
     RecyclerView recyclerView;
     ListAdapter adapter;
@@ -56,8 +66,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     SearchView searchView;
     Context context;
     Spinner spinner;
-    ListState state=ListState.SIMPLE;
-    boolean firstLaunchForSearchView=true;
+    ListState state = ListState.SIMPLE;
+    boolean firstLaunchForSearchView = true;
 
     /**
      *
@@ -65,11 +75,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     /*SnackProgressBarManager snackProgressBarManager;
     SnackProgressBar determinateType;*/
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        context = this;
+
+        Log.d("Available threads", String.valueOf(Runtime.getRuntime().availableProcessors()));
 
         /**
          * ActionBar initialization
@@ -89,7 +101,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         /**
          * RecyclerViewInitialization
          */
-        boolean test=false;
         recyclerView = findViewById(R.id.recyclerView);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -104,60 +115,102 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
          * Start draw RecyclerView after Permissions have granted
          */
 
-        adapter = new ListAdapter(R.layout.item_simple,this);
-        //recyclerView.setAdapter(adapter);
+        adapter = new ListAdapter(R.layout.item_simple, this);
         adapter.openLoadAnimation(BaseQuickAdapter.ALPHAIN);
+        adapter.isFirstOnly(false);
         adapter.setOnItemClickListener(this);
+        adapter.setOnItemLongClickListener(this);
+        adapter.bindToRecyclerView(recyclerView);
 
-        blockAdapter = new ExpandBlockAdapter(R.layout.item_expand,this,this);
+        blockAdapter = new ExpandBlockAdapter(R.layout.item_expand, this, this);
         blockAdapter.openLoadAnimation(BaseQuickAdapter.ALPHAIN);
+        blockAdapter.isFirstOnly(false);
         blockAdapter.bindToRecyclerView(recyclerView);
+        blockAdapter.setOnItemClickListener(this);
 
         initPermissions();
 
         /**
          * Spinner initialization
          */
-        spinner=findViewById(R.id.spinner);
+        spinner = findViewById(R.id.spinner);
         ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(this,
                 R.array.spinner_array, android.R.layout.simple_spinner_item);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(spinnerAdapter);
         spinner.setOnItemSelectedListener(this);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "musictagger")
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("All finished")
+                .setContentText("Update tags finshed!")
+                .setAutoCancel(true);
+        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        manager.notify(1, builder.build());
+
+
     }
 
-    void createList(){
-        switch (state){
-            case SIMPLE:{
-                if(!firstLaunchForSearchView)searchView.setVisibility(View.VISIBLE);
+    void createList() {
+        Log.d("createList", "createList");
+        switch (state) {
+            case SIMPLE: {
+
+                if (!firstLaunchForSearchView) searchView.setVisibility(View.VISIBLE);
                 recyclerView.setAdapter(adapter);
-                new MusicReadTask().execute();
+
+                if (adapter.getData().isEmpty()) {
+                    new MusicReadTask().execute();
+                }else {
+                    adapter.getData().clear();
+                    new MusicReadTask().execute();
+                }
+
+
                 break;
             }
-            case GROUP_ARTIST:{
-                searchView.setVisibility(View.INVISIBLE);
+            case GROUP_ARTIST: {
+                searchView.setVisibility(View.GONE);
                 recyclerView.setAdapter(blockAdapter);
+                blockAdapter.getData().clear();
                 new GroupByArtistMusicTask().execute();
                 break;
             }
-            case GROUP_ALBUM:{
+            case GROUP_ALBUM: {
+                searchView.setVisibility(View.GONE);
+                recyclerView.setAdapter(blockAdapter);
+                blockAdapter.getData().clear();
+                new GroupByAlbumMusicTask().execute();
                 break;
             }
-            default:{
+            default: {
                 break;
             }
         }
     }
 
+    @Override
+    protected void onResume() {
+        createList();
+        super.onResume();
+    }
+
     /**
      * Spinner works alala-azaza
      */
+    boolean spinnerFirst = true;
+
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        state= ListState.values()[i];
-        firstLaunchForSearchView=false;
-        createList();
+        Log.d("onItemSelected", "onItemSelected");
+        if (!spinnerFirst) {
+            state = ListState.values()[i];
+            firstLaunchForSearchView = false;
+            createList();
+        } else spinnerFirst = false;
+
     }
+
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
@@ -179,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        Log.d("sequence","onCreateOptionsMenu");
+        Log.d("sequence", "onCreateOptionsMenu");
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
 
@@ -199,7 +252,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         searchView.setOnCloseListener(new SearchView.OnCloseListener() {
             @Override
             public boolean onClose() {
-                if(adapter.getItemCount()!=adapter.getDataModelSize()){
+                if (adapter.getItemCount() != adapter.getDataModelSize()) {
                     adapter.getFilter().filter("");
                 }
                 return false;
@@ -273,9 +326,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
 
     private void initPermissions() {
-        if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
             Log.d("LOL", "QweQQW");
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 5);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE}, 5);
 
         } else {
             createList();
@@ -288,7 +343,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (5 == requestCode) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.d("PERMISSONS:", "GRANTED!!!");
-                new MusicReadTask().execute();
+
             } else {
                 Log.d("PERMISSONS:", "UNGRANTED!!!");
 
@@ -298,191 +353,393 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     /**
      * It for adapter onClick action
-     * @param adapter
-     * @param view
-     * @param position
      */
+    private static final int REQUEST_UPDATE_CODE = 123;
+    private static final int REQUEST_UPDATE_ALL_CODE = 124;
+
     @Override
     public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-        Toast.makeText(this, "OnItemCLick " + position, Toast.LENGTH_SHORT).show();
-        //write some code here to edit tag
+
+        if(adapter instanceof ListAdapter){
+            if (this.adapter.isMultiselect()) {
+                ((ListAdapter) adapter).toogleSelected(position);
+                if (this.adapter.getSelectedCount() == 0 && actionMode != null) actionMode.finish();
+            } else {
+                Intent intent = new Intent(this, OneFileEditActivity.class);
+                String data = ((MusicFile) adapter.getItem(position)).getRealPath();
+                intent.putExtra("music_file_path", data);
+                intent.putExtra("pos", position);
+                startActivityForResult(intent, REQUEST_UPDATE_CODE);
+            }
+        }else if(adapter instanceof ExpandBlockAdapter){
+            Log.d("expandItem","ex");
+            ( (ExpandBlockAdapter)adapter).expandItem(position);
+        } else if (adapter instanceof SimpleListAdapter) {
+            Intent intent = new Intent(this, OneFileEditActivity.class);
+            String data = ((MusicFile) adapter.getItem(position)).getRealPath();
+            intent.putExtra("music_file_path", data);
+            intent.putExtra("pos", position);
+            startActivityForResult(intent, REQUEST_UPDATE_CODE);
+        }
+
 
     }
 
+    /**
+     * actionMode link for close if selectedItemsCount==0 !!!
+     */
+    private ActionMode actionMode;
 
+    @Override
+    public boolean onItemLongClick(BaseQuickAdapter adapter, View view, int position) {
+        if (this.adapter.isMultiselect()) {
+            //this.adapter.toogleSelected(position);
+            this.onItemClick(adapter,view,position);
+        } else {
+            this.adapter.setMultiselect(true);
+            actionMode = this.startActionMode(new ActionMode.Callback() {
+                @Override
+                public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                    MenuInflater inflater = mode.getMenuInflater();
+                    inflater.inflate(R.menu.cab_menu, menu);
+                    return true;
+                }
 
-    class GroupByArtistMusicTask extends AsyncTask<Void, Void, LinkedList<BlockItem>>{
+                @Override
+                public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                    return false;
+                }
 
-        @Override
-        protected LinkedList doInBackground(Void... voids) {
-            final Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-            final String[] cursor_cols = {
-                    MediaStore.Audio.Media._ID,
-                    MediaStore.Audio.Media.ARTIST,
-                    MediaStore.Audio.Media.ALBUM,
-                    MediaStore.Audio.Media.TITLE,
-                    MediaStore.Audio.Media.DATA,
-                    MediaStore.Audio.Media.ALBUM_ID,
-                    MediaStore.Audio.Media.DURATION,};
-            final String where = MediaStore.Audio.Media.IS_MUSIC + "!=0";
-            final Cursor cursor = getContentResolver().query(uri, cursor_cols, where, null, MediaStore.Audio.Media.ARTIST);
-            int i = 0;
-            LinkedList<BlockItem> list=null;
-            if (cursor != null) {
-                try {
-                    double count = cursor.getCount();
-                    Log.d("cursor count", String.valueOf(count));
-
-                    list=new LinkedList<>();
-                    ArrayList<MusicFile> files= new ArrayList<>();
-
-                    while (cursor.moveToNext()) {
-                        MusicFile musicFile = new MusicFile();
-
-                        String artist = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
-                        String album = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM));
-                        String title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
-                        String data = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
-                        String albumId = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
-                        String id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
-
-                        i++;
-                        /**
-                         small workaround for snackbar stuck
-                         */
-                        Uri albumArtUri = ContentUris.withAppendedId(Uri.parse("content://media/external/audio/albumart"), Long.decode(albumId));
-                        musicFile.setAlbum(album);
-                        musicFile.setArtist(artist);
-                        musicFile.setRealPath(data);
-                        musicFile.setTitle(title);
-                        musicFile.setArtworkUri(albumArtUri);
-                        musicFile.progress.set((int)(i / count * 100));
-
-                        Log.d("progress",String.valueOf((double)i / count * 100));
-
-                        //publishProgress(musicFile);
-                        files.add(musicFile);
-
-                    }
-                    MusicFile file;
-                    ListIterator it = files.listIterator();
-                    while(it.hasNext()){
-                        file=(MusicFile) it.next();
-                        String compareStr=file.getArtist();
-                        BlockItem item=new BlockItem();
-                        ArrayList<MusicFile> blockList=new ArrayList<>();
-                        for(MusicFile f : files){
-                            if(f.getArtist().equals(compareStr))blockList.add(f);
+                @Override
+                public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                    if (item.getItemId() == R.id.cab_button1) {
+                        Intent intent = new Intent(getApplicationContext(), MuchFileEditActivity.class);
+                        ArrayList<String> files = new ArrayList<>();
+                        for (MusicFile file : ((ListAdapter) adapter).getSelectedFiles()) {
+                            files.add(file.getRealPath());
                         }
-                        item.setBlockName(compareStr);
-                        item.setBlockInfo(blockList.size()+" tracks");
-                        item.setMusicFiles(blockList);
-                        list.add(item);
+                        intent.putStringArrayListExtra("files", files);
+                        startActivityForResult(intent, REQUEST_UPDATE_ALL_CODE);
                     }
-
-
-
-                } catch (NullPointerException e) {
-                    e.printStackTrace();
+                    return true;
                 }
-                finally {
-                    cursor.close();
+
+                @Override
+                public void onDestroyActionMode(ActionMode mode) {
+                    ((ListAdapter) adapter).setMultiselect(false);
+                    actionMode = null;
+                }
+            });
+            this.adapter.toogleSelected(position);
+        }
+
+
+            return true;
+        }
+
+        //TODO right now nothing to do in this place!
+        @Override
+        protected void onActivityResult ( int requestCode, int resultCode, Intent data){
+        if(actionMode!=null)actionMode.finish();
+        /*if (data != null && resultCode==AppCompatActivity.RESULT_OK){
+            if(requestCode==REQUEST_UPDATE_CODE){
+                int pos = data.getIntExtra("pos",-1);
+                if(pos>=0){
+                    Log.d("result","affirmative!");
+                    MusicFile file = adapter.getItem(pos);
+                    file = MediaStoreUtils.getMusicFileByPath(file.getRealPath(),this);
+                    adapter.notifyItemChanged(pos);
                 }
 
             }
-
-            return list;
-        }
-
-        @Override
-        protected void onPostExecute(LinkedList<BlockItem> list) {
-            super.onPostExecute(list);
-            if(list!=null)blockAdapter.setNewData(list);
-            //snackProgressBarManager.dismiss();
-            //adapter.addData(aVoid);
+        }*/
         }
 
 
-    }
+        private class GroupByArtistMusicTask extends AsyncTask<Void, Void, List<BlockItem>> {
 
+            @Override
+            protected List<BlockItem> doInBackground(Void... voids) {
+                final Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                final String[] cursor_cols = {
+                        MediaStore.Audio.Media._ID,
+                        MediaStore.Audio.Media.ARTIST,
+                        MediaStore.Audio.Media.ALBUM,
+                        MediaStore.Audio.Media.TITLE,
+                        MediaStore.Audio.Media.DATA,
+                        MediaStore.Audio.Media.ALBUM_ID,
+                        MediaStore.Audio.Media.DURATION,};
+                final String where = MediaStore.Audio.Media.IS_MUSIC + "!=0";
+                final Cursor cursor = getContentResolver().query(uri, cursor_cols, where, null, MediaStore.Audio.Media.ARTIST);
+                int i = 0;
+                ArrayList<BlockItem> list = null;
+                if (cursor != null) {
+                    try {
+                        double count = cursor.getCount();
+                        Log.d("cursor count", String.valueOf(count));
 
-    class MusicReadTask extends AsyncTask<Void, MusicFile, Void> {
+                        list = new ArrayList<>();
+                        ArrayList<MusicFile> files = new ArrayList<>();
+                        Set<String> artists = new HashSet<>();
 
-        @Override
-        protected void onPreExecute() {
-            //snackProgressBarManager.show(determinateType, SnackProgressBarManager.LENGTH_LONG);
-            //determinateType.setShowProgressPercentage(true);
-        }
+                        while (cursor.moveToNext()) {
+                            MusicFile musicFile = new MusicFile();
 
-        @Override
-        protected Void doInBackground(Void... voids) {
-            final Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-            final String[] cursor_cols = {
-                    MediaStore.Audio.Media._ID,
-                    MediaStore.Audio.Media.ARTIST,
-                    MediaStore.Audio.Media.ALBUM,
-                    MediaStore.Audio.Media.TITLE,
-                    MediaStore.Audio.Media.DATA,
-                    MediaStore.Audio.Media.ALBUM_ID,
-                    MediaStore.Audio.Media.DURATION,};
-            final String where = MediaStore.Audio.Media.IS_MUSIC + "!=0";
-            final Cursor cursor = getContentResolver().query(uri, cursor_cols, where, null, MediaStore.Audio.Media.ARTIST);
-            int i = 0;
-            if (cursor != null) {
-                try {
-                    double count = cursor.getCount();
-                    Log.d("cursor count", String.valueOf(count));
-                    while (cursor.moveToNext()) {
-                        MusicFile musicFile = new MusicFile();
+                            String artist = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
+                            String album = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM));
+                            String title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
+                            String data = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
+                            String albumId = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
+                            String id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
 
-                        String artist = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
-                        String album = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM));
-                        String title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
-                        String data = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
-                        String albumId = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
-                        String id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
+                            i++;
+                            /**
+                             small workaround for snackbar stuck
+                             */
+                            Uri albumArtUri = ContentUris.withAppendedId(Uri.parse("content://media/external/audio/albumart"), Long.decode(albumId));
+                            musicFile.setAlbum(album);
+                            musicFile.setArtist(artist);
+                            musicFile.setRealPath(data);
+                            musicFile.setTitle(title);
+                            musicFile.setArtworkUri(albumArtUri);
+                            musicFile.progress.set((int) (i / count * 100));
 
-                        i++;
-                        /**
-                         small workaround for snackbar stuck
-                         */
-                        Uri albumArtUri = ContentUris.withAppendedId(Uri.parse("content://media/external/audio/albumart"), Long.decode(albumId));
-                        musicFile.setAlbum(album);
-                        musicFile.setArtist(artist);
-                        musicFile.setRealPath(data);
-                        musicFile.setTitle(title);
-                        musicFile.setArtworkUri(albumArtUri);
-                        musicFile.progress.set((int)(i / count * 100));
+                            Log.d("progress", String.valueOf((double) i / count * 100));
 
-                        Log.d("progress",String.valueOf((double)i / count * 100));
+                            //publishProgress(musicFile);
 
-                        publishProgress(musicFile);
+                            files.add(musicFile);
+                            artists.add(artist);
 
+                        }
+                        String artist;
+                        Iterator<String> it = artists.iterator();
+                        while (it.hasNext()) {
+                            artist = it.next();
+                            BlockItem item = new BlockItem();
+                            ArrayList<MusicFile> blockList = new ArrayList<>();
+                            for (MusicFile f : files) {
+                                if (f.getArtist().equals(artist)) {
+                                    blockList.add(f);
+                                }
+                            }
+
+                            item.setBlockName(artist);
+                            item.setBlockInfo(blockList.size() + " tracks");
+                            item.setMusicFiles(blockList);
+
+                            list.add(item);
+                        }
+
+                    } catch (NullPointerException e) {
+                        e.printStackTrace();
+                    } finally {
+                        cursor.close();
                     }
-                } catch (NullPointerException e) {
-                    e.printStackTrace();
-                }
-                finally {
-                    cursor.close();
+
                 }
 
+                return list;
             }
 
-            return null;
+            @Override
+            protected void onPostExecute(List<BlockItem> list) {
+                super.onPostExecute(list);
+                if (list != null) blockAdapter.setNewData(list);
+                //snackProgressBarManager.dismiss();
+                //adapter.addData(aVoid);
+            }
+
+
         }
 
-        @Override
-        protected void onProgressUpdate(MusicFile... progress) {
-            //snackProgressBarManager.setProgress(progress[0].progress.get());
-            adapter.addData(progress[0]);
+
+        private class GroupByAlbumMusicTask extends AsyncTask<Void, Void, List<BlockItem>> {
+
+            @Override
+            protected List<BlockItem> doInBackground(Void... voids) {
+                final Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                final String[] cursor_cols = {
+                        MediaStore.Audio.Media._ID,
+                        MediaStore.Audio.Media.ARTIST,
+                        MediaStore.Audio.Media.ALBUM,
+                        MediaStore.Audio.Media.TITLE,
+                        MediaStore.Audio.Media.DATA,
+                        MediaStore.Audio.Media.ALBUM_ID,
+                        MediaStore.Audio.Media.DURATION,};
+                final String where = MediaStore.Audio.Media.IS_MUSIC + "!=0";
+                final Cursor cursor = getContentResolver().query(uri, cursor_cols, where, null, MediaStore.Audio.Media.ARTIST);
+                ArrayList<BlockItem> list = null;
+                if (cursor != null) {
+                    try {
+                        double count = cursor.getCount();
+                        Log.d("cursor count", String.valueOf(count));
+
+                        list = new ArrayList<>();
+                        ArrayList<MusicFile> files = new ArrayList<>();
+                        Set<String> albums = new HashSet<>();
+                        Set<String> artists = new HashSet<>();
+
+                        while (cursor.moveToNext()) {
+                            MusicFile musicFile = new MusicFile();
+
+                            String artist = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
+                            String album = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM));
+                            String title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
+                            String data = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
+                            String albumId = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
+                            String id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
+
+                            /**
+                             small workaround for snackbar stuck
+                             */
+                            Uri albumArtUri = ContentUris.withAppendedId(Uri.parse("content://media/external/audio/albumart"), Long.decode(albumId));
+                            musicFile.setAlbum(album);
+                            musicFile.setArtist(artist);
+                            musicFile.setRealPath(data);
+                            musicFile.setTitle(title);
+                            musicFile.setArtworkUri(albumArtUri);
+                            musicFile.progress.set((int) (i / count * 100));
+
+                            //Log.d("progress", String.valueOf((double) i / count * 100));
+
+                            //publishProgress(musicFile);
+
+                            files.add(musicFile);
+                            albums.add(album);
+                            artists.add(artist);
+
+                        }
+
+                        String album;
+                        Iterator<String> it = albums.iterator();
+                        while (it.hasNext()) {
+                            album = it.next();
+                            BlockItem item = new BlockItem();
+                            ArrayList<MusicFile> blockList = new ArrayList<>();
+                            for (MusicFile f : files) {
+                                if (f.getAlbum().equals(album) ) {
+                                    blockList.add(f);
+                                }
+                            }
+
+                            item.setBlockName(album);
+                            item.setBlockInfo(blockList.size() + " tracks");
+                            item.setMusicFiles(blockList);
+
+                            list.add(item);
+                        }
+
+
+
+
+
+                    } catch (NullPointerException e) {
+                        e.printStackTrace();
+                    } finally {
+                        cursor.close();
+                    }
+
+                }
+
+                return list;
+            }
+
+            @Override
+            protected void onPostExecute(List<BlockItem> list) {
+                super.onPostExecute(list);
+                if (list != null) blockAdapter.setNewData(list);
+                //snackProgressBarManager.dismiss();
+                //adapter.addData(aVoid);
+            }
+
+
         }
 
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            //snackProgressBarManager.dismiss();
-            //adapter.addData(aVoid);
+
+        private class MusicReadTask extends AsyncTask<Void, MusicFile, Void> {
+
+            @Override
+            protected void onPreExecute() {
+                /*snackProgressBarManager.show(determinateType, SnackProgressBarManager.LENGTH_LONG);
+                determinateType.setShowProgressPercentage(true);*/
+            }
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+                final Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                final String[] cursor_cols = {
+                        MediaStore.Audio.Media._ID,
+                        MediaStore.Audio.Media.ARTIST,
+                        MediaStore.Audio.Media.ALBUM,
+                        MediaStore.Audio.Media.TITLE,
+                        MediaStore.Audio.Media.DATA,
+                        MediaStore.Audio.Media.ALBUM_ID,
+                        MediaStore.Audio.Media.DURATION,};
+                final String where = MediaStore.Audio.Media.IS_MUSIC + "!=0";
+                final Cursor cursor = getContentResolver().query(uri, cursor_cols, where, null, MediaStore.Audio.Media.TITLE);
+                int i = 0;
+                if (cursor != null) {
+                    try {
+                        double count = cursor.getCount();
+                        Log.d("cursor count", String.valueOf(count));
+                        while (cursor.moveToNext()) {
+                            MusicFile musicFile = new MusicFile();
+
+                            String artist = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
+                            String album = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM));
+                            String title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
+                            String data = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
+                            if (!data.endsWith("mp3")) continue;
+                            String albumId = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
+                            Log.d("albumId", albumId);
+                            String id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
+
+
+                            i++;
+                            /**
+                             small workaround for snackbar stuck
+                             */
+                            Uri albumArtUri = ContentUris.withAppendedId(Uri.parse("content://media/external/audio/albumart"), Long.decode(albumId));
+                            musicFile.setAlbum(album);
+                            musicFile.setArtist(artist);
+                            musicFile.setRealPath(data);
+                            musicFile.setTitle(title);
+                            musicFile.setArtworkUri(albumArtUri);
+                            musicFile.progress.set((int) (i / count * 100));
+
+                            /*if(count>100){
+                                Log.d("progress", String.valueOf((double) i / count * 100));
+
+                                publishProgress(musicFile);
+                            }*/
+                            publishProgress(musicFile);
+
+
+                        }
+                    } catch (NullPointerException e) {
+                        e.printStackTrace();
+                    } finally {
+                        cursor.close();
+                    }
+
+                }
+
+                return null;
+            }
+
+            @Override
+            protected void onProgressUpdate(MusicFile... progress) {
+                //snackProgressBarManager.setProgress(progress[0].progress.get());
+                adapter.addData(progress[0]);
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                //snackProgressBarManager.dismiss();
+                //adapter.addData(aVoid);
+            }
         }
+
     }
-
-}

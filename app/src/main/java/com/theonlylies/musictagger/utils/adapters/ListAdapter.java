@@ -1,16 +1,17 @@
-package com.theonlylies.musictagger.activities;
+package com.theonlylies.musictagger.utils.adapters;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Filter;
 import android.widget.Filterable;
 
-import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.signature.MediaStoreSignature;
 import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.theonlylies.musictagger.utils.MusicFile;
+import com.theonlylies.musictagger.R;
+import com.theonlylies.musictagger.utils.GlideApp;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,6 +21,10 @@ import java.util.List;
 
 public class ListAdapter extends BaseQuickAdapter<MusicFile, ViewHolder>
         implements Filterable {
+
+    private ArrayList<Integer> selectedPositions = new ArrayList<>();
+
+    private boolean isMultiselect=false;
 
     public int getDataModelSize(){
         return dataModelsFULL.size();
@@ -34,13 +39,32 @@ public class ListAdapter extends BaseQuickAdapter<MusicFile, ViewHolder>
         this.context = context;
     }
 
+    public void toogleSelected(int position){
+        ViewHolder viewHolder=(ViewHolder)getRecyclerView().findViewHolderForAdapterPosition(position);
+        if(selectedPositions.contains(position)){
+            selectedPositions.remove(Integer.valueOf(position));
+            if(viewHolder!=null)viewHolder.setSelected(false);
+        }else{
+            selectedPositions.add(position);
+            if(viewHolder!=null)viewHolder.setSelected(true);
+        }
+    }
 
-    public void returnFromSearch() {
-        setNewData(dataModelsFULL);
+    public int getSelectedCount(){
+        return selectedPositions.size();
+    }
+
+    public List<MusicFile> getSelectedFiles(){
+        if(!isMultiselect)return null;
+        List<MusicFile> files = new ArrayList<>();
+        for (Integer i : selectedPositions){
+            files.add( getData().get(i) );
+        }
+        return files;
     }
 
     @Override
-    protected void convert(ViewHolder helper, MusicFile item) {
+    protected void convert(ViewHolder helper, MusicFile item,int position) {
         helper.trackTitle.setText(item.getTitle());
         String album = item.getAlbum();
         String artist = item.getArtist();
@@ -48,10 +72,20 @@ public class ListAdapter extends BaseQuickAdapter<MusicFile, ViewHolder>
         if (album != null) res.append(album);
         if (artist != null) res.append(" | ".concat(artist));
         helper.trackArtistAlbum.setText(res.toString());
-        Glide.with(context)
+        GlideApp.with(context)
                 .load(item.getArtworkUri())
+                .signature(new MediaStoreSignature("lol",System.currentTimeMillis(),3))
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .skipMemoryCache(true)
+                .error(R.drawable.vector_artwork_placeholder)
                 .into(helper.atrworkImageView);
-        //helper.addOnClickListener(R.id.imageButton);
+
+        if(selectedPositions.contains(position)){
+            helper.setSelected(true);
+        }else {
+            helper.setSelected(false);
+        }
+
     }
 
     @Override
@@ -91,5 +125,20 @@ public class ListAdapter extends BaseQuickAdapter<MusicFile, ViewHolder>
                 ///notifyDataSetChanged();
             }
         };
+    }
+
+    public boolean isMultiselect() {
+        return isMultiselect;
+    }
+
+    public void setMultiselect(boolean multiselect) {
+        isMultiselect = multiselect;
+        if(!isMultiselect){
+            ArrayList<Integer> copy = new ArrayList<>(selectedPositions);
+            for (Integer i : copy){
+                toogleSelected(i);
+            }
+            selectedPositions.clear();
+        }
     }
 }

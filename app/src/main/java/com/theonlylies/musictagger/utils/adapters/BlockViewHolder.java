@@ -1,9 +1,10 @@
-package com.theonlylies.musictagger.activities;
+package com.theonlylies.musictagger.utils.adapters;
 
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.chad.library.adapter.base.BaseViewHolder;
@@ -16,6 +17,7 @@ import com.theonlylies.musictagger.R;
 public class BlockViewHolder extends BaseViewHolder {
     TextView blockName,blockInfo;
     ImageButton expandButton,nonameButton1,nonameButton2;
+    ImageView artwork;
     RecyclerView recyclerView;
 
     public BlockViewHolder(View view) {
@@ -25,9 +27,10 @@ public class BlockViewHolder extends BaseViewHolder {
         expandButton=view.findViewById(R.id.expandButton);
         nonameButton1=view.findViewById(R.id.nonameButton1);
         nonameButton2=view.findViewById(R.id.nonameButton2);
+        artwork=view.findViewById(R.id.blockArtworkView);
         recyclerView=view.findViewById(R.id.musicItemRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
-        ListAdapter adapter = new ListAdapter(R.layout.item_simple,view.getContext());
+        SimpleListAdapter adapter = new SimpleListAdapter(R.layout.item_simple_without_img,view.getContext());
         recyclerView.setAdapter(adapter);
     }
 }

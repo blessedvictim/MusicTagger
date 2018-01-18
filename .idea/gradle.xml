@@ -8,7 +8,11 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/BaseRecyclerViewAdapterHelper" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/audiolib" />
+            <option value="$PROJECT_DIR$/clans-fab" />
+            <option value="$PROJECT_DIR$/jaudiotagger-2.2.3" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

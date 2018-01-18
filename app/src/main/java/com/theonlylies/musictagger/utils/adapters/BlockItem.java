@@ -1,4 +1,4 @@
-package com.theonlylies.musictagger.utils;
+package com.theonlylies.musictagger.utils.adapters;
 
 import java.util.LinkedList;
 import java.util.List;

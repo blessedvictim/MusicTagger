@@ -2,14 +2,12 @@
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
 
-    android:id="@+id/masdf"
+    android:id="@+id/card_item_simple"
     android:layout_width="match_parent"
     android:layout_height="90dp"
-    android:layout_marginBottom="5dp"
-    android:layout_marginTop="5dp"
-    app:cardBackgroundColor="@android:color/darker_gray"
-    app:cardElevation="2dp"
-    app:cardUseCompatPadding="true">
+    android:layout_marginBottom="2dp"
+    app:cardBackgroundColor="@color/colorBackItemSimple"
+    app:cardElevation="0dp">
 
     <RelativeLayout
 
@@ -18,13 +16,13 @@
 
         <ImageView
             android:id="@+id/artworkImageView"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="76dp"
+            android:layout_height="76dp"
             android:layout_alignParentTop="true"
-            android:src="@mipmap/ic_launcher" />
+            android:layout_margin="4dp" />
 
         <TextView
-            android:id="@+id/trackTitle"
+            android:id="@+id/itemSimpleTrNum"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/artworkImageView" />
@@ -33,7 +31,7 @@
             android:id="@+id/trackArtistAlbum"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/trackTitle"
+            android:layout_below="@id/itemSimpleTrNum"
             android:layout_marginTop="4dp"
             android:layout_toEndOf="@id/artworkImageView" />
 

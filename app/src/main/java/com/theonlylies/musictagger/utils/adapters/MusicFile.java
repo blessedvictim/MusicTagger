@@ -1,4 +1,4 @@
-package com.theonlylies.musictagger.utils;
+package com.theonlylies.musictagger.utils.adapters;
 
 import android.net.Uri;
 
@@ -9,12 +9,16 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 
 public class MusicFile {
-    private String title;
-    private String artist;
-    private String album;
-    private String realPath;
-    private Uri artworkUri;
+    protected String title;
+    protected String artist;
+    protected String album;
+    protected String realPath;
+    protected String genre;
+    protected String trackNumber;
+    protected String year;
+    protected Uri artworkUri;
     public AtomicInteger progress;
+    protected long album_id;
 
     public MusicFile(){
         title=null;
@@ -23,9 +27,12 @@ public class MusicFile {
         realPath=null;
         realPath=null;
         artworkUri=null;
+        genre=null;
+        trackNumber=null;
+        year=null;
         progress=new AtomicInteger();
         progress.set(0);
-
+        album_id=-1;
     }
 
     public String getTitle() {
@@ -68,4 +75,35 @@ public class MusicFile {
         this.artworkUri = artworkUri;
     }
 
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public String getTrackNumber() {
+        return trackNumber;
+    }
+
+    public void setTrackNumber(String trackNumber) {
+        this.trackNumber = trackNumber;
+    }
+
+    public String getYear() {
+        return year;
+    }
+
+    public void setYear(String year) {
+        this.year = year;
+    }
+
+    public long getAlbum_id() {
+        return album_id;
+    }
+
+    public void setAlbum_id(long album_id) {
+        this.album_id = album_id;
+    }
 }
