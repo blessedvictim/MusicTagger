@@ -19,6 +19,11 @@
 
         <item name="android:windowAnimationStyle">@style/Animation.MyAwesomeAnimation</item>
         <item name="windowActionModeOverlay">true</item>
+        <item name="actionModeStyle">@style/OurActionMode</item>
+    </style>
+
+    <style name="OurActionMode" parent="Widget.AppCompat.ActionMode">
+        <item name="background">@color/colorPrimary</item>
     </style>
 
     <style name="AppTheme.NoActionBar" parent="AppTheme">

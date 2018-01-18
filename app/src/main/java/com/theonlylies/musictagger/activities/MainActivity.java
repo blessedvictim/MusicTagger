@@ -29,6 +29,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
@@ -53,9 +55,8 @@ import java.util.Set;
 
 enum ListState {
     SIMPLE,
-    GROUP_ARTIST,
-    GROUP_ALBUM
-
+    GROUP_ALBUM,
+    GROUP_ARTIST
 }
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, BaseQuickAdapter.OnItemClickListener, BaseQuickAdapter.OnItemLongClickListener, AdapterView.OnItemSelectedListener {
@@ -105,6 +106,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
+
+
         /**
          * Snackbar with progressbar for AsyncTask of loading MusicFile into RecyclerView
          */
@@ -139,30 +142,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(spinnerAdapter);
         spinner.setOnItemSelectedListener(this);
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "musictagger")
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("All finished")
-                .setContentText("Update tags finshed!")
-                .setAutoCancel(true);
-        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        manager.notify(1, builder.build());
-
-
     }
 
     void createList() {
-        Log.d("createList", "createList");
         switch (state) {
             case SIMPLE: {
 
-                if (!firstLaunchForSearchView) searchView.setVisibility(View.VISIBLE);
+                if (!firstLaunchForSearchView) searchView.setVisibility(View.VISIBLE);//hack for first launch search view have been not initialized! its wrong code i thnk!
                 recyclerView.setAdapter(adapter);
 
                 if (adapter.getData().isEmpty()) {
                     new MusicReadTask().execute();
                 }else {
-                    adapter.getData().clear();
+                    adapter.getData().clear();                     // very interesting code !!!! fuck me
                     new MusicReadTask().execute();
                 }
 
@@ -181,6 +173,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 recyclerView.setAdapter(blockAdapter);
                 blockAdapter.getData().clear();
                 new GroupByAlbumMusicTask().execute();
+
                 break;
             }
             default: {
@@ -191,7 +184,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     protected void onResume() {
-        createList();
         super.onResume();
     }
 
@@ -286,12 +278,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        if (id == R.id.addItem) {
-            MusicFile data = new MusicFile();
-            adapter.addData(data);
-            return true;
-        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -546,6 +532,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             protected void onPostExecute(List<BlockItem> list) {
                 super.onPostExecute(list);
                 if (list != null) blockAdapter.setNewData(list);
+                recyclerView.scheduleLayoutAnimation();
                 //snackProgressBarManager.dismiss();
                 //adapter.addData(aVoid);
             }
@@ -554,10 +541,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
 
-        private class GroupByAlbumMusicTask extends AsyncTask<Void, Void, List<BlockItem>> {
+        private class GroupByAlbumMusicTask extends AsyncTask<Void, BlockItem,Void> {
 
             @Override
-            protected List<BlockItem> doInBackground(Void... voids) {
+            protected Void doInBackground(Void... voids) {
                 final Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
                 final String[] cursor_cols = {
                         MediaStore.Audio.Media._ID,
@@ -627,7 +614,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             item.setBlockInfo(blockList.size() + " tracks");
                             item.setMusicFiles(blockList);
 
-                            list.add(item);
+                            publishProgress(item);
                         }
 
 
@@ -642,13 +629,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 }
 
-                return list;
+                return null;
             }
 
             @Override
-            protected void onPostExecute(List<BlockItem> list) {
+            protected void onProgressUpdate(BlockItem... progress) {
+                //snackProgressBarManager.setProgress(progress[0].progress.get());
+                blockAdapter.addData(progress[0]);
+                recyclerView.scheduleLayoutAnimation();
+            }
+
+            @Override
+            protected void onPostExecute(Void list) {
                 super.onPostExecute(list);
-                if (list != null) blockAdapter.setNewData(list);
+
                 //snackProgressBarManager.dismiss();
                 //adapter.addData(aVoid);
             }
@@ -732,6 +726,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             protected void onProgressUpdate(MusicFile... progress) {
                 //snackProgressBarManager.setProgress(progress[0].progress.get());
                 adapter.addData(progress[0]);
+                recyclerView.scheduleLayoutAnimation();
             }
 
             @Override

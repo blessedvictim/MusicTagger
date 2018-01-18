@@ -29,5 +29,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/cardOnTop"
-        android:background="@color/colorBackGrey" />
+        android:background="@color/colorBackGrey"
+        android:layoutAnimation="@anim/recycler_fallingdown"/>
 </RelativeLayout>

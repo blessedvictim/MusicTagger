@@ -2,7 +2,7 @@
 <resources>
     <string-array name="spinner_array">
         <item>SIMPLE</item>
-        <!--<item>ARTIST</item>-->
         <item>ALBUM</item>
+        <!--<item>ARTIST</item>-->
     </string-array>
 </resources>
