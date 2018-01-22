@@ -23,6 +23,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.signature.MediaStoreSignature;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionButtonBehavior;
@@ -84,8 +85,6 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
         /**
          * This Block for FABs init
          */
-        android.support.design.widget.FloatingActionButton fab = findViewById(R.id.fab1);
-        fab.setOnClickListener(this);
 
         final CardView cardView=findViewById(R.id.cardView);
 
@@ -101,11 +100,11 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
                 (CoordinatorLayout.LayoutParams) menu.getLayoutParams();
         params.setBehavior(behavior);
 
-        FloatingActionButton button=findViewById(R.id.fab2);
-        FloatingActionButtonBehavior behaviorButton = new FloatingActionButtonBehavior();
-        behaviorButton.setTopInset(topInset);
+        FloatingActionMenu button=findViewById(R.id.fabGroupSmartSearch);
+        button.setAlwaysClosed(true);
+        button.setOnMenuButtonClickListener(this);
         CoordinatorLayout.LayoutParams paramsButton = (CoordinatorLayout.LayoutParams) button.getLayoutParams();
-        paramsButton.setBehavior(behaviorButton);
+        paramsButton.setBehavior(behavior);
 
         /*FloatingActionButton aqua = menu.getMenuMainButton();
         CoordinatorLayout.LayoutParams p = (CoordinatorLayout.LayoutParams) aqua.getLayoutParams();
@@ -148,6 +147,7 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .skipMemoryCache(true)
                 .error(R.drawable.vector_artwork_placeholder)
+                .transition(DrawableTransitionOptions.withCrossFade())
                 .into(artworkImageView);
         newArtworkUri=file.getArtworkUri();
         //dumpMedia(this);

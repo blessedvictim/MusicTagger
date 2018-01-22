@@ -4,10 +4,10 @@
 
     <!-- the animations must have been defined in your "anim" folder, of course -->
     <style name="Animation.MyAwesomeAnimation" parent="android:style/Animation.Activity">
-        <item name="android:activityOpenEnterAnimation">@android:anim/fade_in</item>
-        <item name="android:activityOpenExitAnimation">@android:anim/fade_out</item>
-        <item name="android:activityCloseEnterAnimation">@android:anim/fade_in</item>
-        <item name="android:activityCloseExitAnimation">@android:anim/fade_out</item>
+        <item name="android:activityOpenEnterAnimation">@anim/fade_in</item>
+        <item name="android:activityOpenExitAnimation">@anim/fade_out</item>
+        <item name="android:activityCloseEnterAnimation">@anim/fade_in</item>
+        <item name="android:activityCloseExitAnimation">@anim/fade_out</item>
     </style>
 
     <!-- Base application theme. -->

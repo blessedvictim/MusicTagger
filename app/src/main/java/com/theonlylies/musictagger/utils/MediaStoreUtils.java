@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -31,40 +32,40 @@ import java.util.stream.Collectors;
  * Created by linuxoid on 23.12.17.
  */
 
-public class MediaStoreUtils  {
+public class MediaStoreUtils {
 
-    private static final String  media_provider_path="/Android/data/com.android.providers.media/albumthumbs/";
+    private static final String media_provider_path = "/Android/data/com.android.providers.media/albumthumbs/";
 
     static public MusicFile getMusicFileByPath(@NonNull String path, Context context) {
         Uri contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        path = "\""+path+"\"";
-        Cursor cursor = context.getContentResolver().query(contentUri, null, MediaStore.Audio.Media.IS_MUSIC+"!= 0 and "+MediaStore.Audio.Media.DATA+"=="+path, null, null);
+        path = "\"" + path + "\"";
+        Cursor cursor = context.getContentResolver().query(contentUri, null, MediaStore.Audio.Media.IS_MUSIC + "!= 0 and " + MediaStore.Audio.Media.DATA + "==" + path, null, null);
         String s;
-        Log.d("cursor count:",String.valueOf(cursor.getCount()));
-        MusicFile musicFile=new MusicFile();
-        if(cursor.moveToFirst()){
+        Log.d("cursor count:", String.valueOf(cursor.getCount()));
+        MusicFile musicFile = new MusicFile();
+        if (cursor.moveToFirst()) {
 
-                s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
-                s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
-                musicFile.setTitle(s);
-                s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM));
-                musicFile.setAlbum(s);
-                s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
-                long id = Long.decode(s);
-                musicFile.setAlbum_id(id);
-                s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
-                musicFile.setArtist(s);
-                s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED));
-                s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.YEAR));
-                s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TRACK));
-                s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
-                musicFile.setRealPath(s);
-                s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.YEAR));
-                musicFile.setYear(s);
+            s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
+            s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
+            musicFile.setTitle(s);
+            s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM));
+            musicFile.setAlbum(s);
+            s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
+            long id = Long.decode(s);
+            musicFile.setAlbum_id(id);
+            s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
+            musicFile.setArtist(s);
+            s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED));
+            s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.YEAR));
+            s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TRACK));
+            s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
+            musicFile.setRealPath(s);
+            s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.YEAR));
+            musicFile.setYear(s);
 
-                musicFile.setArtworkUri(getAlbumArtUriByAlbumId(id));
-                //Log.d("DATA COL", s = s != null ? s : "empty");
-                //Log.d("---", "------------------------------------------------------------------");
+            musicFile.setArtworkUri(getAlbumArtUriByAlbumId(id));
+            //Log.d("DATA COL", s = s != null ? s : "empty");
+            //Log.d("---", "------------------------------------------------------------------");
 
         }
         return musicFile;
@@ -75,66 +76,78 @@ public class MediaStoreUtils  {
         return ContentUris.withAppendedId(sArtworkUri, id);
     }
 
-    static void scanFile(String filePath,Context context,MediaScannerConnection.OnScanCompletedListener listener){
+    static void scanFile(String filePath, Context context, MediaScannerConnection.OnScanCompletedListener listener) {
         MediaScannerConnection.scanFile(context, new String[]{filePath}, null, listener);
     }
 
-    static public boolean updateFileMediaStoreMedia(MusicFile musicFile, Context context, MediaScannerConnection.OnScanCompletedListener listener){
-        Uri contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        String nPath = "\""+musicFile.getRealPath()+"\"";
-        Cursor cursor = context.getContentResolver().query(contentUri, null, MediaStore.Audio.Media.DATA+"=="+nPath, null, null);
-        long id=-1;
+    static void scanFiles(String[] paths, Context context, MediaScannerConnection.OnScanCompletedListener listener) {
+        MediaScannerConnection.scanFile(context, paths, null, listener);
+    }
 
-        try{
-            if (cursor != null && cursor.moveToFirst()){
+    static public boolean updateFileMediaStoreMedia(MusicFile musicFile, Context context, MediaScannerConnection.OnScanCompletedListener listener) {
+        Uri contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        String nPath = "\"" + musicFile.getRealPath() + "\"";
+        Cursor cursor = context.getContentResolver().query(contentUri, null, MediaStore.Audio.Media.DATA + "==" + nPath, null, null);
+        long id = -1;
+
+        try {
+            if (cursor != null && cursor.moveToFirst()) {
                 id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
-                if(id!=-1){
-                    context.getContentResolver().delete(ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,id),null,null);
+                if (id != -1) {
+                    context.getContentResolver().delete(ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id), null, null);
                 }
-                scanFile(musicFile.getRealPath(),context,listener);
+                scanFile(musicFile.getRealPath(), context, listener);
             }
-        }catch (NullPointerException | IllegalArgumentException e){
+        } catch (NullPointerException | IllegalArgumentException e) {
             e.printStackTrace();
             return false;
         }
         return true;
     }
 
-    static public void updateMuchFilesMediaStore(List<ParcelableMusicFile> musicFiles, Context context){
+    static public void updateMuchFilesMediaStore(List<ParcelableMusicFile> musicFiles, Context context, MediaScannerConnection.OnScanCompletedListener listener) {
         Uri contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        for (ParcelableMusicFile musicFile: musicFiles) {
+        boolean setArt = false;
+        for (ParcelableMusicFile musicFile : musicFiles) {
 
-            String nPath = "\""+musicFile.getRealPath()+"\"";
-            Cursor cursor = context.getContentResolver().query(contentUri, null, MediaStore.Audio.Media.DATA+"=="+nPath, null, null);
-            long id=-1;
+            String nPath = "\"" + musicFile.getRealPath() + "\"";
+            Cursor cursor = context.getContentResolver().query(contentUri, null, MediaStore.Audio.Media.DATA + "==" + nPath, null, null);
+            long id = -1;
 
-            try{
-                if (cursor != null && cursor.moveToFirst()){
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
                     id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
-                    Log.d("Service file id",String.valueOf(id));
-                    if(id!=-1){
-                        context.getContentResolver().delete(ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,id),null,null);
+                    String albumName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM));
+                    String artistName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
+                    if (albumName.equals( musicFile.getAlbum()) && artistName.equals(musicFile.getArtist() ) ) setArt = true;
+                    Log.d("Service file id", String.valueOf(id));
+                    if (id != -1) {
+                        context.getContentResolver().delete(ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id), null, null);
                     }
 
                 }
-            }catch (NullPointerException | IllegalArgumentException e){
+            } catch (NullPointerException | IllegalArgumentException e) {
                 e.printStackTrace();
             }
         }
 
-        for(ParcelableMusicFile q : musicFiles) {
-            context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(q.getRealPath()))));
+        ArrayList<String> paths = new ArrayList<>(musicFiles.size());
+        for (ParcelableMusicFile q : musicFiles) {
+            //context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(q.getRealPath()))));
+            paths.add(q.getRealPath());
         }
+
+        scanFiles(paths.toArray(new String[paths.size()]) ,context,listener);
     }
 
-    static public boolean setAlbumArt(Bitmap bitmap,Context context, long album_id){
+    static public boolean setAlbumArt(Bitmap bitmap, Context context, long album_id) {
         Uri contentUri = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI;
-        Cursor cursor = context.getContentResolver().query(contentUri, null, MediaStore.Audio.Albums._ID+"=="+album_id, null, null);
+        Cursor cursor = context.getContentResolver().query(contentUri, null, MediaStore.Audio.Albums._ID + "==" + album_id, null, null);
         String albumart_path;
         if (cursor != null && cursor.moveToFirst()) {
             albumart_path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM_ART));
             /////////
-            if(albumart_path!=null){
+            if (albumart_path != null) {
                 try {
                     File file = new File(albumart_path);
                     FileOutputStream output = new FileOutputStream(file);
@@ -145,12 +158,12 @@ public class MediaStoreUtils  {
                     e.printStackTrace();
                     return false;
                 }
-            }else {
-                if( new File(Environment.getExternalStorageDirectory().getPath()+media_provider_path).exists()){
-                    Log.d("file exists","qwerty");
+            } else {
+                if (new File(Environment.getExternalStorageDirectory().getPath() + media_provider_path).exists()) {
+                    Log.d("file exists", "qwerty");
                     try {
-                        File file = new File(Environment.getExternalStorageDirectory().getPath()+media_provider_path+"/"+ System.currentTimeMillis());
-                        if(file.createNewFile()){
+                        File file = new File(Environment.getExternalStorageDirectory().getPath() + media_provider_path + "/" + System.currentTimeMillis());
+                        if (file.createNewFile()) {
                             FileOutputStream output = new FileOutputStream(file);
                             bitmap.compress(Bitmap.CompressFormat.PNG, 100, output);
                             output.flush();
@@ -160,15 +173,15 @@ public class MediaStoreUtils  {
                             values.put("album_id", album_id);
                             values.put("_data", file.getPath());
                             context.getContentResolver().insert(sArtworkUri, values);
-                        }else return false;
+                        } else return false;
 
                     } catch (IOException e) {
                         e.printStackTrace();
                         return false;
                     }
-                }else return false;
+                } else return false;
             }
-        }else return false;
+        } else return false;
 
         return true;
     }
@@ -188,22 +201,22 @@ public class MediaStoreUtils  {
         return false;
     }
 
-    public static String[] GENRES = {"Acapella" , "Acid" , "Acid Jazz" , "Acid Punk" , "Acoustic" , "AlternRock" ,
-            "Alternative" , "Ambient" , "Anime" , "Avantgarde" , "Ballad" , "Bass" , "Beat" , "Bebob" , "Big Band" ,
-            "Black Metal" , "Bluegrass" , "Blues" , "Booty Bass" , "BritPop" , "Cabaret" , "Celtic" , "Chamber Music" ,
-            "Chanson" , "Chorus" , "Christian Gangsta Rap" , "Christian Rap" , "Christian Rock" , "Classic Rock" , "Classical" ,
-            "Club" , "Club-House" , "Comedy" , "Contemporary Christian" , "Country" , "Cover" , "Crossover" , "Cult" , "Dance" ,
-            "Dance Hall" , "Darkwave" , "Death Metal" , "Disco" , "Dream" , "Drum & Bass" , "Drum Solo" , "Duet" , "Easy Listening" ,
-            "Electronic" , "Ethnic" , "Euro-House" , "Euro-Techno" , "Eurodance" , "Fast Fusion" , "Folk" , "Folk-Rock" , "Folklore" ,
-            "Freestyle" , "Funk" , "Fusion" , "Game" , "Gangsta" , "Goa" , "Gospel" , "Gothic" , "Gothic Rock" , "Grunge" , "Hard Rock" ,
-            "Hardcore" , "Heavy Metal" , "Hip-Hop" , "House" , "Humour" , "Indie" , "Industrial" , "Instrumental" , "Instrumental Pop" ,
-            "Instrumental Rock" , "JPop" , "Jazz" , "Jazz+Funk" , "Jungle" , "Latin" , "Lo-Fi" , "Meditative" , "Merengue" , "Metal" ,
-            "Musical" , "National Folk" , "Native American" , "Negerpunk" , "New Age" , "New Wave" , "Noise" , "Oldies" , "Opera" , "Other" ,
-            "Polka" , "Polsk Punk" , "Pop" , "Pop-Folk" , "Pop/Funk" , "Porn Groove" , "Power Ballad" , "Pranks" , "Primus" , "Progressive Rock" ,
-            "Psychadelic" , "Psychedelic Rock" , "Punk" , "Punk Rock" , "R&B" , "Rap" , "Rave" , "Reggae" , "Remix" , "Retro" , "Revival" ,
-            "Rhythmic Soul" , "Rock" , "Rock & Roll" , "Salsa" , "Samba" , "Satire" , "Showtunes" , "Ska" , "Slow Jam" , "Slow Rock" , "Sonata" ,
-            "Soul" , "Sound Clip" , "Soundtrack" , "Southern Rock" , "Space" , "Speech" , "Swing" , "Symphonic Rock" , "Symphony" , "SynthPop" ,
-            "Tango" , "Techno" , "Techno-Industrial" , "Terror" , "Thrash Metal" , "Top 40" , "Trailer" , "Trance" , "Tribal" , "Trip-Hop" , "Vocal"};
+    public static String[] GENRES = {"Acapella", "Acid", "Acid Jazz", "Acid Punk", "Acoustic", "AlternRock",
+            "Alternative", "Ambient", "Anime", "Avantgarde", "Ballad", "Bass", "Beat", "Bebob", "Big Band",
+            "Black Metal", "Bluegrass", "Blues", "Booty Bass", "BritPop", "Cabaret", "Celtic", "Chamber Music",
+            "Chanson", "Chorus", "Christian Gangsta Rap", "Christian Rap", "Christian Rock", "Classic Rock", "Classical",
+            "Club", "Club-House", "Comedy", "Contemporary Christian", "Country", "Cover", "Crossover", "Cult", "Dance",
+            "Dance Hall", "Darkwave", "Death Metal", "Disco", "Dream", "Drum & Bass", "Drum Solo", "Duet", "Easy Listening",
+            "Electronic", "Ethnic", "Euro-House", "Euro-Techno", "Eurodance", "Fast Fusion", "Folk", "Folk-Rock", "Folklore",
+            "Freestyle", "Funk", "Fusion", "Game", "Gangsta", "Goa", "Gospel", "Gothic", "Gothic Rock", "Grunge", "Hard Rock",
+            "Hardcore", "Heavy Metal", "Hip-Hop", "House", "Humour", "Indie", "Industrial", "Instrumental", "Instrumental Pop",
+            "Instrumental Rock", "JPop", "Jazz", "Jazz+Funk", "Jungle", "Latin", "Lo-Fi", "Meditative", "Merengue", "Metal",
+            "Musical", "National Folk", "Native American", "Negerpunk", "New Age", "New Wave", "Noise", "Oldies", "Opera", "Other",
+            "Polka", "Polsk Punk", "Pop", "Pop-Folk", "Pop/Funk", "Porn Groove", "Power Ballad", "Pranks", "Primus", "Progressive Rock",
+            "Psychadelic", "Psychedelic Rock", "Punk", "Punk Rock", "R&B", "Rap", "Rave", "Reggae", "Remix", "Retro", "Revival",
+            "Rhythmic Soul", "Rock", "Rock & Roll", "Salsa", "Samba", "Satire", "Showtunes", "Ska", "Slow Jam", "Slow Rock", "Sonata",
+            "Soul", "Sound Clip", "Soundtrack", "Southern Rock", "Space", "Speech", "Swing", "Symphonic Rock", "Symphony", "SynthPop",
+            "Tango", "Techno", "Techno-Industrial", "Terror", "Thrash Metal", "Top 40", "Trailer", "Trance", "Tribal", "Trip-Hop", "Vocal"};
 
     static public void dumpMedia(Context context) {
         Log.d("START DUMP MEDIA", "START DUMP MEDIA");
@@ -247,7 +260,7 @@ public class MediaStoreUtils  {
         Log.d("END DUMP MEDIA", "END DUMP MEDIA");
     }
 
-    static public void dumpAlbums(Context context){
+    static public void dumpAlbums(Context context) {
         Log.d("START DUMP ALBUMS", "START DUMP ALBUMS");
         final Uri uri = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI;
         final String[] cursor_cols = {

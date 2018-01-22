@@ -4,6 +4,9 @@ import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.transition.TransitionManager;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageButton;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.signature.MediaStoreSignature;
@@ -28,9 +31,19 @@ public class ExpandBlockAdapter extends BaseQuickAdapter<BlockItem, BlockViewHol
 
     public void expandItem(int position) {
         RecyclerView rv = (RecyclerView) getViewByPosition(getRecyclerView(), position, R.id.musicItemRecyclerView);
+        ImageButton button = (ImageButton) getViewByPosition(getRecyclerView(), position, R.id.expandButton);
+
+
         TransitionManager.beginDelayedTransition(rv);
         BlockItem item = getItem(position);
         item.visible = !item.visible;
+
+        Animation rotateAnim;
+        if(item.visible)rotateAnim = AnimationUtils.loadAnimation(context, R.anim.rotate_in);
+        else rotateAnim = AnimationUtils.loadAnimation(context, R.anim.rotate_out);
+
+        rotateAnim.setFillAfter(true);
+        button.startAnimation(rotateAnim);
         rv.setVisibility(item.visible ? View.VISIBLE : View.GONE);
     }
 
@@ -62,9 +75,8 @@ public class ExpandBlockAdapter extends BaseQuickAdapter<BlockItem, BlockViewHol
             item.visible = !item.visible;
             rv.setVisibility(item.visible ? View.VISIBLE : View.GONE);*/
             expandItem(position);
-        } else if (view.getId() == R.id.nonameButton1) {
 
-        } else if (view.getId() == R.id.nonameButton2) {
+        } else if (view.getId() == R.id.nonameButton1) {
 
         }
     }

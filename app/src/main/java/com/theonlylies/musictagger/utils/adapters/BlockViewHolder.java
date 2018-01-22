@@ -16,7 +16,7 @@ import com.theonlylies.musictagger.R;
 
 public class BlockViewHolder extends BaseViewHolder {
     TextView blockName,blockInfo;
-    ImageButton expandButton,nonameButton1,nonameButton2;
+    ImageButton expandButton,nonameButton1;
     ImageView artwork;
     RecyclerView recyclerView;
 
@@ -26,7 +26,6 @@ public class BlockViewHolder extends BaseViewHolder {
         blockInfo=view.findViewById(R.id.blockInfo);
         expandButton=view.findViewById(R.id.expandButton);
         nonameButton1=view.findViewById(R.id.nonameButton1);
-        nonameButton2=view.findViewById(R.id.nonameButton2);
         artwork=view.findViewById(R.id.blockArtworkView);
         recyclerView=view.findViewById(R.id.musicItemRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));

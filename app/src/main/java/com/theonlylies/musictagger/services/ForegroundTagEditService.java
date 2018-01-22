@@ -61,7 +61,7 @@ public class ForegroundTagEditService extends IntentService {
         }
     }
 
-    //TODO если выбрать мого файлов без альбумарта и сохранить без выбора или удаление картинки то TagManager попытается записать юитмаз из вектора что приведет к исключению
+    //TODO если выбрать много файлов без альбумарта и сохранить без выбора или удаление картинки то TagManager попытается записать битмап из вектора что приведет к исключению
 
     public void saveChanges(ParcelableMusicFile destMusicFile, ArrayList<ParcelableMusicFile> sources, Uri bitmap) {
         Bitmap bmp = null;
@@ -78,8 +78,10 @@ public class ForegroundTagEditService extends IntentService {
         }
     }
 
+        ArrayList<Long> album_ids = new ArrayList<>();
 
         for (ParcelableMusicFile f : sources) {
+            album_ids.add(f.getAlbum_id());
             TagManager tagManager = new TagManager(f.getRealPath());
             tagManager.setGeneralTagsFromMusicFile(destMusicFile);
 
@@ -92,7 +94,38 @@ public class ForegroundTagEditService extends IntentService {
             }
         }
 
-        MediaStoreUtils.updateMuchFilesMediaStore(sources, this);
+
+
+        MediaStoreUtils.updateMuchFilesMediaStore(sources, this, new MediaScannerConnection.OnScanCompletedListener() {
+            @Override
+            public void onScanCompleted(String path, Uri uri) {
+                MusicFile musicFile = MediaStoreUtils.getMusicFileByPath(sources.get(0).getRealPath(),getApplicationContext());
+                boolean albumEditMust=false;
+                for(MusicFile f:sources){
+                    if(f.getAlbum_id()==musicFile.getAlbum_id()){
+                        if(bitmap!=null){
+                            Bitmap bmp = null;
+                            try {
+                                bmp = GlideApp.with(context)
+                                        .asBitmap()
+                                        .load(destMusicFile.getArtworkUri())
+                                        .centerCrop()
+                                        .submit()
+                                        .get();
+                                Log.d("result=",String.valueOf( MediaStoreUtils.setAlbumArt(bmp, context, f.getAlbum_id()) ));
+                                Log.d("group","set album art for group");
+                            } catch (InterruptedException | ExecutionException e) {
+                                e.printStackTrace();
+                            }
+                        }else {
+                            MediaStoreUtils.deleteAlbumArt(getApplicationContext(),musicFile.getAlbum_id());
+                        }
+                        break;
+                    }
+                }
+                //end edit album art
+            }
+        });
 
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -119,6 +152,7 @@ public class ForegroundTagEditService extends IntentService {
         notificationManager.notify(1,notification);
 
         MediaStoreUtils.dumpAlbums(context);
+
 
     }
 }

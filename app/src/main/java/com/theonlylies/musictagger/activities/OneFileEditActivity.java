@@ -19,6 +19,7 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.signature.MediaStoreSignature;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionButtonBehavior;
@@ -61,6 +63,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
     AutoCompleteTextView genreEdit;
     ImageView artworkImageView,bestMatchArtworkImageView;
     TextView bestMathAlbumTextView,bestMathArtistTextView;
+    TextView musicFilePathView;
     MusicFile musicFile;
 
     CardView cardSearched;
@@ -73,6 +76,16 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
 
     public native String fpCalc(String[] args);
+
+    DoConnect smartSearchTask;
+
+    @Override
+    protected void onDestroy() {
+        Log.d("onDestroy","syka");
+        smartSearchTask.cancel(true);
+        Log.d("onDestroy","syka2");
+        super.onDestroy();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +106,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         genreEdit = findViewById(R.id.genreEdit);
         trackNumberEdit = findViewById(R.id.trackNumEdit);
         artworkImageView = findViewById(R.id.artwortImageView);
+        musicFilePathView = findViewById(R.id.musicFilePath);
 
         bestMatchArtworkImageView = findViewById(R.id.bestMathArtworkImageView);
         bestMathAlbumTextView = findViewById(R.id.bestMathAlbumTextView);
@@ -109,8 +123,6 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         /**
          * This Block for FABs init
          */
-        android.support.design.widget.FloatingActionButton fab = findViewById(R.id.fab1);
-        fab.setOnClickListener(this);
 
         final CardView cardView=findViewById(R.id.cardView);
 
@@ -126,11 +138,11 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                 (CoordinatorLayout.LayoutParams) menu.getLayoutParams();
         params.setBehavior(behavior);
 
-        FloatingActionButton button=findViewById(R.id.fab2);
-        FloatingActionButtonBehavior behaviorButton = new FloatingActionButtonBehavior();
-        behaviorButton.setTopInset(topInset);
+        FloatingActionMenu button=findViewById(R.id.fabSmartSearch);
+        button.setAlwaysClosed(true);
+        button.setOnMenuButtonClickListener(this);
         CoordinatorLayout.LayoutParams paramsButton = (CoordinatorLayout.LayoutParams) button.getLayoutParams();
-        paramsButton.setBehavior(behaviorButton);
+        paramsButton.setBehavior(behavior);
 
         /*FloatingActionButton aqua = menu.getMenuMainButton();
         CoordinatorLayout.LayoutParams p = (CoordinatorLayout.LayoutParams) aqua.getLayoutParams();
@@ -167,6 +179,8 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_dropdown_item_1line, GENRES);
         genreEdit.setAdapter(adapter);
+        musicFilePathView.setText(file.getRealPath());
+
         trackNumberEdit.setText(file.getTrackNumber());
         GlideApp.with(this)
                 .load(file.getArtworkUri())
@@ -174,6 +188,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .skipMemoryCache(true)
                 .error(R.drawable.vector_artwork_placeholder)
+                .transition(DrawableTransitionOptions.withCrossFade())
                 .into(artworkImageView);
         //dumpMedia(this);
         //dumpAlbums(this);
@@ -227,9 +242,10 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
     @Override
     public void onClick(View v) {
 
-        if(v.getId()==R.id.fab1) {
-            new DoConnect().execute(musicFile.getRealPath());
-
+        if(v.getId()==R.id.fabSmartSearch) {
+            Log.d("sd","azazaazzaz");
+            smartSearchTask = new DoConnect();
+            smartSearchTask.execute(musicFile.getRealPath());
 
             final Rect rect = new Rect(0, 0, cardSearched.getWidth(), cardSearched.getHeight());
             cardSearched.requestRectangleOnScreen(rect, false);
@@ -317,7 +333,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
             Log.i("ExternalStorage", "-> uri=" + uri);
             dumpMedia(getApplicationContext());
             dumpAlbums(getApplicationContext());
-            updateMusicFile( MediaStoreUtils.getMusicFileByPath(musicFile.getRealPath(),getApplicationContext()) );
+            updateMusicFile( MediaStoreUtils.getMusicFileByPath(musicFile.getRealPath(),getApplicationContext()) ); // interface update
             if (musicFile.getAlbum_id()==album_id){
                 if(artWorkWasChanged){
                     Bitmap bitmap = ((BitmapDrawable)artworkImageView.getDrawable()).getBitmap();
@@ -443,7 +459,12 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                 bestMathAlbumTextView.setText(track.getAlbum(),TextView.BufferType.EDITABLE);
                 bestMathArtistTextView.setText(track.getArtist(),TextView.BufferType.EDITABLE);
 
-                GlideApp.with(context).load(bmp).error(R.drawable.vector_artwork_placeholder).transition(withCrossFade()).into(bestMatchArtworkImageView);
+                GlideApp.with(context)
+                        .load(bmp)
+                        .placeholder(R.drawable.vector_artwork_placeholder)
+                        .error(R.drawable.vector_artwork_placeholder)
+                        .transition(DrawableTransitionOptions.withCrossFade(1000))
+                        .into(bestMatchArtworkImageView);
 
             }else Toast.makeText(context,"К сожалению ничего не найдено",Toast.LENGTH_LONG).show();
         }

@@ -46,9 +46,10 @@
                 <EditText
                     android:id="@+id/titleEdit"
                     android:layout_width="match_parent"
-                    android:layout_height="46dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:maxLines="2"
+                    android:inputType="textMultiLine"
+                    android:maxLines="3"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/textv1" />
@@ -67,7 +68,7 @@
                 <EditText
                     android:id="@+id/albumEdit"
                     android:layout_width="match_parent"
-                    android:layout_height="46dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:maxLines="2"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -109,7 +110,7 @@
                 <EditText
                     android:id="@+id/yearEdit"
                     android:layout_width="match_parent"
-                    android:layout_height="46dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:inputType="number"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -130,7 +131,7 @@
                 <AutoCompleteTextView
                     android:id="@+id/genreEdit"
                     android:layout_width="match_parent"
-                    android:layout_height="46dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -150,7 +151,7 @@
                 <EditText
                     android:id="@+id/trackNumEdit"
                     android:layout_width="match_parent"
-                    android:layout_height="46dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:inputType="none|number"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -160,6 +161,111 @@
 
             </android.support.constraint.ConstraintLayout>
 
+
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/cardFileInfo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="14dp"
+            android:layout_marginStart="14dp"
+            android:layout_marginTop="8dp"
+
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:visibility="visible"
+            app:cardElevation="4dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/card">
+
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:text="File path"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <EditText
+                    android:id="@+id/musicFilePath"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:ems="10"
+                    android:enabled="false"
+                    android:inputType="none|textMultiLine"
+                    android:maxLines="2"
+                    android:singleLine="false"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+                <TextView
+                    android:id="@+id/textView3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="Bitrate"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/musicFilePath" />
+
+                <EditText
+                    android:id="@+id/editText2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+
+                    android:ems="10"
+                    android:inputType="textPersonName"
+                    android:singleLine="true"
+                    android:text=""
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textView3" />
+
+                <TextView
+                    android:id="@+id/textView4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="Bitrate"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/editText2" />
+
+                <EditText
+                    android:id="@+id/editText3"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+
+                    android:layout_marginTop="8dp"
+                    android:ems="10"
+                    android:inputType="textPersonName"
+                    android:singleLine="true"
+                    android:text=""
+                    android:textSize="12sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textView4" />
+
+            </android.support.constraint.ConstraintLayout>
 
         </android.support.v7.widget.CardView>
 
@@ -180,7 +286,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/card">
+            app:layout_constraintTop_toBottomOf="@+id/cardFileInfo">
 
             <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
@@ -190,8 +296,6 @@
                     android:id="@+id/cardBestSearched"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
                     android:onClick="onClick"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -209,9 +313,10 @@
                             android:layout_margin="8dp"
                             android:layout_marginStart="8dp"
                             android:layout_marginTop="8dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:srcCompat="@drawable/ic_menu_camera" />
+                            app:srcCompat="@drawable/vector_artwork_placeholder" />
 
                         <ImageView
                             android:id="@+id/bestMathStarImage"
@@ -228,9 +333,11 @@
                             android:id="@+id/bestMathTextView"
                             android:layout_width="184dp"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginTop="8dp"
                             android:text="Best match"
-                            tools:layout_editor_absoluteX="148dp"
-                            tools:layout_editor_absoluteY="8dp" />
+                            app:layout_constraintStart_toEndOf="@+id/bestMathStarImage"
+                            app:layout_constraintTop_toTopOf="parent" />
 
                         <TextView
                             android:id="@+id/bestMathAlbumTextView"
@@ -239,7 +346,6 @@
                             android:layout_marginEnd="8dp"
                             android:layout_marginStart="8dp"
                             android:layout_marginTop="16dp"
-                            android:text="TextView"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@+id/bestMathArtworkImageView"
                             app:layout_constraintTop_toBottomOf="@+id/bestMathTextView" />
@@ -251,7 +357,6 @@
                             android:layout_marginEnd="8dp"
                             android:layout_marginStart="8dp"
                             android:layout_marginTop="8dp"
-                            android:text="TextView"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@+id/bestMathArtworkImageView"
                             app:layout_constraintTop_toBottomOf="@+id/bestMathAlbumTextView" />

@@ -9,7 +9,7 @@
         app:showAsAction="never" />
     <item
         android:id="@+id/action_save_file"
-        android:icon="@drawable/ic_menu_manage"
+        android:icon="@drawable/ic_menu_save_changes_white"
         android:orderInCategory="1"
         android:title="@string/action_settings"
         app:showAsAction="ifRoom" />
