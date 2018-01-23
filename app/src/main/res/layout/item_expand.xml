@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginTop="32dp"
-            android:background="@android:color/transparent"
+            android:background="?android:selectableItemBackgroundBorderless"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_arrow_drop_down_black" />
@@ -48,7 +48,8 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginTop="16dp"
-            android:backgroundTint="@android:color/transparent"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:padding="4dp"
             app:layout_constraintEnd_toStartOf="@+id/expandButton"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_smart_search_black" />

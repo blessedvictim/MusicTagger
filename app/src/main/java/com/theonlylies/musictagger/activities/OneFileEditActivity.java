@@ -82,7 +82,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
     @Override
     protected void onDestroy() {
         Log.d("onDestroy","syka");
-        smartSearchTask.cancel(true);
+        if(smartSearchTask!=null) smartSearchTask.cancel(true);
         Log.d("onDestroy","syka2");
         super.onDestroy();
     }

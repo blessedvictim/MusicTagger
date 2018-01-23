@@ -154,6 +154,8 @@ public class MediaStoreUtils {
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, output);
                     output.flush();
                     output.close();
+                    Log.d("SetAlbumArt","file rewrited "+albumart_path);
+                    Log.d("bitmap is null",bitmap == null ? "true" :"false");
                 } catch (IOException e) {
                     e.printStackTrace();
                     return false;

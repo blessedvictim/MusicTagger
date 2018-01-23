@@ -75,7 +75,6 @@
         app:menu_fab_size="normal"
         app:menu_icon="@drawable/ic_plus"
         app:menu_openDirection="down"
-        app:menu_backgroundColor="#ccffffff"
         app:menu_showShadow="false">
 
         <com.github.clans.fab.FloatingActionButton
@@ -124,7 +123,6 @@
         app:layout_anchor="@id/app_bar"
         app:layout_anchorGravity="bottom|end"
         app:menu_animationDelayPerItem="15"
-        app:menu_backgroundColor="#ccffffff"
         app:menu_colorNormal="@color/fabBackColor"
         app:menu_colorPressed="@color/fabBackColorPressed"
         app:menu_fab_size="normal"

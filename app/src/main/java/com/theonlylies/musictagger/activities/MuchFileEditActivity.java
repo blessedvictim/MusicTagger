@@ -222,6 +222,7 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
             switch (requestCode){
                 case REQUEST_CODE_GALLERY_PICK:{
                     newArtworkUri = data.getData();
+                    Log.d("artUri",newArtworkUri.toString());
                     GlideApp.with(this).load(newArtworkUri).centerCrop().error(R.drawable.vector_artwork_placeholder).into(artworkImageView);
                     artWorkWasChanged=true;
                     break;
@@ -268,6 +269,7 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
         musicFile.setArtist(artistEdit.getText().toString());
         musicFile.setYear(yearEdit.getText().toString());
         musicFile.setGenre(genreEdit.getText().toString());
+        musicFile.setArtworkUri(newArtworkUri);
         return musicFile;
     }
 

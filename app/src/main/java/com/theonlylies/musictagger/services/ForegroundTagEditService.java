@@ -17,6 +17,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.bumptech.glide.load.data.mediastore.MediaStoreUtil;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.bumptech.glide.signature.MediaStoreSignature;
@@ -51,7 +52,7 @@ public class ForegroundTagEditService extends IntentService {
             ArrayList<ParcelableMusicFile> files = intent.getParcelableArrayListExtra("files");
             ParcelableMusicFile destinationMusicFile = intent.getParcelableExtra("dest_file");
             String uri = intent.getStringExtra("bitmap");
-            if(!uri.equals("delete")){
+            if(!uri.equals("delete") && !uri.equals("nothing")){
                 saveChanges(destinationMusicFile, files, Uri.parse(uri));
             }else{
                 saveChanges(destinationMusicFile, files, null);
@@ -96,7 +97,7 @@ public class ForegroundTagEditService extends IntentService {
 
 
 
-        MediaStoreUtils.updateMuchFilesMediaStore(sources, this, new MediaScannerConnection.OnScanCompletedListener() {
+        MediaStoreUtils.updateMuchFilesMediaStore(sources, getApplicationContext(), new MediaScannerConnection.OnScanCompletedListener() {
             @Override
             public void onScanCompleted(String path, Uri uri) {
                 MusicFile musicFile = MediaStoreUtils.getMusicFileByPath(sources.get(0).getRealPath(),getApplicationContext());
@@ -106,21 +107,27 @@ public class ForegroundTagEditService extends IntentService {
                         if(bitmap!=null){
                             Bitmap bmp = null;
                             try {
-                                bmp = GlideApp.with(context)
+                                bmp = GlideApp.with(getApplicationContext())
                                         .asBitmap()
                                         .load(destMusicFile.getArtworkUri())
+                                        .signature(new MediaStoreSignature("lolers",System.currentTimeMillis(),3))
+                                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                                        .skipMemoryCache(true)
                                         .centerCrop()
                                         .submit()
                                         .get();
-                                Log.d("result=",String.valueOf( MediaStoreUtils.setAlbumArt(bmp, context, f.getAlbum_id()) ));
+                                Log.d("artUri",destMusicFile.getArtworkUri().toString());
+                                Log.d("result=",String.valueOf( MediaStoreUtils.setAlbumArt(bmp, context, f.getAlbum_id()) )+"  "+f.getAlbum_id());
                                 Log.d("group","set album art for group");
                             } catch (InterruptedException | ExecutionException e) {
                                 e.printStackTrace();
                             }
+                            break;
                         }else {
                             MediaStoreUtils.deleteAlbumArt(getApplicationContext(),musicFile.getAlbum_id());
+                            break;
                         }
-                        break;
+
                     }
                 }
                 //end edit album art
