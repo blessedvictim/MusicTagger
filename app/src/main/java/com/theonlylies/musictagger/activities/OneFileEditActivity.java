@@ -1,25 +1,22 @@
 package com.theonlylies.musictagger.activities;
 
-import android.app.NotificationManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.RequiresPermission;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
-import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,23 +31,17 @@ import android.widget.Toast;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.signature.MediaStoreSignature;
-import com.github.clans.fab.FloatingActionButton;
-import com.github.clans.fab.FloatingActionButtonBehavior;
 import com.github.clans.fab.FloatingActionMenu;
 import com.github.clans.fab.FloatingActionMenuBehavior;
 import com.theonlylies.musictagger.R;
 import com.theonlylies.musictagger.utils.GlideApp;
 import com.theonlylies.musictagger.utils.MediaStoreUtils;
-import com.theonlylies.musictagger.utils.adapters.MusicFile;
 import com.theonlylies.musictagger.utils.TagManager;
+import com.theonlylies.musictagger.utils.adapters.MusicFile;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import lib.DataSet;
-import lib.source.ID3V2;
-
-import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 import static com.theonlylies.musictagger.utils.MediaStoreUtils.GENRES;
 import static com.theonlylies.musictagger.utils.MediaStoreUtils.dumpAlbums;
 import static com.theonlylies.musictagger.utils.MediaStoreUtils.dumpMedia;
@@ -77,12 +68,12 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
     public native String fpCalc(String[] args);
 
-    DoConnect smartSearchTask;
+    //DoConnect smartSearchTask;
 
     @Override
     protected void onDestroy() {
         Log.d("onDestroy","syka");
-        if(smartSearchTask!=null) smartSearchTask.cancel(true);
+        //if(smartSearchTask!=null) smartSearchTask.cancel(true);
         Log.d("onDestroy","syka2");
         super.onDestroy();
     }
@@ -238,14 +229,15 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
 
     private static final int REQUEST_CODE_GALLERY_PICK=1;
+    private static final int REQUEST_CODE_INTERNET_PICK=2;
 
     @Override
     public void onClick(View v) {
 
         if(v.getId()==R.id.fabSmartSearch) {
             Log.d("sd","azazaazzaz");
-            smartSearchTask = new DoConnect();
-            smartSearchTask.execute(musicFile.getRealPath());
+            //smartSearchTask = new DoConnect();
+            //smartSearchTask.execute(musicFile.getRealPath());
 
             final Rect rect = new Rect(0, 0, cardSearched.getWidth(), cardSearched.getHeight());
             cardSearched.requestRectangleOnScreen(rect, false);
@@ -268,6 +260,28 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
             GlideApp.with(this).load(R.drawable.vector_artwork_placeholder).error(R.drawable.vector_artwork_placeholder).into(artworkImageView);
         }
 
+        if(v.getId()==R.id.fabChooseArtworkFromInternet){
+
+            Intent intent = new Intent(this,CoverArtGridActivity.class);
+            intent.putExtra("album",this.albumEdit.getText().toString());
+            intent.putExtra("artist",this.artistEdit.getText().toString());
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setItems(new CharSequence[]{"MusicBrainz","LastFM"}, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    if(which==0)intent.putExtra("source","musicbrainz");
+                    else if(which==1)intent.putExtra("source","lastfm");
+                    else return;
+                    startActivityForResult(intent, REQUEST_CODE_INTERNET_PICK);
+                }
+            });
+            builder.setTitle("Select a source of coverarts");
+            // Create the AlertDialog
+            AlertDialog dialog = builder.create();
+            dialog.show();
+
+        }
+
     }
 
     @Override
@@ -276,6 +290,12 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
             switch (requestCode){
                 case REQUEST_CODE_GALLERY_PICK:{
                     newArtworkUri = data.getData();
+                    GlideApp.with(this).load(newArtworkUri).centerCrop().error(R.drawable.vector_artwork_placeholder).into(artworkImageView);
+                    artWorkWasChanged=true;
+                    break;
+                }
+                case REQUEST_CODE_INTERNET_PICK:{
+                    newArtworkUri= Uri.parse( data.getStringExtra("image") );
                     GlideApp.with(this).load(newArtworkUri).centerCrop().error(R.drawable.vector_artwork_placeholder).into(artworkImageView);
                     artWorkWasChanged=true;
                     break;
@@ -306,7 +326,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         return musicFile;
     }
 
-    public void saveChanges(MusicFile musicFile){
+    public void saveChanges(final MusicFile musicFile){
         TagManager tagManager = new TagManager(musicFile.getRealPath());
         tagManager.setTagsFromMusicFile(
                 collectDataFromUI() );
@@ -323,12 +343,14 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
         //TODO change artwork with rights logic !!!!!
 
-        long album_id = musicFile.getAlbum_id();
+        final long album_id = musicFile.getAlbum_id();
 
         dumpMedia(getApplicationContext());
         dumpAlbums(getApplicationContext());
 
-        MediaStoreUtils.updateFileMediaStoreMedia(musicFile, this, (path, uri) -> {
+        MediaStoreUtils.updateFileMediaStoreMedia(musicFile, this, new MediaScannerConnection.OnScanCompletedListener() {
+            @Override
+            public void onScanCompleted(String path, Uri uri) {
             Log.i("ExternalStorage", "Scanned " + path + ":");
             Log.i("ExternalStorage", "-> uri=" + uri);
             dumpMedia(getApplicationContext());
@@ -342,15 +364,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                     MediaStoreUtils.deleteAlbumArt(getApplicationContext(),musicFile.getAlbum_id());
                 }
             }
-            /*NotificationCompat.Builder builder = new NotificationCompat.Builder(this,"musictagger")
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentTitle("All finished")
-                    .setContentText("Update tags finshed!")
-                    .setAutoCancel(true);
-            NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            manager.notify(1,builder.build());*/
-            //initTagsInterface(musicFile);
-        });
+        }});
 
 
         //All done
@@ -418,7 +432,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    class DoConnect extends AsyncTask<String,Void,ID3V2> {
+    /*class DoConnect extends AsyncTask<String,Void,ID3V2> {
 
         Context context;
         String bmp=null;
@@ -468,7 +482,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
             }else Toast.makeText(context,"К сожалению ничего не найдено",Toast.LENGTH_LONG).show();
         }
-    }
+    }*/
 
 
 }

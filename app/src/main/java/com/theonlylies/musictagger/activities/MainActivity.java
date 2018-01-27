@@ -281,8 +281,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (id == R.id.nav_share) {
 
-        } else if (id == R.id.nav_send) {
-
+        } else if (id == R.id.nav_settings) {
+            Intent intent=new Intent(this,PreferencesActivity.class);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -335,7 +336,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ActionMode actionMode;
 
     @Override
-    public boolean onItemLongClick(BaseQuickAdapter adapter, View view, int position) {
+    public boolean onItemLongClick(final BaseQuickAdapter adapter, View view, int position) {
         if (this.adapter.isMultiselect()) {
             //this.adapter.toogleSelected(position);
             this.onItemClick(adapter, view, position);

@@ -9,6 +9,8 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
+
     }
     buildTypes {
         release {
@@ -38,9 +40,12 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
-    implementation project(':jaudiotagger-2.2.3')
     implementation project(':clans-fab')
     implementation 'jp.wasabeef:blurry:2.1.1'
-    implementation project(':audiolib')
     implementation project(':BaseRecyclerViewAdapterHelper')
+    implementation project(':jaudiotagger-2.2.3')
+    implementation project(':okhttp-3.9.1')
+    implementation project(':okio-1.13.0')
+    implementation project(':gson-2.8.2')
+    implementation project(':Lib')
 }

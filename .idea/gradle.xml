@@ -9,10 +9,13 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/BaseRecyclerViewAdapterHelper" />
+            <option value="$PROJECT_DIR$/Lib" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/audiolib" />
             <option value="$PROJECT_DIR$/clans-fab" />
+            <option value="$PROJECT_DIR$/gson-2.8.2" />
             <option value="$PROJECT_DIR$/jaudiotagger-2.2.3" />
+            <option value="$PROJECT_DIR$/okhttp-3.9.1" />
+            <option value="$PROJECT_DIR$/okio-1.13.0" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

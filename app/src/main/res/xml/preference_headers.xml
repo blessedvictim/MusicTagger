@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="Storage settings">
+
+    </PreferenceCategory>
+    <ListPreference
+        android:defaultValue="1"
+        android:entries="@array/rename_files_rules"
+        android:entryValues="@array/spinner_array"
+        android:key="list_preference_1"
+        android:title="File renaming rules" />
+    <PreferenceCategory android:title="Tag settings">
+
+    </PreferenceCategory>
+    <SwitchPreference
+        android:defaultValue="false"
+        android:inputType="textMultiLine"
+        android:key="switch_preference_1"
+        android:maxLines="3"
+        android:title="Resolve controversial situations when in one album the fans have different tags?" />
+</PreferenceScreen>

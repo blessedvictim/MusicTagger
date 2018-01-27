@@ -64,7 +64,7 @@ public class ForegroundTagEditService extends IntentService {
 
     //TODO если выбрать много файлов без альбумарта и сохранить без выбора или удаление картинки то TagManager попытается записать битмап из вектора что приведет к исключению
 
-    public void saveChanges(ParcelableMusicFile destMusicFile, ArrayList<ParcelableMusicFile> sources, Uri bitmap) {
+    public void saveChanges(final ParcelableMusicFile destMusicFile, final ArrayList<ParcelableMusicFile> sources,final Uri bitmap) {
         Bitmap bmp = null;
         if (bitmap != null) {
         try {

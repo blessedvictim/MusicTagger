@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="rename_files_rules">
+        <item>artist-album_track.mp3</item>
+        <item>none(stay as is)</item>
+    </string-array>
+</resources>

@@ -1,1 +1,1 @@
-include ':app', ':clans-fab', ':jaudiotagger-2.2.3', ':audiolib', ':BaseRecyclerViewAdapterHelper'
+include ':app', ':clans-fab', ':BaseRecyclerViewAdapterHelper', ':jaudiotagger-2.2.3', ':Lib', ':gson-2.8.2', ':okhttp-3.9.1', ':okio-1.13.0'
