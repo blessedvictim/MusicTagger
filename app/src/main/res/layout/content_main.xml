@@ -15,13 +15,15 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:background="@color/colorPrimary"
-        android:text="Button" >
+        app:cardBackgroundColor="@color/colorPrimary"
+        app:cardCornerRadius="0dp">
 
         <Spinner
             android:id="@+id/spinner"
             android:layout_width="186dp"
             android:layout_height="match_parent"
-            android:layout_gravity="end" />
+            android:layout_gravity="end"
+            android:dropDownWidth="186dp" />
     </android.support.v7.widget.CardView>
 
     <android.support.v7.widget.RecyclerView
@@ -29,6 +31,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/cardOnTop"
-        android:background="@color/colorBackGrey"
+        android:background="@color/colorBackItemSimple"
         android:layoutAnimation="@anim/recycler_fallingdown" />
 </RelativeLayout>

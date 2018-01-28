@@ -30,10 +30,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.dgreenhalgh.android.simpleitemdecoration.linear.DividerItemDecoration;
 import com.theonlylies.musictagger.R;
-import com.theonlylies.musictagger.utils.FileSearch;
-import com.theonlylies.musictagger.utils.TagManager;
+
+
 import com.theonlylies.musictagger.utils.adapters.BlockItem;
+
 import com.theonlylies.musictagger.utils.adapters.ExpandBlockAdapter;
 import com.theonlylies.musictagger.utils.adapters.ListAdapter;
 import com.theonlylies.musictagger.utils.adapters.MusicFile;
@@ -81,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
          * ActionBar initialization
          */
         Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setElevation(0);
         setSupportActionBar(toolbar);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -99,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
+        //recyclerView.addItemDecoration(new DividerItemDecoration(getResources().getDrawable( R.drawable.divider )));
 
 
         /**
@@ -128,8 +132,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
          * Spinner initialization
          */
         spinner = findViewById(R.id.spinner);
+        /*ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(this,
+                R.array.spinner_array, android.R.layout.simple_spinner_item);*/                      // OLD
         ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(this,
-                R.array.spinner_array, android.R.layout.simple_spinner_item);
+                R.array.spinner_array, R.layout.item_spinner);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(spinnerAdapter);
         spinner.setOnItemSelectedListener(this);

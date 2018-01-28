@@ -38,7 +38,7 @@ public class GridViewAdapter extends ArrayAdapter<String> {
 
     public void addData(String album, String artist,String url) {
         super.add(album);
-        albumNames.add(album);
+        albumNames.add(album+"\n"+artist);
         albumUrls.add(url);
         notifyDataSetChanged();
     }

@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginLeft="4dp"
-    android:layout_marginRight="4dp"
-    android:layout_marginTop="4dp"
-    app:cardBackgroundColor="@color/colorBackItemSimple">
+    android:layout_marginTop="5dp"
+    app:cardBackgroundColor="@color/colorBackItemSimple"
+    app:cardCornerRadius="0dp"
+    app:cardElevation="4dp">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
@@ -58,8 +58,9 @@
             android:id="@+id/musicItemRecyclerView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@color/colorAccent"
-            android:paddingBottom="4dp"
+            android:background="@color/colorBackGrey"
+            android:paddingBottom="2dp"
+            android:paddingLeft="0dp"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

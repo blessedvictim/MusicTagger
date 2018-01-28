@@ -42,6 +42,7 @@ import com.theonlylies.musictagger.utils.adapters.MusicFile;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.theonlylies.musictagger.activities.SplashActivity.fpCalc;
 import static com.theonlylies.musictagger.utils.MediaStoreUtils.GENRES;
 import static com.theonlylies.musictagger.utils.MediaStoreUtils.dumpAlbums;
 import static com.theonlylies.musictagger.utils.MediaStoreUtils.dumpMedia;
@@ -66,7 +67,6 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
 
 
-    public native String fpCalc(String[] args);
 
     //DoConnect smartSearchTask;
 
@@ -83,12 +83,6 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_onefiledit);
         context=this;
-
-        try {
-            System.loadLibrary("fpcalc");
-        } catch (UnsatisfiedLinkError e) {
-            Log.e("fpCacl","Could not load library libfpcalc.so : " + e);
-        }
 
         titleEdit = findViewById(R.id.titleEdit);
         albumEdit = findViewById(R.id.albumEdit);
@@ -134,11 +128,6 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         button.setOnMenuButtonClickListener(this);
         CoordinatorLayout.LayoutParams paramsButton = (CoordinatorLayout.LayoutParams) button.getLayoutParams();
         paramsButton.setBehavior(behavior);
-
-        /*FloatingActionButton aqua = menu.getMenuMainButton();
-        CoordinatorLayout.LayoutParams p = (CoordinatorLayout.LayoutParams) aqua.getLayoutParams();
-        p.setBehavior(behaviorButton);*/
-
 
         appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override

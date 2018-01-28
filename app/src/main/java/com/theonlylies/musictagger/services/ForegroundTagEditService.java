@@ -53,9 +53,11 @@ public class ForegroundTagEditService extends IntentService {
             ParcelableMusicFile destinationMusicFile = intent.getParcelableExtra("dest_file");
             String uri = intent.getStringExtra("bitmap");
             if(!uri.equals("delete") && !uri.equals("nothing")){
-                saveChanges(destinationMusicFile, files, Uri.parse(uri));
-            }else{
-                saveChanges(destinationMusicFile, files, null);
+                saveChanges(destinationMusicFile, files, Uri.parse(uri),false);
+            }else if(!uri.equals("delete")){
+                saveChanges(destinationMusicFile, files, null,true);
+            } else { // equals nothing
+                saveChanges(destinationMusicFile, files, null,false);
             }
 
             stopSelf();
@@ -64,7 +66,7 @@ public class ForegroundTagEditService extends IntentService {
 
     //TODO если выбрать много файлов без альбумарта и сохранить без выбора или удаление картинки то TagManager попытается записать битмап из вектора что приведет к исключению
 
-    public void saveChanges(final ParcelableMusicFile destMusicFile, final ArrayList<ParcelableMusicFile> sources,final Uri bitmap) {
+    public void saveChanges(final ParcelableMusicFile destMusicFile, final ArrayList<ParcelableMusicFile> sources,final Uri bitmap,boolean deleteArt) {
         Bitmap bmp = null;
         if (bitmap != null) {
         try {
@@ -89,76 +91,89 @@ public class ForegroundTagEditService extends IntentService {
             if (bitmap != null) {
                 tagManager.setArtwork(bmp);
                 Log.d("setuping bitmap","...");
-            } else {
+            } else  if(deleteArt){
                 Log.d("deletingg bitmap","...");
                 tagManager.deleteArtwork();
             }
         }
 
 
-
+        Bitmap finalBmp = bmp;
         MediaStoreUtils.updateMuchFilesMediaStore(sources, getApplicationContext(), new MediaScannerConnection.OnScanCompletedListener() {
+            int loop=0;
             @Override
             public void onScanCompleted(String path, Uri uri) {
-                MusicFile musicFile = MediaStoreUtils.getMusicFileByPath(sources.get(0).getRealPath(),getApplicationContext());
-                boolean albumEditMust=false;
-                for(MusicFile f:sources){
-                    if(f.getAlbum_id()==musicFile.getAlbum_id()){
-                        if(bitmap!=null){
-                            Bitmap bmp = null;
-                            try {
-                                bmp = GlideApp.with(getApplicationContext())
-                                        .asBitmap()
-                                        .load(destMusicFile.getArtworkUri())
-                                        .signature(new MediaStoreSignature("lolers",System.currentTimeMillis(),3))
-                                        .diskCacheStrategy(DiskCacheStrategy.NONE)
-                                        .skipMemoryCache(true)
-                                        .centerCrop()
-                                        .submit()
-                                        .get();
-                                Log.d("artUri",destMusicFile.getArtworkUri().toString());
-                                Log.d("result=",String.valueOf( MediaStoreUtils.setAlbumArt(bmp, context, f.getAlbum_id()) )+"  "+f.getAlbum_id());
-                                Log.d("group","set album art for group");
-                            } catch (InterruptedException | ExecutionException e) {
-                                e.printStackTrace();
+                loop++;
+                if(loop==sources.size()){
+                    MusicFile musicFile = MediaStoreUtils.getMusicFileByPath(sources.get(0).getRealPath(),getApplicationContext());
+                    boolean albumEditMust=false;
+                    for(MusicFile f:sources){
+                        if(f.getAlbum_id()==musicFile.getAlbum_id()){
+                            if(bitmap!=null){
+                                Bitmap bmp = null;
+                                try {
+                                    bmp = GlideApp.with(getApplicationContext())
+                                            .asBitmap()
+                                            .load(destMusicFile.getArtworkUri())
+                                            .signature(new MediaStoreSignature("lolers",System.currentTimeMillis(),3))
+                                            .diskCacheStrategy(DiskCacheStrategy.NONE)
+                                            .skipMemoryCache(true)
+                                            .centerCrop()
+                                            .submit()
+                                            .get();
+                                    Log.d("artUri",destMusicFile.getArtworkUri().toString());
+                                    Log.d("result=",String.valueOf( MediaStoreUtils.setAlbumArt(bmp, context, f.getAlbum_id()) )+"  "+f.getAlbum_id());
+                                    Log.d("group","set album art for group");
+                                } catch (InterruptedException | ExecutionException e) {
+                                    e.printStackTrace();
+                                }
+                            }else if(deleteArt) {
+                                MediaStoreUtils.deleteAlbumArt(getApplicationContext(),musicFile.getAlbum_id());
                             }
                             break;
-                        }else {
-                            MediaStoreUtils.deleteAlbumArt(getApplicationContext(),musicFile.getAlbum_id());
-                            break;
                         }
-
                     }
+
+                    //end edit album art
+                    Log.d("ForegroundService","Scan completed!");
+                    Intent i = new Intent("CHANGE_TAG_FINISHED_ADMT");
+                    sendBroadcast(i);
+
+                    NotificationManager notificationManager =
+                            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        int notifyID = 1;
+                        String CHANNEL_ID = "my_channel_01";// The id of the channel.
+                        CharSequence name = "sfsdf";// The user-visible name of the channel.
+                        int importance = NotificationManager.IMPORTANCE_HIGH;
+                        NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
+                        notificationManager.createNotificationChannel(mChannel);
+                    }
+
+
+
+                    Notification notification = new NotificationCompat.Builder(context, "my_channel_01")
+                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .setContentTitle("All finished")
+                            .setContentText("Update tags finshed!")
+                            .setLargeIcon(finalBmp)
+                            .setChannelId("my_channel_01")
+                            .build();
+
+                    notificationManager.notify(1,notification);
+
+                    MediaStoreUtils.dumpAlbums(context);
+
+
                 }
-                //end edit album art
+
+
+
             }
         });
 
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            int notifyID = 1;
-            String CHANNEL_ID = "my_channel_01";// The id of the channel.
-            CharSequence name = "sfsdf";// The user-visible name of the channel.
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
-            notificationManager.createNotificationChannel(mChannel);
-        }
-
-
-
-        Notification notification = new NotificationCompat.Builder(context, "my_channel_01")
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("All finished")
-                .setContentText("Update tags finshed!")
-                .setLargeIcon(bmp)
-                .setChannelId("my_channel_01")
-                .build();
-
-        notificationManager.notify(1,notification);
-
-        MediaStoreUtils.dumpAlbums(context);
 
 
     }

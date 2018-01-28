@@ -4,10 +4,15 @@
     <item
         android:drawable="@color/colorPrimary"/>
 
-    <item>
+    <item
+        android:top="200dp"
+        android:bottom="200dp"
+        >
         <bitmap
-            android:gravity="center"
-            android:src="@drawable/shanel2"/>
+            android:mipMap="true"
+            android:src="@mipmap/ic_splash"
+            android:gravity="center"/>
+
     </item>
 
 </layer-list>

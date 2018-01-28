@@ -10,19 +10,28 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import com.theonlylies.musictagger.R;
+
 /**
  * Created by theonlylies on 30.12.17.
  */
 
 public class SplashActivity extends AppCompatActivity {
+    static public native String fpCalc(String[] args);
 
-    AppCompatActivity activity=this;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        initPermissions();
 
+        initPermissions();
+        try {
+            System.loadLibrary("fpcalc");
+        } catch (UnsatisfiedLinkError e) {
+            Log.e("fpCacl","Could not load library libfpcalc.so : " + e);
+        }
     }
+
+
 
     private void initPermissions() {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -35,7 +44,7 @@ public class SplashActivity extends AppCompatActivity {
                     .setTitle("Attention");
             builder.setPositiveButton("understand", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-                    ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
+                    ActivityCompat.requestPermissions(SplashActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
                             Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.INTERNET}, 5);
                 }
             });

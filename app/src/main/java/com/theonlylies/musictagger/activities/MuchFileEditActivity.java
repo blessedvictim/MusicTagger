@@ -1,7 +1,10 @@
 package com.theonlylies.musictagger.activities;
 
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
@@ -57,10 +60,6 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
     ArrayList<ParcelableMusicFile> musicFiles;
 
     Uri newArtworkUri;
-
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -241,13 +240,15 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
     static boolean artWorkWasChanged=false;
     static boolean artworkWasDeleted=false;
 
+    private BroadcastReceiver receiver;
+
     public void saveChanges(ParcelableMusicFile musicFile){
         musicFile= (ParcelableMusicFile) collectDataFromUI();
         /**
          * Section for album art change if it need !
          */
 
-        //TODO change artwork with rights logic !!!!!
+        //TODO change artwork with rights logic !!!!! I thing i do this !!!!! see service sources !
         Intent intent = new Intent(this, ForegroundTagEditService.class);
         intent.putParcelableArrayListExtra("files",musicFiles);
         intent.putExtra("dest_file",musicFile);
@@ -257,7 +258,23 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
             intent.putExtra("bitmap","delete");
         }else intent.putExtra("bitmap","nothing");
 
+
         startService(intent);
+        ProgressDialog dialog = ProgressDialog.show(MuchFileEditActivity.this, "",
+                "Changing tags. Please wait...", true);
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("CHANGE_TAG_FINISHED_ADMT");
+
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                dialog.dismiss();
+                unregisterReceiver(receiver);
+                finish();
+            }
+        };
+        registerReceiver(receiver, filter);
 
 
         //All done

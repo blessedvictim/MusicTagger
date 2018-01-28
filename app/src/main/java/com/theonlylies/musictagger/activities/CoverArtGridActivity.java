@@ -7,12 +7,14 @@ package com.theonlylies.musictagger.activities;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -33,6 +35,7 @@ import java.util.concurrent.ExecutionException;
 
 import Fox.core.lib.general.DOM.AlbumArtCompilation;
 import Fox.core.lib.general.DOM.Art;
+import Fox.core.lib.general.utils.NoMatchesException;
 import Fox.core.lib.general.utils.target;
 import Fox.core.main.CoverArtSearch;
 
@@ -91,26 +94,23 @@ public class CoverArtGridActivity extends AppCompatActivity {
     }
 
 
-    public View getViewByPosition(int pos, GridView listView) {
-        final int firstListItemPosition = listView.getFirstVisiblePosition();
-        final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
-
-        if (pos < firstListItemPosition || pos > lastListItemPosition) {
-            return listView.getAdapter().getView(pos, null, listView);
-        } else {
-            final int childIndex = pos - firstListItemPosition;
-            return listView.getChildAt(childIndex);
-        }
-    }
-
-
-    class AsyncGridImageLoader extends AsyncTask<String, String , Boolean> {
+    class AsyncGridImageLoader extends AsyncTask<String, AsyncGridImageLoader.Data, Boolean> {
         String album,artist;
         target source;
         int size;
         //CoverArtSearch arts;
         AlbumArtCompilation arts;
         ProgressDialog dialog;
+
+        class Data{
+            String album,artist,url;
+            Data(String album,String artist,String url){
+                this.url=url;
+                this.album=album;
+                this.artist=artist;
+            }
+        }
+
         AsyncGridImageLoader(@NonNull String album, String artist, target source, int size){
             this.album=album;
             this.artist=artist;
@@ -135,32 +135,47 @@ public class CoverArtGridActivity extends AppCompatActivity {
         protected Boolean doInBackground(String... params) {
             CoverArtSearch art= new CoverArtSearch();
 
-            arts = art.run(album,
-                    null,
-                    source,
-                    size
-            );
+            try {
+                arts = art.run(album,
+                        null,
+                        source,
+                        size
+                );
 
-            if(arts.hasArtList()){
-                for(Art q : arts.getArtList()){
-                    try {
-                        Log.d("CoverArtGridActivity","url="+q.getUrl());
-                        publishProgress(q.getUrl());
+                    for(Art q : arts.getArtList()){
+                        try {
+                            Log.d("CoverArtGridActivity","url="+q.getUrl());
+                            publishProgress(new Data(q.getAlbum(),q.getArtist(),q.getUrl()));
 
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    };
-                    //
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        };
+
                 }
+            } catch (NoMatchesException e) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(CoverArtGridActivity.this);
+                builder.setPositiveButton("understand", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        CoverArtGridActivity.this.finish();
+                    }
+                });
+                builder.setTitle("Error");
+                builder.setMessage("No matched finded");
+                // Create the AlertDialog
+                AlertDialog dialog = builder.create();
+                dialog.show();
+                e.printStackTrace();
             }
-            else Toast.makeText(ctx,"LOX",Toast.LENGTH_SHORT).show();
+
+
 
             return true;
         }
 
         @Override
-        protected void onProgressUpdate(String... values) {
-            gridAdapter.addData("LOL","lel",values[0]);
+        protected void onProgressUpdate(Data... values) {
+            gridAdapter.addData(values[0].album,values[0].artist,values[0].url);
             super.onProgressUpdate(values);
         }
 

@@ -48,4 +48,5 @@ dependencies {
     implementation project(':okio-1.13.0')
     implementation project(':gson-2.8.2')
     implementation project(':Lib')
+    implementation 'com.bignerdranch.android:simple-item-decoration:1.0.0'
 }
