@@ -438,6 +438,10 @@ public class FloatingActionButton extends ImageButton {
         }
     }
 
+    public Drawable getBackDrawable(){
+        return FloatingActionButton.this.mBackgroundDrawable;
+    }
+
     private void saveButtonOriginalPosition() {
         if (!mButtonPositionSaved) {
             if (mOriginalX == -1) {
