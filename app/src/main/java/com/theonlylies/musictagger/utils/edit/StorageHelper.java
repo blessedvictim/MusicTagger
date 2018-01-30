@@ -3,7 +3,10 @@
  * CyclingReferee
  */
 
-package com.theonlylies.musictagger.utils;
+package com.theonlylies.musictagger.utils.edit;
+
+import android.os.Environment;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -134,6 +137,7 @@ public class StorageHelper{
 
         private void testAndAdd(String path, MountDeviceType type) {
             File root = new File(path);
+            Log.d("testAndAdd",path);
             if (root.exists() && root.isDirectory() && root.canWrite()) {
 
                 MountDevice device = new MountDevice(type, path, calcHash(root));
@@ -176,7 +180,7 @@ public class StorageHelper{
             String path = android.os.Environment.getExternalStorageDirectory()
                     .getAbsolutePath();
             if (!path.trim().isEmpty()
-                    && android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED)) {
+                    && android.os.Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
                 testAndAdd(path, MountDeviceType.EXTERNAL_SD_CARD);
             }
 

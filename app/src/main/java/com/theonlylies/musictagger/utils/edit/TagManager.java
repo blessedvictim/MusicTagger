@@ -1,4 +1,4 @@
-package com.theonlylies.musictagger.utils;
+package com.theonlylies.musictagger.utils.edit;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

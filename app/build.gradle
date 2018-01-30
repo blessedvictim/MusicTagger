@@ -49,4 +49,5 @@ dependencies {
     implementation project(':gson-2.8.2')
     implementation project(':Lib')
     implementation 'com.bignerdranch.android:simple-item-decoration:1.0.0'
+    implementation 'com.github.yalantis:ucrop:2.2.1'
 }

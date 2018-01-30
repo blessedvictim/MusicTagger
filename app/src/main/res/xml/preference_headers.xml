@@ -5,11 +5,12 @@
 
     </PreferenceCategory>
     <ListPreference
-        android:defaultValue="1"
+        android:defaultValue="4"
         android:entries="@array/rename_files_rules"
-        android:entryValues="@array/spinner_array"
-        android:key="list_preference_1"
-        android:title="File renaming rules" />
+        android:entryValues="@array/rename_files_entries"
+        android:key="rename-rule"
+        android:title="File renaming rules"
+        android:summary="%s"/>
     <PreferenceCategory android:title="Tag settings">
 
     </PreferenceCategory>
@@ -18,5 +19,7 @@
         android:inputType="textMultiLine"
         android:key="switch_preference_1"
         android:maxLines="3"
+        android:enabled="false"
         android:title="Resolve controversial situations when in one album the fans have different tags?" />
+
 </PreferenceScreen>

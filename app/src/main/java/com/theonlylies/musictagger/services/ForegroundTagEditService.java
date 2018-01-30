@@ -7,29 +7,21 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.bumptech.glide.load.data.mediastore.MediaStoreUtil;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.transition.Transition;
 import com.bumptech.glide.signature.MediaStoreSignature;
 import com.theonlylies.musictagger.R;
 import com.theonlylies.musictagger.utils.GlideApp;
-import com.theonlylies.musictagger.utils.GlideRequest;
-import com.theonlylies.musictagger.utils.MediaStoreUtils;
+import com.theonlylies.musictagger.utils.edit.MediaStoreUtils;
 import com.theonlylies.musictagger.utils.ParcelableMusicFile;
-import com.theonlylies.musictagger.utils.TagManager;
+import com.theonlylies.musictagger.utils.edit.TagManager;
 import com.theonlylies.musictagger.utils.adapters.MusicFile;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 

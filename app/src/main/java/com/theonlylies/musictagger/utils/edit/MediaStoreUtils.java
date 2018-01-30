@@ -1,4 +1,4 @@
-package com.theonlylies.musictagger.utils;
+package com.theonlylies.musictagger.utils.edit;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -11,10 +11,14 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v4.provider.DocumentFile;
 import android.util.Log;
 import android.util.TimeUtils;
 import android.webkit.SafeBrowsingResponse;
 
+import com.theonlylies.musictagger.utils.FileUtil;
+import com.theonlylies.musictagger.utils.ParcelableMusicFile;
+import com.theonlylies.musictagger.utils.PreferencesManager;
 import com.theonlylies.musictagger.utils.adapters.MusicFile;
 
 import java.io.File;
@@ -84,7 +88,14 @@ public class MediaStoreUtils {
         MediaScannerConnection.scanFile(context, paths, null, listener);
     }
 
-    static public boolean updateFileMediaStoreMedia(MusicFile musicFile, Context context, MediaScannerConnection.OnScanCompletedListener listener) {
+    // return true if we must rename file as want user!
+    static private boolean mustRenameFile(String origFilePath,String newName) {
+        File file = new File(origFilePath);
+        File newFile = new File(file.getParentFile(), newName);
+        return file.exists() && file.isFile() && !newFile.exists() && file.renameTo(newFile);
+    }
+
+    static public boolean updateFileMediaStoreMedia(MusicFile musicFile, Context context, PreferencesManager.RenameRules rule, MediaScannerConnection.OnScanCompletedListener listener) {
         Uri contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String nPath = "\"" + musicFile.getRealPath() + "\"";
         Cursor cursor = context.getContentResolver().query(contentUri, null, MediaStore.Audio.Media.DATA + "==" + nPath, null, null);
@@ -96,6 +107,42 @@ public class MediaStoreUtils {
                 if (id != -1) {
                     context.getContentResolver().delete(ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id), null, null);
                 }
+
+                if(rule!=null && rule != PreferencesManager.RenameRules.none){
+                    String newName;
+                    switch (rule){
+                        case title:
+                            newName=musicFile.getTitle()+".mp3";
+                            break;
+                        case title_album:
+                            newName=musicFile.getTitle()+"-"+musicFile.getAlbum()+".mp3";
+                            break;
+                        case title_artist:
+                            newName=musicFile.getTitle()+"-"+musicFile.getArtist()+".mp3";
+                            break;
+                        case title_album_artist:
+                            newName=musicFile.getTitle()+"-"+musicFile.getAlbum()+"-"+musicFile.getArtist()+".mp3";
+                            break;
+                        default:
+                            newName=new File(musicFile.getRealPath()).getName();
+                    }
+                    if(mustRenameFile(musicFile.getRealPath(),newName) ){
+                        if(FileUtil.fileOnSdCard(new File(musicFile.getRealPath()))){
+                            Log.d("renameOnSDCard","rename");
+                            DocumentFile file = FileUtil.getDocumentFile(new File(musicFile.getRealPath()),false,context);
+                            if (file != null) {
+                                file.renameTo(newName);
+                            }
+                        }else{
+                            Log.d("renameOnInternal","rename");
+                            File file =  new File(musicFile.getRealPath());
+                            file = new File(file.getParentFile(),newName);
+                            musicFile.setRealPath(file.getPath());
+                        }
+
+                    }
+                }
+
                 scanFile(musicFile.getRealPath(), context, listener);
             }
         } catch (NullPointerException | IllegalArgumentException e) {

@@ -17,6 +17,8 @@ import android.support.annotation.NonNull;
 import android.support.v4.provider.DocumentFile;
 import android.util.Log;
 
+import com.theonlylies.musictagger.utils.edit.StorageHelper;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -34,6 +36,39 @@ import java.util.List;
  * Utility class for helping parsing file systems.
  */
 public abstract class FileUtil {
+
+    static public boolean haveSdCardWriteAccess(Context context) {
+        String access = PreferencesManager.getStringValue(context, "sdcard_uri",null);
+
+        if (access != null) {
+            //TODO create write check for prove this preference
+            try {
+                DocumentFile file = DocumentFile.fromTreeUri(context, Uri.parse(access));
+                if (file.canWrite()) return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        return false;
+    }
+
+
+    static public boolean fileOnSdCard(File file) {
+        StorageHelper storageHelper = StorageHelper.getInstance();
+        for (StorageHelper.MountDevice mountDevice : storageHelper.getAllMountedDevices()) {
+            Log.d("EXTSDCARD", mountDevice.getPath());
+            Log.d("file path",file.getPath());
+            if (mountDevice.getType() == StorageHelper.MountDeviceType.REMOVABLE_SD_CARD) {
+
+                if (file.getAbsolutePath().startsWith(mountDevice.getPath())) {
+                    return true;
+                }
+
+            }
+        }
+        return false;
+    }
     /**
      * Determine the camera folder. There seems to be no Android API to work for real devices, so this is a best guess.
      *
@@ -172,6 +207,7 @@ public abstract class FileUtil {
         File tempFile = new File(extDir, file.getName());
         return tempFile;
     }
+
     /**
      * Delete a folder.
      *
@@ -450,7 +486,7 @@ public abstract class FileUtil {
             originalDirectory = true;
             //continue
         }
-        String as = context.getSharedPreferences("MainActivity",Context.MODE_PRIVATE).getString("URI",null);
+        String as = PreferencesManager.getStringValue(context, "sdcard_uri",null);
         //TO DO windows with write access
 
         Uri treeUri = null;

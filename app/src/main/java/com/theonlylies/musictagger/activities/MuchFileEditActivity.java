@@ -5,8 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -28,20 +26,18 @@ import android.widget.ImageView;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.signature.MediaStoreSignature;
-import com.github.clans.fab.FloatingActionButton;
-import com.github.clans.fab.FloatingActionButtonBehavior;
 import com.github.clans.fab.FloatingActionMenu;
 import com.github.clans.fab.FloatingActionMenuBehavior;
 import com.theonlylies.musictagger.R;
 import com.theonlylies.musictagger.services.ForegroundTagEditService;
 import com.theonlylies.musictagger.utils.GlideApp;
-import com.theonlylies.musictagger.utils.MediaStoreUtils;
+import com.theonlylies.musictagger.utils.edit.MediaStoreUtils;
 import com.theonlylies.musictagger.utils.ParcelableMusicFile;
 import com.theonlylies.musictagger.utils.adapters.MusicFile;
 
 import java.util.ArrayList;
 
-import static com.theonlylies.musictagger.utils.MediaStoreUtils.GENRES;
+import static com.theonlylies.musictagger.utils.edit.MediaStoreUtils.GENRES;
 
 /**
  * Created by theonlylies on 05.01.18.
@@ -181,7 +177,7 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
         Log.d("id",String.valueOf(id));
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_crop) {
             return true;
         }
         if(id==R.id.action_save_file){

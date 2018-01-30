@@ -1,22 +1,19 @@
 package com.theonlylies.musictagger.activities;
 
-import android.animation.AnimatorSet;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
-import android.graphics.drawable.Animatable;
-import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
 import android.media.MediaPlayer;
 import android.media.MediaScannerConnection;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
@@ -24,6 +21,7 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -42,21 +40,24 @@ import com.bumptech.glide.signature.MediaStoreSignature;
 import com.github.clans.fab.FloatingActionMenu;
 import com.github.clans.fab.FloatingActionMenuBehavior;
 import com.theonlylies.musictagger.R;
+import com.theonlylies.musictagger.utils.FileUtil;
 import com.theonlylies.musictagger.utils.GlideApp;
-import com.theonlylies.musictagger.utils.MediaStoreUtils;
-import com.theonlylies.musictagger.utils.TagManager;
+import com.theonlylies.musictagger.utils.MusicCache;
+import com.theonlylies.musictagger.utils.PreferencesManager;
+import com.theonlylies.musictagger.utils.edit.MediaStoreUtils;
+import com.theonlylies.musictagger.utils.edit.TagManager;
 import com.theonlylies.musictagger.utils.adapters.MusicFile;
+import com.yalantis.ucrop.UCrop;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import static com.theonlylies.musictagger.activities.SplashActivity.fpCalc;
-import static com.theonlylies.musictagger.utils.MediaStoreUtils.GENRES;
-import static com.theonlylies.musictagger.utils.MediaStoreUtils.dumpAlbums;
-import static com.theonlylies.musictagger.utils.MediaStoreUtils.dumpMedia;
+import static com.theonlylies.musictagger.utils.edit.MediaStoreUtils.GENRES;
+import static com.theonlylies.musictagger.utils.edit.MediaStoreUtils.dumpAlbums;
+import static com.theonlylies.musictagger.utils.edit.MediaStoreUtils.dumpMedia;
 
 public class OneFileEditActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -75,6 +76,8 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
     Context context;
 
     Uri newArtworkUri;
+
+    SwitchCompat switchRename;
 
 
     //DoConnect smartSearchTask;
@@ -139,12 +142,17 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         cardSearched = findViewById(R.id.cardSearched);
         nestedScrollView = findViewById(R.id.nestedScrollView);
 
+        switchRename= findViewById(R.id.switchFileRename);
+        if(!PreferencesManager.getStringValue(this,"rename-rule","4").equals("4") ){
+            switchRename.setChecked(true);
+        }else switchRename.setEnabled(false);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
-        /**
+        /*
          * This Block for FABs init
          */
 
@@ -211,6 +219,12 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         musicFilePathView.setText(file.getRealPath());
 
         trackNumberEdit.setText(file.getTrackNumber());
+        reloadImage(file);
+        //dumpMedia(this);
+        //dumpAlbums(this);
+    }
+
+    private  void reloadImage(MusicFile file){
         GlideApp.with(this)
                 .load(file.getArtworkUri())
                 .signature(new MediaStoreSignature("lol", System.currentTimeMillis(), 3))
@@ -219,8 +233,6 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                 .error(R.drawable.vector_artwork_placeholder)
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .into(artworkImageView);
-        //dumpMedia(this);
-        //dumpAlbums(this);
     }
 
     private static int getStatusBarHeight(android.content.res.Resources res) {
@@ -251,7 +263,11 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         Log.d("id", String.valueOf(id));
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_crop) {
+            UCrop.of(musicFile.getArtworkUri(), musicFile.getArtworkUri())
+                    .withAspectRatio(1, 1)
+                    .withMaxResultSize(800, 800)
+                    .start(this);
             return true;
         }
         if (id == R.id.action_save_file) {
@@ -259,12 +275,10 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
             new WriteChanges().execute(musicFile);
         }
         if (id == android.R.id.home) {
-            //TODO create return intent with msg for update recyclerView !!!
             finish();
         }
         return super.onOptionsItemSelected(item);
     }
-
 
     private static final int REQUEST_CODE_GALLERY_PICK = 1;
     private static final int REQUEST_CODE_INTERNET_PICK = 2;
@@ -273,12 +287,24 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
     public void onClick(View v) {
 
         if (v.getId() == R.id.fabSmartSearch) {
-            Log.d("sd", "azazaazzaz");
-            //smartSearchTask = new DoConnect();
-            //smartSearchTask.execute(musicFile.getRealPath());
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            if(this.isOnline()){
+                Log.d("sd", "azazaazzaz");
+                //smartSearchTask = new DoConnect();
+                //smartSearchTask.execute(musicFile.getRealPath());
 
-            final Rect rect = new Rect(0, 0, cardSearched.getWidth(), cardSearched.getHeight());
-            cardSearched.requestRectangleOnScreen(rect, false);
+                final Rect rect = new Rect(0, 0, cardSearched.getWidth(), cardSearched.getHeight());
+                cardSearched.requestRectangleOnScreen(rect, false);
+                builder.setTitle("");
+                builder.setMessage("867-5309");
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }else{
+                builder.setTitle("");
+                builder.setMessage("Please turn on internet connection and repeat");
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
 
         }
         if (v.getId() == R.id.cardBestSearched) {
@@ -289,7 +315,6 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
             swapAnimationOfplayer();
         }
-
 
         if (v.getId() == R.id.fabChooseArtworkFromGallery || v.getId() == R.id.artwortImageView) {
             Intent intent = new Intent(Intent.ACTION_PICK);
@@ -304,32 +329,38 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         }
 
         if (v.getId() == R.id.fabChooseArtworkFromInternet) {
-
-            Intent intent = new Intent(this, CoverArtGridActivity.class);
-            intent.putExtra("album", this.albumEdit.getText().toString());
-            intent.putExtra("artist", this.artistEdit.getText().toString());
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setItems(new CharSequence[]{"MusicBrainz", "LastFM"}, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    if (which == 0) intent.putExtra("source", "musicbrainz");
-                    else if (which == 1) intent.putExtra("source", "lastfm");
-                    else return;
-                    startActivityForResult(intent, REQUEST_CODE_INTERNET_PICK);
-                }
-            });
-            builder.setTitle("Select a source of coverarts");
-            // Create the AlertDialog
-            AlertDialog dialog = builder.create();
-            dialog.show();
+            if(this.isOnline()){
+                Intent intent = new Intent(this, CoverArtGridActivity.class);
+                intent.putExtra("album", this.albumEdit.getText().toString());
+                intent.putExtra("artist", this.artistEdit.getText().toString());
 
+                builder.setItems(new CharSequence[]{"MusicBrainz", "LastFM"}, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == 0) intent.putExtra("source", "musicbrainz");
+                        else if (which == 1) intent.putExtra("source", "lastfm");
+                        else return;
+                        startActivityForResult(intent, REQUEST_CODE_INTERNET_PICK);
+                    }
+                });
+                builder.setTitle("Select a source of coverarts");
+                // Create the AlertDialog
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }else{
+                builder.setTitle("");
+                builder.setMessage("Please turn on internet connection and repeat");
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
         }
 
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(menu.isOpened())menu.hideMenu(false);
+        if(menu.isOpened())menu.close(false);
         if (data != null && resultCode == AppCompatActivity.RESULT_OK) {
             switch (requestCode) {
                 case REQUEST_CODE_GALLERY_PICK: {
@@ -343,6 +374,12 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                     GlideApp.with(this).load(newArtworkUri).centerCrop().error(R.drawable.vector_artwork_placeholder).into(artworkImageView);
                     artWorkWasChanged = true;
                     break;
+                }
+                case UCrop.REQUEST_CROP:{
+                    final Uri resultUri = UCrop.getOutput(data);
+                    MusicFile file= new MusicFile();
+                    file.setArtworkUri(resultUri);
+                    reloadImage(file);
                 }
             }
         }
@@ -371,16 +408,44 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
     }
 
     public void saveChanges(final MusicFile musicFile) {
-        TagManager tagManager = new TagManager(musicFile.getRealPath());
-        tagManager.setTagsFromMusicFile(
-                collectDataFromUI());
-        if (artWorkWasChanged) {
-            Bitmap bitmap = ((BitmapDrawable) artworkImageView.getDrawable()).getBitmap();
+        String uri = PreferencesManager.getStringValue(this,"sdcard_uri",null);
 
-            tagManager.setArtwork(bitmap);
-        } else if (artworkWasDeleted) {
-            tagManager.deleteArtwork();
+        boolean haveSdCardAccess = FileUtil.haveSdCardWriteAccess(this);
+        if(!FileUtil.fileOnSdCard(new File(musicFile.getRealPath()))){
+            Log.d("OneFileEdit","file on internal !all nice...");
+            TagManager tagManager = new TagManager(musicFile.getRealPath());
+            tagManager.setTagsFromMusicFile(
+                    collectDataFromUI());
+            if (artWorkWasChanged) {
+                Bitmap bitmap = ((BitmapDrawable) artworkImageView.getDrawable()).getBitmap();
+
+                tagManager.setArtwork(bitmap);
+            } else if (artworkWasDeleted) {
+                tagManager.deleteArtwork();
+            }
+        }else if(FileUtil.fileOnSdCard(new File(musicFile.getRealPath())) && haveSdCardAccess){
+            Log.d("OneFileEdit","file on sdcard ! EDITITNG!");
+            MusicCache cache=new MusicCache(this);
+            try {
+                File file = cache.cacheMusicFile(new File(musicFile.getRealPath()));
+                TagManager tagManager = new TagManager(file.getPath());
+                tagManager.setTagsFromMusicFile(
+                        collectDataFromUI());
+                if (artWorkWasChanged) {
+                    Bitmap bitmap = ((BitmapDrawable) artworkImageView.getDrawable()).getBitmap();
+
+                    tagManager.setArtwork(bitmap);
+                } else if (artworkWasDeleted) {
+                    tagManager.deleteArtwork();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }else{
+            Toast.makeText(this,"fuck you sd card access",Toast.LENGTH_SHORT).show();
         }
+
         /**
          * Section for album art change if it need !
          */
@@ -389,16 +454,21 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
         final long album_id = musicFile.getAlbum_id();
 
-        dumpMedia(getApplicationContext());
-        dumpAlbums(getApplicationContext());
+        //dumpMedia(getApplicationContext());
+        //dumpAlbums(getApplicationContext());
 
-        MediaStoreUtils.updateFileMediaStoreMedia(musicFile, this, new MediaScannerConnection.OnScanCompletedListener() {
+        PreferencesManager.RenameRules rule = PreferencesManager.
+                RenameRules.values()[ Integer.parseInt( PreferencesManager.getStringValue(this,"rename-rule","4"))];
+
+        if(!switchRename.isChecked())rule= PreferencesManager.RenameRules.none;
+
+        MediaStoreUtils.updateFileMediaStoreMedia(musicFile, this,rule, new MediaScannerConnection.OnScanCompletedListener() {
             @Override
             public void onScanCompleted(String path, Uri uri) {
                 Log.i("ExternalStorage", "Scanned " + path + ":");
                 Log.i("ExternalStorage", "-> uri=" + uri);
-                dumpMedia(getApplicationContext());
-                dumpAlbums(getApplicationContext());
+                //dumpMedia(getApplicationContext());
+                //dumpAlbums(getApplicationContext());
                 updateMusicFile(MediaStoreUtils.getMusicFileByPath(musicFile.getRealPath(), getApplicationContext())); // interface update
                 if (musicFile.getAlbum_id() == album_id) {
                     if (artWorkWasChanged) {
@@ -413,6 +483,16 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
 
         //All done
+    }
+
+    /**
+     *
+     * @return internet connection status
+     */
+    public boolean isOnline() {
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
     }
 
     public static final String CONST_FINGERPRINT = "FINGERPRINT=";
