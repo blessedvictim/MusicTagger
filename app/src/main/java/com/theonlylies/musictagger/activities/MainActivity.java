@@ -7,9 +7,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.Process;
 import android.provider.MediaStore;
 import android.support.design.widget.NavigationView;
@@ -32,19 +30,13 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.dgreenhalgh.android.simpleitemdecoration.linear.DividerItemDecoration;
 import com.theonlylies.musictagger.R;
-
-
 import com.theonlylies.musictagger.utils.adapters.BlockItem;
-
 import com.theonlylies.musictagger.utils.adapters.ExpandBlockAdapter;
 import com.theonlylies.musictagger.utils.adapters.ListAdapter;
 import com.theonlylies.musictagger.utils.adapters.MusicFile;
 import com.theonlylies.musictagger.utils.adapters.SimpleListAdapter;
 
-import java.io.File;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -79,8 +71,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        
 
 
         context = this;
