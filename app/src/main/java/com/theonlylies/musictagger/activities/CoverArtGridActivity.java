@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -18,20 +17,16 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.theonlylies.musictagger.R;
-import com.theonlylies.musictagger.utils.GlideApp;
+import com.theonlylies.musictagger.utils.PreferencesManager;
 import com.theonlylies.musictagger.utils.adapters.GridViewAdapter;
 
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 import Fox.core.lib.general.DOM.AlbumArtCompilation;
 import Fox.core.lib.general.DOM.Art;
@@ -86,18 +81,17 @@ public class CoverArtGridActivity extends AppCompatActivity {
                 intent.putExtra("image", gridAdapter.getUrl(position));
                 setResult(RESULT_OK, intent);
                 finish();
-
             }
         });
-        if(searchSource.equals("musicbrainz")) new AsyncGridImageLoader(searchAlbum,searchArtist,target.MusicBrainz,12).execute();
-        else if(searchSource.equals("lastfm")) new AsyncGridImageLoader(searchAlbum,searchArtist,target.LastFM,12).execute();
+        if (searchSource.equals("musicbrainz"))
+            new AsyncGridImageLoader(searchAlbum, searchArtist, target.MusicBrainz).execute();
+        else if (searchSource.equals("lastfm"))
+            new AsyncGridImageLoader(searchAlbum, searchArtist, target.LastFM).execute();
     }
-
 
     class AsyncGridImageLoader extends AsyncTask<String, AsyncGridImageLoader.Data, Boolean> {
         String album,artist;
         target source;
-        int size;
         //CoverArtSearch arts;
         AlbumArtCompilation arts;
         ProgressDialog dialog;
@@ -111,11 +105,10 @@ public class CoverArtGridActivity extends AppCompatActivity {
             }
         }
 
-        AsyncGridImageLoader(@NonNull String album, String artist, target source, int size){
+        AsyncGridImageLoader(@NonNull String album, String artist, target source) {
             this.album=album;
             this.artist=artist;
             this.source=source;
-            this.size = size;
         }
 
         AsyncGridImageLoader(AlbumArtCompilation arts){
@@ -123,24 +116,36 @@ public class CoverArtGridActivity extends AppCompatActivity {
 
         }
 
+        boolean albumartist = true;
+        int count;
+
         @Override
         protected void onPreExecute() {
             Log.d("CoverArtGridActivity","Using target:"+source);
             dialog = ProgressDialog.show(CoverArtGridActivity.this, "",
                     "Loading. Please wait...", true);
 
+            albumartist = PreferencesManager.getStringValue(CoverArtGridActivity.this, "artwork-rule-term", "albumartist")
+                    .equals("albumartist");
+            count = Integer.parseInt(PreferencesManager.getStringValue(CoverArtGridActivity.this, "artwork-rule-count", "8"));
         }
 
         @Override
         protected Boolean doInBackground(String... params) {
-            CoverArtSearch art= new CoverArtSearch();
 
             try {
-                arts = art.run(album,
-                        null,
-                        source,
-                        size
-                );
+                if (albumartist)
+                    arts = CoverArtSearch.run(album,
+                            artist,
+                            source,
+                            count
+                    );
+                else
+                    arts = CoverArtSearch.run(album,
+                            null,
+                            source,
+                            count
+                    );
 
                     for(Art q : arts.getArtList()){
                         try {
@@ -153,19 +158,8 @@ public class CoverArtGridActivity extends AppCompatActivity {
 
                 }
             } catch (NoMatchesException e) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(CoverArtGridActivity.this);
-                builder.setPositiveButton("understand", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        CoverArtGridActivity.this.finish();
-                    }
-                });
-                builder.setTitle("Error");
-                builder.setMessage("No matched finded");
-                // Create the AlertDialog
-                AlertDialog dialog = builder.create();
-                dialog.show();
                 e.printStackTrace();
+                return false;
             }
 
 
@@ -182,6 +176,20 @@ public class CoverArtGridActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Boolean status) {
             Log.d("end","end");
+            if (!status) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(CoverArtGridActivity.this);
+                builder.setPositiveButton("understand", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        CoverArtGridActivity.this.finish();
+                    }
+                });
+                builder.setTitle("Error");
+                builder.setMessage("No matched finded");
+                // Create the AlertDialog
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
             dialog.dismiss();
         }
 

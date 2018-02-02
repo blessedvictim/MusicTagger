@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="spinner_array">
-        <item>SIMPLE</item>
-        <item>ALBUM</item>
+        <item>All files</item>
+        <item>Albums</item>
         <!--<item>ARTIST</item>-->
     </string-array>
 </resources>

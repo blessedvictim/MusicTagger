@@ -3,17 +3,14 @@ package com.theonlylies.musictagger.activities;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.provider.DocumentFile;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import com.theonlylies.musictagger.R;
 import com.theonlylies.musictagger.utils.FileUtil;
 import com.theonlylies.musictagger.utils.PreferencesManager;
 
@@ -89,7 +86,6 @@ public class SplashActivity extends AppCompatActivity {
                 initPermissions();
             }
         }
-
     }
 
     @Override
@@ -106,13 +102,10 @@ public class SplashActivity extends AppCompatActivity {
             Log.d("nonpersisturi",resultData.getData().toString());
             Log.d("persisturi",uri.toString());
 
-
-
             PreferencesManager.putValue(this,"sdcard_uri",uri.toString());
 
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
-
 
         }else if(requestCode == OPEN_TREE_REQUEST_CODE){
             AlertDialog.Builder builder = new AlertDialog.Builder(this);

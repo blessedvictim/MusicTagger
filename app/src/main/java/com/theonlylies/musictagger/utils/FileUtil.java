@@ -11,13 +11,12 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.provider.DocumentFile;
 import android.util.Log;
-
-import com.theonlylies.musictagger.utils.edit.StorageHelper;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,6 +36,24 @@ import java.util.List;
  */
 public abstract class FileUtil {
 
+    static public boolean canWriteThisFileSAF(Context context, String path) {
+        String access = PreferencesManager.getStringValue(context, "sdcard_uri", null);
+
+        if (access != null) {
+            //TODO create write check for prove this preference
+            try {
+                DocumentFile file1 = getDocumentFile(new File(path), false, context);
+                Log.d("canWriteThisFileSAF", String.valueOf(file1.canWrite()));
+                //DocumentFile file = DocumentFile.fromTreeUri(context, Uri.parse(access));
+                if (file1 != null && file1.canWrite()) return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        return false;
+    }
+
     static public boolean haveSdCardWriteAccess(Context context) {
         String access = PreferencesManager.getStringValue(context, "sdcard_uri",null);
 
@@ -53,9 +70,25 @@ public abstract class FileUtil {
         return false;
     }
 
+    public static boolean hasRomovableDeivce(Context context) {
+        return getRemovableDevicePath(context) != null;
+    }
+
+    private static String getRemovableDevicePath(Context context) {
+        File[] files = context.getExternalFilesDirs(null);
+        File extFile = Environment.getExternalStorageDirectory();
+        if (files.length > 1) {
+            for (File f : files) {
+                if (f.getPath().startsWith(extFile.getPath())) continue;
+                else return f.getPath();
+            }
+        }
+        return null;
+    }
+
 
     static public boolean fileOnSdCard(File file) {
-        StorageHelper storageHelper = StorageHelper.getInstance();
+        /*StorageHelper storageHelper = StorageHelper.getInstance();
         for (StorageHelper.MountDevice mountDevice : storageHelper.getAllMountedDevices()) {
             Log.d("EXTSDCARD", mountDevice.getPath());
             Log.d("file path",file.getPath());
@@ -67,7 +100,8 @@ public abstract class FileUtil {
 
             }
         }
-        return false;
+        return false;*/
+        return !file.getPath().startsWith(Environment.getExternalStorageDirectory().getPath());
     }
     /**
      * Determine the camera folder. There seems to be no Android API to work for real devices, so this is a best guess.
@@ -469,6 +503,7 @@ public abstract class FileUtil {
      */
     public static DocumentFile getDocumentFile(final File file, final boolean isDirectory, Context context) {
         String baseFolder = getExtSdCardFolder(file, context);
+        Log.d("baseFolder", baseFolder);
         boolean originalDirectory = false;
         if (baseFolder == null) {
             return null;
@@ -500,16 +535,20 @@ public abstract class FileUtil {
         if (originalDirectory) return document;
         String[] parts = relativePath.split("\\/");
         for (int i = 0; i < parts.length; i++) {
-            DocumentFile nextDocument = document.findFile(parts[i]);
+            //my implementation
+            if (document != null) {
+                document = document.findFile(parts[i]);
+            }
 
-            if (nextDocument == null) {
+
+            /*if (nextDocument == null) {
                 if ((i < parts.length - 1) || isDirectory) {
                     nextDocument = document.createDirectory(parts[i]);
                 } else {
                     nextDocument = document.createFile("image", parts[i]);
                 }
-            }
-            document = nextDocument;
+            }*/ //ORIGINAL CODE
+            // document = nextDocument;
         }
 
         return document;

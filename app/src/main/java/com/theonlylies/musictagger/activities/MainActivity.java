@@ -28,6 +28,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.theonlylies.musictagger.R;
@@ -311,8 +312,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (adapter instanceof ListAdapter) {
             if (this.adapter.isMultiselect()) {
-                ((ListAdapter) adapter).toogleSelected(position);
-                if (this.adapter.getSelectedCount() == 0 && actionMode != null) actionMode.finish();
+                if (((ListAdapter) adapter).getSelectedCount() > 19) {
+                    Toast.makeText(this, "You cannot select mre than 20 files", Toast.LENGTH_LONG).show();
+                } else {
+                    ((ListAdapter) adapter).toogleSelected(position);
+                    if (this.adapter.getSelectedCount() == 0 && actionMode != null)
+                        actionMode.finish();
+                }
+
             } else {
                 Intent intent = new Intent(this, OneFileEditActivity.class);
                 String data = ((MusicFile) adapter.getItem(position)).getRealPath();

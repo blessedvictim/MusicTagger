@@ -44,9 +44,9 @@ import com.theonlylies.musictagger.utils.FileUtil;
 import com.theonlylies.musictagger.utils.GlideApp;
 import com.theonlylies.musictagger.utils.MusicCache;
 import com.theonlylies.musictagger.utils.PreferencesManager;
+import com.theonlylies.musictagger.utils.adapters.MusicFile;
 import com.theonlylies.musictagger.utils.edit.MediaStoreUtils;
 import com.theonlylies.musictagger.utils.edit.TagManager;
-import com.theonlylies.musictagger.utils.adapters.MusicFile;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
@@ -56,8 +56,6 @@ import java.util.Map;
 
 import static com.theonlylies.musictagger.activities.SplashActivity.fpCalc;
 import static com.theonlylies.musictagger.utils.edit.MediaStoreUtils.GENRES;
-import static com.theonlylies.musictagger.utils.edit.MediaStoreUtils.dumpAlbums;
-import static com.theonlylies.musictagger.utils.edit.MediaStoreUtils.dumpMedia;
 
 public class OneFileEditActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -407,10 +405,10 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         return musicFile;
     }
 
-    public void saveChanges(final MusicFile musicFile) {
+    public boolean saveChanges(final MusicFile musicFile) {
         String uri = PreferencesManager.getStringValue(this,"sdcard_uri",null);
 
-        boolean haveSdCardAccess = FileUtil.haveSdCardWriteAccess(this);
+        boolean haveSdCardAccess = FileUtil.canWriteThisFileSAF(this, musicFile.getRealPath());
         if(!FileUtil.fileOnSdCard(new File(musicFile.getRealPath()))){
             Log.d("OneFileEdit","file on internal !all nice...");
             TagManager tagManager = new TagManager(musicFile.getRealPath());
@@ -438,12 +436,16 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                 } else if (artworkWasDeleted) {
                     tagManager.deleteArtwork();
                 }
+
+                cache.replaceCache();
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
         }else{
-            Toast.makeText(this,"fuck you sd card access",Toast.LENGTH_SHORT).show();
+            Log.d("OneFileEdit", "fuck you sd card access");
+            //Toast.makeText(this,"fuck you sd card access",Toast.LENGTH_SHORT).show();
+            return false;
         }
 
         /**
@@ -483,6 +485,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
 
         //All done
+        return true;
     }
 
     /**
@@ -521,14 +524,20 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         return map;
     }
 
-    class WriteChanges extends AsyncTask<MusicFile, Void, Void> {
+    class WriteChanges extends AsyncTask<MusicFile, Void, Boolean> {
 
         @Override
-        protected Void doInBackground(MusicFile... files) {
-            saveChanges(files[0]);
-            return null;
+        protected Boolean doInBackground(MusicFile... files) {
+            return saveChanges(files[0]);
         }
 
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            if (!aBoolean) {
+                Toast.makeText(OneFileEditActivity.this,
+                        "You provide bad SD-Card path permission,please setup right path in settings and try again", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     class ReadFromMediaStore extends AsyncTask<String, Void, MusicFile> {
