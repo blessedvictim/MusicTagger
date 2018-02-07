@@ -1,8 +1,10 @@
 package com.theonlylies.musictagger.activities;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
@@ -22,6 +24,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.SimpleAdapter;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
@@ -31,11 +34,14 @@ import com.github.clans.fab.FloatingActionMenuBehavior;
 import com.theonlylies.musictagger.R;
 import com.theonlylies.musictagger.services.ForegroundTagEditService;
 import com.theonlylies.musictagger.utils.GlideApp;
-import com.theonlylies.musictagger.utils.edit.MediaStoreUtils;
 import com.theonlylies.musictagger.utils.ParcelableMusicFile;
 import com.theonlylies.musictagger.utils.adapters.MusicFile;
+import com.theonlylies.musictagger.utils.edit.MediaStoreUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.theonlylies.musictagger.utils.edit.MediaStoreUtils.GENRES;
 
@@ -124,9 +130,11 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
         //Start
         //musicFile = MediaStoreUtils.getMusicFileByPath(path,this);
         //initTagsInterface(musicFile);
-        new ReadFromMediaStore().execute(files);
+
         musicFiles= new ArrayList<>(files.size());
+        new ReadFromMediaStore().execute(files);
     }
+
 
     void initTagsInterface(MusicFile file){
         albumEdit.setText(file.getAlbum());
@@ -227,8 +235,6 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
 
     }
 
-
-
     /**
      * artWorkWasChanged for check state of artwork change or not fck my eng!
      */
@@ -314,9 +320,39 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
         protected void onPostExecute(ArrayList<ParcelableMusicFile> file) {
             super.onPostExecute(file);
             musicFiles.addAll(file);
-            musicFile = musicFiles.get(0);
-            initTagsInterface(musicFile);
+
+            Log.d("musicFile size", String.valueOf(musicFiles.size()));
+
+            //TODO adapter extends ListAdapter and choosing file for tags source
+            AlertDialog.Builder builder = new AlertDialog.Builder(MuchFileEditActivity.this);
+            List<Map<String, Object>> adapterList = new ArrayList<>();
+            for (MusicFile f : musicFiles) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("title", f.getTitle());
+                map.put("album", f.getAlbum());
+                map.put("art", f.getArtworkUri());
+                adapterList.add(map);
+            }
+            // массив имен атрибутов, из которых будут читаться данные
+            String[] from = {"title", "album",
+                    "art"};
+            // массив ID View-компонентов, в которые будут вставлять данные
+            int[] to = {R.id.itemSimpleTrNum, R.id.trackArtistAlbum, R.id.artworkImageView};
+            SimpleAdapter adapter = new SimpleAdapter(MuchFileEditActivity.this, adapterList, R.layout.item_simple, from, to);
+            builder.setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    musicFile = musicFiles.get(which);
+                    initTagsInterface(musicFile);
+                    dialog.dismiss();
+                }
+            });
+            builder.setTitle("Select tag donor file");
+
+            // Create the AlertDialog
+            AlertDialog dialog = builder.create();
+            dialog.show();
+
         }
     }
-
 }

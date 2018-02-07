@@ -12,16 +12,20 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.signature.MediaStoreSignature;
 import com.theonlylies.musictagger.R;
+import com.theonlylies.musictagger.utils.FileUtil;
 import com.theonlylies.musictagger.utils.GlideApp;
-import com.theonlylies.musictagger.utils.edit.MediaStoreUtils;
+import com.theonlylies.musictagger.utils.MusicCache;
 import com.theonlylies.musictagger.utils.ParcelableMusicFile;
-import com.theonlylies.musictagger.utils.edit.TagManager;
 import com.theonlylies.musictagger.utils.adapters.MusicFile;
+import com.theonlylies.musictagger.utils.edit.MediaStoreUtils;
+import com.theonlylies.musictagger.utils.edit.TagManager;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
@@ -59,6 +63,8 @@ public class ForegroundTagEditService extends IntentService {
     //TODO если выбрать много файлов без альбумарта и сохранить без выбора или удаление картинки то TagManager попытается записать битмап из вектора что приведет к исключению
 
     public void saveChanges(final ParcelableMusicFile destMusicFile, final ArrayList<ParcelableMusicFile> sources,final Uri bitmap,boolean deleteArt) {
+        int succesed = 0;
+
         Bitmap bmp = null;
         if (bitmap != null) {
         try {
@@ -76,21 +82,46 @@ public class ForegroundTagEditService extends IntentService {
         ArrayList<Long> album_ids = new ArrayList<>();
 
         for (ParcelableMusicFile f : sources) {
-            album_ids.add(f.getAlbum_id());
-            TagManager tagManager = new TagManager(f.getRealPath());
-            tagManager.setGeneralTagsFromMusicFile(destMusicFile);
+            boolean haveSdCardAccess = FileUtil.canWriteThisFileSAF(this, f.getRealPath());
+            if (!FileUtil.fileOnSdCard(new File(f.getRealPath()))) {
+                Log.d("OneFileEdit", "file on internal !all nice...");
+                TagManager tagManager = new TagManager(f.getRealPath());
+                tagManager.setGeneralTagsFromMusicFile(
+                        destMusicFile);
+                if (bitmap != null) {
+                    tagManager.setArtwork(bmp);
+                } else if (deleteArt) {
+                    tagManager.deleteArtwork();
+                }
+                succesed++;
+            } else if (FileUtil.fileOnSdCard(new File(f.getRealPath())) && haveSdCardAccess) {
+                Log.d("OneFileEdit", "file on sdcard ! EDITITNG!");
+                MusicCache cache = new MusicCache(this);
+                try {
+                    File file = cache.cacheMusicFile(new File(f.getRealPath()));
+                    TagManager tagManager = new TagManager(file.getPath());
+                    tagManager.setTagsFromMusicFile(
+                            destMusicFile);
+                    if (bitmap != null) {
+                        tagManager.setArtwork(bmp);
+                    } else if (deleteArt) {
+                        tagManager.deleteArtwork();
+                    }
 
-            if (bitmap != null) {
-                tagManager.setArtwork(bmp);
-                Log.d("setuping bitmap","...");
-            } else  if(deleteArt){
-                Log.d("deletingg bitmap","...");
-                tagManager.deleteArtwork();
+                    cache.replaceCache();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                succesed++;
+            } else {
+                Log.d("OneFileEdit", "fuck you sd card access");
+                Toast.makeText(this, "fuck you sd card access", Toast.LENGTH_SHORT).show();
             }
         }
 
 
         Bitmap finalBmp = bmp;
+        int finalSuccesed = succesed;
         MediaStoreUtils.updateMuchFilesMediaStore(sources, getApplicationContext(), new MediaScannerConnection.OnScanCompletedListener() {
             int loop=0;
             @Override
@@ -137,7 +168,7 @@ public class ForegroundTagEditService extends IntentService {
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                         int notifyID = 1;
                         String CHANNEL_ID = "my_channel_01";// The id of the channel.
-                        CharSequence name = "sfsdf";// The user-visible name of the channel.
+                        CharSequence name = "General";// The user-visible name of the channel.
                         int importance = NotificationManager.IMPORTANCE_HIGH;
                         NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
                         notificationManager.createNotificationChannel(mChannel);
@@ -147,8 +178,8 @@ public class ForegroundTagEditService extends IntentService {
 
                     Notification notification = new NotificationCompat.Builder(context, "my_channel_01")
                             .setSmallIcon(R.mipmap.ic_launcher)
-                            .setContentTitle("All finished")
-                            .setContentText("Update tags finshed!")
+                            .setContentTitle("Update tags finshed!")
+                            .setContentText("Successed : " + finalSuccesed + " Failed : " + (sources.size() - finalSuccesed))
                             .setLargeIcon(finalBmp)
                             .setChannelId("my_channel_01")
                             .build();
@@ -157,16 +188,10 @@ public class ForegroundTagEditService extends IntentService {
 
                     MediaStoreUtils.dumpAlbums(context);
 
-
                 }
-
-
 
             }
         });
-
-
-
 
     }
 }

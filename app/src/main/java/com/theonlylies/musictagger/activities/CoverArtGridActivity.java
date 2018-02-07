@@ -32,7 +32,7 @@ import Fox.core.lib.general.DOM.AlbumArtCompilation;
 import Fox.core.lib.general.DOM.Art;
 import Fox.core.lib.general.utils.NoMatchesException;
 import Fox.core.lib.general.utils.target;
-import Fox.core.main.CoverArtSearch;
+import Fox.core.main.SearchLib;
 
 public class CoverArtGridActivity extends AppCompatActivity {
 
@@ -55,19 +55,14 @@ public class CoverArtGridActivity extends AppCompatActivity {
         setContentView(R.layout.activity_grid_gallery);
         gridView = (GridView) findViewById(R.id.gridView);
 
-
         String searchAlbum = getIntent().getStringExtra("album");
         String searchArtist = getIntent().getStringExtra("artist");
         String searchSource = getIntent().getStringExtra("source");
-
 
         ctx = this;
 
         Log.d("album",searchAlbum);
         Log.d("artist",searchArtist);
-
-
-
 
         gridAdapter = new GridViewAdapter(this, R.layout.item_grid_gallery);
         gridView.setNumColumns(2);
@@ -132,16 +127,15 @@ public class CoverArtGridActivity extends AppCompatActivity {
 
         @Override
         protected Boolean doInBackground(String... params) {
-
             try {
                 if (albumartist)
-                    arts = CoverArtSearch.run(album,
+                    arts = SearchLib.SearchCovers(album,
                             artist,
                             source,
                             count
                     );
                 else
-                    arts = CoverArtSearch.run(album,
+                    arts = SearchLib.SearchCovers(album,
                             null,
                             source,
                             count
@@ -159,9 +153,7 @@ public class CoverArtGridActivity extends AppCompatActivity {
                 }
             } catch (NoMatchesException e) {
                 e.printStackTrace();
-                return false;
             }
-
 
 
             return true;
