@@ -3,7 +3,6 @@ package com.theonlylies.musictagger.utils.edit;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
@@ -13,8 +12,6 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.provider.DocumentFile;
 import android.util.Log;
-import android.util.TimeUtils;
-import android.webkit.SafeBrowsingResponse;
 
 import com.theonlylies.musictagger.utils.FileUtil;
 import com.theonlylies.musictagger.utils.ParcelableMusicFile;
@@ -24,13 +21,8 @@ import com.theonlylies.musictagger.utils.adapters.MusicFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 /**
  * Created by linuxoid on 23.12.17.
@@ -105,7 +97,10 @@ public class MediaStoreUtils {
             if (cursor != null && cursor.moveToFirst()) {
                 id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
                 if (id != -1) {
-                    context.getContentResolver().delete(ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id), null, null);
+                    int deleted = context.getContentResolver().delete(ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id), null, null);
+                    Log.d("getContentResolver", new TagManager(musicFile.getRealPath()).getAlbum());
+                    Log.d("updateFileMediaStoreMed", "delete record from mediastore");
+                    Log.d("updateFileMediaStoreMed", "deleted " + deleted);
                 }
 
                 if(rule!=null && rule != PreferencesManager.RenameRules.none){

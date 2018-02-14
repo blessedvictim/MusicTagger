@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="5dp"
@@ -27,7 +26,7 @@
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            app:layout_constraintEnd_toStartOf="@+id/nonameButton1"
+            app:layout_constraintEnd_toStartOf="@+id/groupEditButton"
             app:layout_constraintStart_toEndOf="@id/blockArtworkView"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -43,7 +42,7 @@
             app:srcCompat="@drawable/ic_arrow_drop_down_black" />
 
         <ImageButton
-            android:id="@+id/nonameButton1"
+            android:id="@+id/groupEditButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
@@ -52,7 +51,7 @@
             android:padding="4dp"
             app:layout_constraintEnd_toStartOf="@+id/expandButton"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_smart_search_black" />
+            app:srcCompat="@drawable/ic_pencil_black" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/musicItemRecyclerView"

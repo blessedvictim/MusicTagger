@@ -4,15 +4,12 @@
     <item
         android:drawable="@color/colorPrimary"/>
 
-    <item
-        android:top="200dp"
-        android:bottom="200dp"
-        >
+    <item>
         <bitmap
             android:mipMap="true"
-            android:src="@mipmap/ic_splash"
-            android:gravity="center"/>
-
+            android:gravity="center"
+            android:scaleType="center"
+            android:src="@drawable/ic_splash" />
     </item>
 
 </layer-list>
