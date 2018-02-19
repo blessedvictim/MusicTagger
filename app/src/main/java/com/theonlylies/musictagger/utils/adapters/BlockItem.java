@@ -8,9 +8,10 @@ import java.util.List;
  */
 
 public class BlockItem {
-    private String blockName,blockInfo;
+    private String blockName,blockInfo,blockScName;
     public boolean visible=false;
     private List<MusicFile> musicFiles;
+
 
     public BlockItem(){
         musicFiles = new LinkedList();
@@ -38,5 +39,13 @@ public class BlockItem {
 
     public void setMusicFiles(List<MusicFile> musicFiles) {
         this.musicFiles = musicFiles;
+    }
+
+    public String getBlockScName() {
+        return blockScName;
+    }
+
+    public void setBlockScName(String blockScName) {
+        this.blockScName = blockScName;
     }
 }

@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -33,10 +35,12 @@ import com.github.clans.fab.FloatingActionMenu;
 import com.github.clans.fab.FloatingActionMenuBehavior;
 import com.theonlylies.musictagger.R;
 import com.theonlylies.musictagger.services.ForegroundTagEditService;
+
 import com.theonlylies.musictagger.utils.GlideApp;
 import com.theonlylies.musictagger.utils.ParcelableMusicFile;
 import com.theonlylies.musictagger.utils.adapters.MusicFile;
 import com.theonlylies.musictagger.utils.edit.MediaStoreUtils;
+import com.yalantis.ucrop.UCrop;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -185,9 +189,9 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
         Log.d("id",String.valueOf(id));
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_crop) {
+        /*if (id == R.id.action_crop) {//TODO CROP OF IMAGES
             return true;
-        }
+        }*/
         if(id==R.id.action_save_file){
             saveChanges(musicFile);
             //new WriteChanges().execute(musicFile);
@@ -199,8 +203,8 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
         return super.onOptionsItemSelected(item);
     }
 
-
     private static final int REQUEST_CODE_GALLERY_PICK=1;
+    private static final int REQUEST_CODE_INTERNET_PICK = 2;
 
     @Override
     public void onClick(View v) {
@@ -217,6 +221,34 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
             GlideApp.with(this).load(R.drawable.vector_artwork_placeholder).error(R.drawable.vector_artwork_placeholder).into(artworkImageView);
         }
 
+        if(v.getId()==R.id.fabChooseArtworkFromInternet){
+            android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
+            if (this.isOnline()) {
+                Intent intent = new Intent(this, CoverArtGridActivity.class);
+                intent.putExtra("album", this.albumEdit.getText().toString());
+                intent.putExtra("artist", this.artistEdit.getText().toString());
+
+                builder.setItems(new CharSequence[]{"MusicBrainz", "LastFM"}, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == 0) intent.putExtra("source", "musicbrainz");
+                        else if (which == 1) intent.putExtra("source", "lastfm");
+                        else return;
+                        startActivityForResult(intent, REQUEST_CODE_INTERNET_PICK);
+                    }
+                });
+                builder.setTitle("Select a source of coverarts");
+                // Create the AlertDialog
+                android.support.v7.app.AlertDialog dialog = builder.create();
+                dialog.show();
+            } else {
+                builder.setTitle("");
+                builder.setMessage("Please turn on internet connection and repeat");
+                android.support.v7.app.AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        }
+
     }
 
     @Override
@@ -225,9 +257,15 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
             switch (requestCode){
                 case REQUEST_CODE_GALLERY_PICK:{
                     newArtworkUri = data.getData();
-                    Log.d("artUri",newArtworkUri.toString());
+                    //Log.d("artUri",newArtworkUri.toString());
                     GlideApp.with(this).load(newArtworkUri).centerCrop().error(R.drawable.vector_artwork_placeholder).into(artworkImageView);
                     artWorkWasChanged=true;
+                    break;
+                }
+                case REQUEST_CODE_INTERNET_PICK: {
+                    newArtworkUri = Uri.parse(data.getStringExtra("image"));
+                    GlideApp.with(this).load(newArtworkUri).centerCrop().error(R.drawable.vector_artwork_placeholder).into(artworkImageView);
+                    artWorkWasChanged = true;
                     break;
                 }
             }
@@ -250,7 +288,7 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
          * Section for album art change if it need !
          */
 
-        //TODO change artwork with rights logic !!!!! I thing i do this !!!!! see service sources !
+        //TODO change artwork with right logic !!!!! I think i do this !!!!! see service sources !
         Intent intent = new Intent(this, ForegroundTagEditService.class);
         intent.putParcelableArrayListExtra("files",musicFiles);
         intent.putExtra("dest_file",musicFile);
@@ -282,6 +320,11 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
         //All done
     }
 
+    public boolean isOnline() {
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
+    }
 
     public MusicFile collectDataFromUI(){
         musicFile.setAlbum(albumEdit.getText().toString());

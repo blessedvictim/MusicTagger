@@ -38,8 +38,6 @@ dependencies {
     implementation 'com.android.support:recyclerview-v7:27.0.2'
     implementation 'com.android.support:cardview-v7:27.0.2'
     implementation 'com.github.tingyik90:snackprogressbar:3.3'
-    implementation 'com.github.bumptech.glide:glide:4.4.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.4.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
@@ -47,12 +45,12 @@ dependencies {
     implementation 'jp.wasabeef:blurry:2.1.1'
     implementation project(':BaseRecyclerViewAdapterHelper')
     implementation project(':jaudiotagger-2.2.3')
-    implementation project(':okhttp-3.9.1')
-    implementation project(':okio-1.13.0')
+    implementation 'com.squareup.okhttp3:okhttp:3.9.1'
     implementation project(':gson-2.8.2')
-    implementation 'com.bignerdranch.android:simple-item-decoration:1.0.0'
     implementation 'com.github.yalantis:ucrop:2.2.1'
-    implementation project(':AudioLib')
-    compile 'com.google.android.gms:play-services-analytics:11.4.2'
+    implementation 'com.google.android.gms:play-services-analytics:11.4.2'
     implementation project(':slf4j-android-1.6.1-RC1')
+    implementation project(':AudioAnalyzeLib')
+    implementation 'com.github.bumptech.glide:glide:4.4.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.4.0'
 }

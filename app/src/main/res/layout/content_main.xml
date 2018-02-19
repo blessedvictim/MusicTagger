@@ -24,7 +24,15 @@
             android:layout_width="186dp"
             android:layout_height="match_parent"
             android:layout_gravity="end"
-            android:dropDownWidth="186dp" />
+            android:backgroundTint="@color/cardview_light_background"
+            android:dropDownSelector="@drawable/ic_arrow_drop_down_white" />
+
+        <Spinner
+            android:id="@+id/spinnerSort"
+            android:layout_width="186dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:backgroundTint="@color/cardview_light_background" />
     </android.support.v7.widget.CardView>
 
     <android.support.v7.widget.RecyclerView
@@ -32,6 +40,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/cardOnTop"
-        android:background="@color/colorBackItemSimple"
-        android:layoutAnimation="@anim/recycler_fallingdown" />
+        android:background="@color/colorBackMain"
+        android:layoutAnimation="@anim/recycler_fallingdown"
+        android:scrollbars="vertical" />
 </RelativeLayout>

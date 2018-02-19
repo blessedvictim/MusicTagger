@@ -2,14 +2,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.theonlylies.musictagger.activities.OneFileEditActivity">
-    <item
+    <!--<item
         android:id="@+id/action_crop"
         android:orderInCategory="2"
         android:title="@string/action_crop"
-        app:showAsAction="never" />
+        app:showAsAction="never" /> -->
     <item
         android:id="@+id/action_save_file"
-        android:icon="@drawable/ic_menu_save_changes_white"
+        android:icon="@drawable/ic_done"
         android:orderInCategory="1"
         android:title="@string/action_crop"
         app:showAsAction="ifRoom" />

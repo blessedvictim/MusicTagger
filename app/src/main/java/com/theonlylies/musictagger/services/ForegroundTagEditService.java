@@ -62,25 +62,27 @@ public class ForegroundTagEditService extends IntentService {
 
     //TODO если выбрать много файлов без альбумарта и сохранить без выбора или удаление картинки то TagManager попытается записать битмап из вектора что приведет к исключению
 
-    public void saveChanges(final ParcelableMusicFile destMusicFile, final ArrayList<ParcelableMusicFile> sources,final Uri bitmap,boolean deleteArt) {
+    public void saveChanges(final ParcelableMusicFile destMusicFile, final ArrayList<ParcelableMusicFile> sources,final Uri artworkUri,boolean deleteArt) {
         int succesed = 0;
 
         Bitmap bmp = null;
-        if (bitmap != null) {
+        if (artworkUri != null) {
         try {
             bmp = GlideApp.with(this)
                     .asBitmap()
-                    .load(bitmap)
+                    .load(artworkUri)
                     .centerCrop()
                     .submit()
                     .get();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
+            Log.e("ForegroundService","bitmap wasn't loaded");
         }
     }
 
         ArrayList<Long> album_ids = new ArrayList<>();
 
+        //FIXME somethings WRONG!
         for (ParcelableMusicFile f : sources) {
             boolean haveSdCardAccess = FileUtil.canWriteThisFileSAF(this, f.getRealPath());
             if (!FileUtil.fileOnSdCard(new File(f.getRealPath()))) {
@@ -88,7 +90,7 @@ public class ForegroundTagEditService extends IntentService {
                 TagManager tagManager = new TagManager(f.getRealPath());
                 tagManager.setGeneralTagsFromMusicFile(
                         destMusicFile);
-                if (bitmap != null) {
+                if (artworkUri != null) {
                     tagManager.setArtwork(bmp);
                 } else if (deleteArt) {
                     tagManager.deleteArtwork();
@@ -102,7 +104,7 @@ public class ForegroundTagEditService extends IntentService {
                     TagManager tagManager = new TagManager(file.getPath());
                     tagManager.setTagsFromMusicFile(
                             destMusicFile);
-                    if (bitmap != null) {
+                    if (artworkUri != null) {
                         tagManager.setArtwork(bmp);
                     } else if (deleteArt) {
                         tagManager.deleteArtwork();
@@ -120,78 +122,53 @@ public class ForegroundTagEditService extends IntentService {
         }
 
 
-        Bitmap finalBmp = bmp;
-        int finalSuccesed = succesed;
+
+        Bitmap finalBmp = bmp;//just copy of bmp link for ...
+        int finalSuccesed = succesed-1;
         MediaStoreUtils.updateMuchFilesMediaStore(sources, getApplicationContext(), new MediaScannerConnection.OnScanCompletedListener() {
-            int loop=0;
-            @Override
-            public void onScanCompleted(String path, Uri uri) {
-                loop++;
-                if(loop==sources.size()){
-                    MusicFile musicFile = MediaStoreUtils.getMusicFileByPath(sources.get(0).getRealPath(),getApplicationContext());
-                    boolean albumEditMust=false;
-                    for(MusicFile f:sources){
-                        if(f.getAlbum_id()==musicFile.getAlbum_id()){
-                            if(bitmap!=null){
-                                Bitmap bmp = null;
-                                try {
-                                    bmp = GlideApp.with(getApplicationContext())
-                                            .asBitmap()
-                                            .load(destMusicFile.getArtworkUri())
-                                            .signature(new MediaStoreSignature("lolers",System.currentTimeMillis(),3))
-                                            .diskCacheStrategy(DiskCacheStrategy.NONE)
-                                            .skipMemoryCache(true)
-                                            .centerCrop()
-                                            .submit()
-                                            .get();
-                                    Log.d("artUri",destMusicFile.getArtworkUri().toString());
-                                    Log.d("result=",String.valueOf( MediaStoreUtils.setAlbumArt(bmp, context, f.getAlbum_id()) )+"  "+f.getAlbum_id());
-                                    Log.d("group","set album art for group");
-                                } catch (InterruptedException | ExecutionException e) {
-                                    e.printStackTrace();
-                                }
-                            }else if(deleteArt) {
-                                MediaStoreUtils.deleteAlbumArt(getApplicationContext(),musicFile.getAlbum_id());
-                            }
-                            break;
+                    @Override
+                    public void onScanCompleted(String path, Uri uri) {
+                        MusicFile ddd = MediaStoreUtils.getMusicFileByPath(path,context);
+                        sources.remove(0);
+                        for (MusicFile f : sources){
+                            f.setFieldsByMusocFile(ddd);
                         }
+                        for(MusicFile scanFile : sources){
+                            Log.e("insert file",String.valueOf(MediaStoreUtils.insertMusicFileIntoMediaStore(context,scanFile)));
+                        }
+
+                        Intent i = new Intent("CHANGE_TAG_FINISHED_ADMT");
+                        sendBroadcast(i);
+
+                        NotificationManager notificationManager =
+                                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                            int notifyID = 1;
+                            String CHANNEL_ID = "my_channel_01";// The id of the channel.
+                            CharSequence name = "General";// The user-visible name of the channel.
+                            int importance = NotificationManager.IMPORTANCE_HIGH;
+                            NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
+                            notificationManager.createNotificationChannel(mChannel);
+                        }
+
+
+
+                        Notification notification = new NotificationCompat.Builder(context, "my_channel_01")
+                                .setSmallIcon(R.mipmap.ic_launcher)
+                                .setContentTitle("Update tags finshed!")
+                                .setContentText("Successed : " + finalSuccesed + " Failed : " + (sources.size() - finalSuccesed))
+                                .setLargeIcon(finalBmp)
+                                .setChannelId("my_channel_01")
+                                .build();
+
+                        notificationManager.notify(1,notification);
+
+                        MediaStoreUtils.dumpAlbums(context);
+
                     }
-
-                    //end edit album art
-                    Log.d("ForegroundService","Scan completed!");
-                    Intent i = new Intent("CHANGE_TAG_FINISHED_ADMT");
-                    sendBroadcast(i);
-
-                    NotificationManager notificationManager =
-                            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                        int notifyID = 1;
-                        String CHANNEL_ID = "my_channel_01";// The id of the channel.
-                        CharSequence name = "General";// The user-visible name of the channel.
-                        int importance = NotificationManager.IMPORTANCE_HIGH;
-                        NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
-                        notificationManager.createNotificationChannel(mChannel);
-                    }
-
-
-
-                    Notification notification = new NotificationCompat.Builder(context, "my_channel_01")
-                            .setSmallIcon(R.mipmap.ic_launcher)
-                            .setContentTitle("Update tags finshed!")
-                            .setContentText("Successed : " + finalSuccesed + " Failed : " + (sources.size() - finalSuccesed))
-                            .setLargeIcon(finalBmp)
-                            .setChannelId("my_channel_01")
-                            .build();
-
-                    notificationManager.notify(1,notification);
-
-                    MediaStoreUtils.dumpAlbums(context);
-
                 }
-
-            }
-        });
+        );
 
     }
 }

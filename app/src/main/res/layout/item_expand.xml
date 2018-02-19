@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="5dp"
+    android:layout_marginBottom="7dp"
+    android:layout_marginLeft="6dp"
+    android:layout_marginRight="6dp"
+    android:layout_marginTop="4dp"
     app:cardBackgroundColor="@color/colorBackItemSimple"
     app:cardCornerRadius="0dp"
-    app:cardElevation="4dp">
+    app:cardElevation="2dp">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
@@ -14,8 +18,9 @@
 
         <ImageView
             android:id="@+id/blockArtworkView"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:padding="10dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -26,6 +31,7 @@
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
+            android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/groupEditButton"
             app:layout_constraintStart_toEndOf="@id/blockArtworkView"
             app:layout_constraintTop_toTopOf="parent" />
@@ -36,6 +42,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginTop="32dp"
+            android:alpha="0.5"
             android:background="?android:selectableItemBackgroundBorderless"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -46,24 +53,56 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="24dp"
+            android:alpha="0.5"
             android:background="?android:selectableItemBackgroundBorderless"
             android:padding="4dp"
             app:layout_constraintEnd_toStartOf="@+id/expandButton"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_pencil_black" />
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/musicItemRecyclerView"
-            android:layout_width="0dp"
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/layout_recyclerExpand"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorBackGrey"
-            android:paddingBottom="2dp"
-            android:paddingLeft="0dp"
-            android:visibility="gone"
+            android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/blockArtworkView" />
+            app:layout_constraintTop_toBottomOf="@+id/blockArtworkView">
+
+            <View
+                android:id="@+id/hrLine"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="#DDDDDD"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/musicItemRecyclerView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@color/colorBackGrey"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/hrLine" />
+
+        </android.support.constraint.ConstraintLayout>
+
+
+        <TextView
+            android:id="@+id/blockScName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toStartOf="@+id/groupEditButton"
+            app:layout_constraintStart_toEndOf="@+id/blockArtworkView"
+            app:layout_constraintTop_toBottomOf="@+id/blockName" />
 
         <TextView
             android:id="@+id/blockInfo"
@@ -72,8 +111,9 @@
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            app:layout_constraintEnd_toStartOf="@+id/nonameButton1"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toStartOf="@+id/groupEditButton"
             app:layout_constraintStart_toEndOf="@+id/blockArtworkView"
-            app:layout_constraintTop_toBottomOf="@+id/blockName" />
+            app:layout_constraintTop_toBottomOf="@+id/blockScName" />
     </android.support.constraint.ConstraintLayout>
 </android.support.v7.widget.CardView>

@@ -28,11 +28,12 @@ import com.theonlylies.musictagger.utils.adapters.GridViewAdapter;
 
 import java.util.ArrayList;
 
-import Fox.core.lib.general.DOM.AlbumArtCompilation;
-import Fox.core.lib.general.DOM.Art;
+import Fox.core.lib.general.data.AlbumArtCompilation;
+import Fox.core.lib.general.data.Art;
 import Fox.core.lib.general.utils.NoMatchesException;
 import Fox.core.lib.general.utils.target;
 import Fox.core.main.SearchLib;
+
 
 public class CoverArtGridActivity extends AppCompatActivity {
 

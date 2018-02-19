@@ -328,8 +328,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startActivityForResult(intent, REQUEST_UPDATE_CODE);
             }
         } else if (adapter instanceof ExpandBlockAdapter) {
-            Log.d("expandItem", "ex");
-            ((ExpandBlockAdapter) adapter).expandItem(position);
+            if(view.getId()==R.id.groupEditButton){
+                Log.d("MainActivity","groupEditButton click");
+                Intent intent = new Intent(getApplicationContext(), MuchFileEditActivity.class);
+                ArrayList<String> files = new ArrayList<>();
+                for (MusicFile file : ((ExpandBlockAdapter) adapter).getItem(position).getMusicFiles()) {
+                    files.add(file.getRealPath());
+                }
+                intent.putStringArrayListExtra("files", files);
+                startActivityForResult(intent, REQUEST_UPDATE_ALL_CODE);
+            }else{
+                Log.d("expandItem", "ex");
+                ((ExpandBlockAdapter) adapter).expandItem(position);
+            }
+
         } else if (adapter instanceof SimpleListAdapter) {
             Intent intent = new Intent(this, OneFileEditActivity.class);
             String data = ((MusicFile) adapter.getItem(position)).getRealPath();
@@ -527,6 +539,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     ArrayList<MusicFile> files = new ArrayList<>();
                     Set<String> albums = new HashSet<>();
                     Set<String> artists = new HashSet<>();
+                    Set<String> albumIds = new HashSet<>();
 
                     while (cursor.moveToNext()) {
                         MusicFile musicFile = new MusicFile();
@@ -547,6 +560,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         musicFile.setRealPath(data);
                         musicFile.setTitle(title);
                         musicFile.setArtworkUri(albumArtUri);
+                        musicFile.setAlbum_id(Long.parseLong(albumId));
                         musicFile.progress.set((int) (i / count * 100));
 
                         //Log.d("progress", String.valueOf((double) i / count * 100));
@@ -556,22 +570,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         files.add(musicFile);
                         albums.add(album);
                         artists.add(artist);
+                        albumIds.add(albumId);
 
                     }
 
-                    String album;
+                    //TODO must optimize logic !
+
+                    String albumId,artist;
                     Iterator<String> it = albums.iterator();
-                    while (it.hasNext()) {
-                        album = it.next();
+                    Iterator<String> itArtist = artists.iterator();
+                    Iterator<String> itAlbumIds = albumIds.iterator();
+                    while (itAlbumIds.hasNext()) {
+                        albumId = itAlbumIds.next();
                         BlockItem item = new BlockItem();
                         ArrayList<MusicFile> blockList = new ArrayList<>();
                         for (MusicFile f : files) {
-                            if (f.getAlbum().equals(album)) {
+                            Log.d("ALBUM",albumId);
+                            if (String.valueOf(f.getAlbum_id()).equals(albumId) ) {
                                 blockList.add(f);
                             }
                         }
 
-                        item.setBlockName(album);
+                        item.setBlockName(blockList.get(0).getAlbum());
+                        item.setBlockScName(blockList.get(0).getArtist());
                         item.setBlockInfo(blockList.size() + " tracks");
                         item.setMusicFiles(blockList);
 

@@ -20,6 +20,22 @@ public class MusicFile {
     public AtomicInteger progress;
     protected long album_id;
 
+    /**
+     * set all fields like @file stay unchanged title and realPath
+     * @param file instance of MusicFile which fields must be set
+     */
+    public void setFieldsByMusocFile(MusicFile file){
+        this.setAlbum_id(file.getAlbum_id());
+        this.setAlbum(file.getAlbum());
+        this.setArtist(file.getArtist());
+        this.setArtworkUri(file.getArtworkUri());
+        this.setGenre(file.getGenre());
+        //this.setRealPath(file.getRealPath());
+        //this.setTitle(file.getTitle());
+        this.setTrackNumber(file.getTrackNumber());
+        this.setYear(file.getYear());
+    }
+
     public MusicFile(){
         title=null;
         artist=null;

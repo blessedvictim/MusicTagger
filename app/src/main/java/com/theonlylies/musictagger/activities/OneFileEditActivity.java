@@ -64,8 +64,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import Fox.core.lib.general.DOM.FingerPrint;
-import Fox.core.lib.general.DOM.ID3V2;
+import Fox.core.lib.general.data.FingerPrint;
+import Fox.core.lib.general.data.ID3V2;
 import Fox.core.lib.general.templates.FingerPrintThread;
 import Fox.core.lib.general.templates.ProgressState;
 import Fox.core.lib.general.utils.FingerPrintProcessingException;
@@ -75,7 +75,6 @@ import Fox.core.lib.general.utils.ProgressStateException;
 import Fox.core.main.SearchLib;
 import Fox.test.util.CustomProgressState;
 
-import static com.theonlylies.musictagger.activities.SplashActivity.fpCalc;
 import static com.theonlylies.musictagger.utils.edit.MediaStoreUtils.GENRES;
 import static com.theonlylies.musictagger.utils.edit.MediaStoreUtils.dumpAlbums;
 
@@ -287,13 +286,13 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         Log.d("id", String.valueOf(id));
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_crop) {
+        /*if (id == R.id.action_crop) {
             UCrop.of(musicFile.getArtworkUri(), Uri.fromFile(new File(getCacheDir(), "lol")))
                     .withAspectRatio(1, 1)
                     .withMaxResultSize(800, 800)
                     .start(this);
             return true;
-        }
+        }*/
         if (id == R.id.action_save_file) {
             //saveChanges(musicFile);
             new WriteChanges().execute(musicFile);
@@ -307,40 +306,56 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
     private static final int REQUEST_CODE_GALLERY_PICK = 1;
     private static final int REQUEST_CODE_INTERNET_PICK = 2;
 
+    void goToView(View view){
+        if(view!=null){
+            final Rect rect = new Rect(0, 0, view.getWidth(), view.getHeight());
+            view.requestRectangleOnScreen(rect, false);
+        }
+
+    }
+
     @Override
     public void onClick(View v) {
 
         if (v.getId() == R.id.fabSmartSearch) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            if (this.isOnline()) {
-                Log.d("sd", "azazaazzaz");
-                //smartSearchTask = new DoConnect();
-                //smartSearchTask.execute(musicFile.getRealPath());
-                new SmartSearchTask().execute(musicFile.getRealPath());
-                final Rect rect = new Rect(0, 0, cardBestSearched.getWidth(), cardBestSearched.getHeight());
-                cardBestSearched.requestRectangleOnScreen(rect, false);
+            if (!smartSearch) {
+                if(this.isOnline()){
+                    Log.d("sd", "azazaazzaz");
+                    //smartSearchTask = new DoConnect();
+                    //smartSearchTask.execute(musicFile.getRealPath());
+                    new SmartSearchTask().execute(musicFile.getRealPath());
+                    goToView(cardBestSearched);
+                }else{
+                    builder.setTitle("");
+                    builder.setMessage("Please turn on internet connection and repeat");
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
+
                 /*builder.setTitle("");
                 builder.setMessage("867-5309");
                 AlertDialog dialog = builder.create();
                 dialog.show();*/
             } else {
-                builder.setTitle("");
-                builder.setMessage("Please turn on internet connection and repeat");
-                AlertDialog dialog = builder.create();
-                dialog.show();
+                goToView(cardBestSearched);
             }
 
         }
         if (v.getId() == R.id.cardBestSearched) {
-            if (!smartSearch) {
-                if (this.isOnline()) {
-                    Log.d("sd", "azazaazzaz");
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            if (!smartSearch) {// если еще не прикрепили тег(MusicFile объект)
+                if(this.isOnline()){
                     new SmartSearchTask().execute(musicFile.getRealPath());
-                    smartSearch = true;
-                } else {
-                    Toast.makeText(this, "Pls turn on internet!", Toast.LENGTH_SHORT).show();
+                }else{
+                    builder.setTitle("");
+                    builder.setMessage("Please turn on internet connection and repeat");
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
                 }
-            } else {
+            } else if(v.getTag()!=null){
                 MusicFile file = (MusicFile) v.getTag();
                 if (file != null) {
                     file.setAlbum_id(musicFile.getAlbum_id());
@@ -352,7 +367,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                 }
             }
 
-            Toast.makeText(this, "card best match clicked!", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "card best match clicked!", Toast.LENGTH_SHORT).show();
         }
 
 
@@ -617,8 +632,21 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
+    static {
+        try {
+            System.loadLibrary("fpcalc");
+            Log.i("fpCalc", "JNI fpCalc loaded");
+        } catch (UnsatisfiedLinkError e) {
+            Log.e("fpCalc", "Could not load library libfpcalc.so : " + e);
+        }
+    }
+
+    public native String fpCalc(String[] args);
+
     class SmartSearchTask extends AsyncTask<String, Void, List<MusicFile>> {
+
         class FpcaltThread implements FingerPrintThread {
+
 
             static final String CONST_FINGERPRINT = "FINGERPRINT=";
             static final String CONST_DURATION = "DURATION=";
@@ -700,21 +728,21 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
         @Override
         protected List<MusicFile> doInBackground(String... params) {
-            Map<String, List<ID3V2>> result = null;
+            List<ID3V2> result = null;
             ArrayList<String> list = new ArrayList<>();
             list.add(params[0]);
             try {
                 ProgressState Line4 = new CustomProgressState(0, "Common", "All progress");
-                result = SearchLib.SearchTags(params[0], new FpcaltThread(), Line4, false, 4);
-                ArrayList<MusicFile> data = new ArrayList(result.get("LOL").size());
-                for (ID3V2 id3V2 : result.get("LOL")) {
+                result = SearchLib.SearchTags(params[0], new FpcaltThread(), Line4, 4);
+                ArrayList<MusicFile> data = new ArrayList(result.size());
+                for (ID3V2 id3V2 : result) {
                     MusicFile file = new MusicFile();
                     file.setAlbum(id3V2.getAlbum());
                     file.setArtist(id3V2.getArtist());
                     file.setTitle(id3V2.getTitle());
                     file.setYear(id3V2.getYear());
                     file.setTrackNumber(String.valueOf(id3V2.getNumber()));
-                    if (!id3V2.getArtLinks().isEmpty()) {
+                    if (id3V2.getArtLinks()!=null && !id3V2.getArtLinks().isEmpty()) {
                         file.setArtworkUri(Uri.parse(id3V2.getArtLinks().get(0)));
                     }
                     data.add(file);
@@ -751,27 +779,29 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                         .error(R.drawable.vector_artwork_placeholder)
                         .transition(DrawableTransitionOptions.withCrossFade(700))
                         .into(bestMatchArtworkImageView);
+
                 if (!tracks.isEmpty()) {
 
-                    cardOthersSearched.setVisibility(View.VISIBLE);
                     for (MusicFile file : tracks)
                         adapter.addData(file);
-
+                    cardOthersSearched.setVisibility(View.VISIBLE);
+                    ConstraintLayout lay  = findViewById(R.id.layoutParentSearched);
 
                     //((NestedScrollView)findViewById(R.id.nestedScrollView)).fullScroll(ScrollView.FOCUS_DOWN);
 
-                    /*final Rect rect = new Rect(0, 0, card.getWidth(), cardOthersSearched.getHeight());
-                    cardOthersSearched.requestRectangleOnScreen(rect, false);*/
+                    goToView(lay);
                 }
 
             } else {
                 textProgress.setText("No mathces :(");
                 bar.setVisibility(View.GONE);
             }
+            smartSearch=true;
 
         }
 
     }
+
 
 
 }

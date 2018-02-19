@@ -14,6 +14,8 @@ import android.util.Log;
 import com.theonlylies.musictagger.utils.FileUtil;
 import com.theonlylies.musictagger.utils.PreferencesManager;
 
+import dalvik.system.DexFile;
+
 /**
  * Created by theonlylies on 30.12.17.
  */
@@ -21,18 +23,14 @@ import com.theonlylies.musictagger.utils.PreferencesManager;
 public class SplashActivity extends AppCompatActivity {
     private static final int OPEN_TREE_REQUEST_CODE = 6 ;
 
-    static public native String fpCalc(String[] args);
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         initPermissions();
-        try {
-            System.loadLibrary("fpcalc");
-        } catch (UnsatisfiedLinkError e) {
-            Log.e("fpCacl","Could not load library libfpcalc.so : " + e);
-        }
+
     }
 
     private void openSdCardTree() {
@@ -61,7 +59,7 @@ public class SplashActivity extends AppCompatActivity {
             dialog.show();
 
         } else{
-            if(!FileUtil.haveSdCardWriteAccess(this)){
+            if(!FileUtil.haveSdCardWriteAccess(this) && FileUtil.hasRomovableDeivce(this)){
                 Log.d("SplashActivity","havent sdcard rights !!!");
                 openSdCardTree();
             }else {

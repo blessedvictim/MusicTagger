@@ -1,6 +1,7 @@
 package com.theonlylies.musictagger;
 
 import android.app.Application;
+import android.util.Log;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
@@ -12,19 +13,16 @@ import com.google.android.gms.analytics.Tracker;
 public class Aapplication extends Application {
     private static Aapplication app;
 
-
-
     @Override
     public void onCreate() {
         super.onCreate();
-        app=this;
+        app = this;
         System.setProperty("android.util.Log", "DEBUG");
     }
 
     synchronized public Aapplication getInstance() {
         return app;
     }
-
 
     private Tracker mTracker;
 

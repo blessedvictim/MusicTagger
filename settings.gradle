@@ -1,1 +1,1 @@
-include ':app', ':clans-fab', ':BaseRecyclerViewAdapterHelper', ':jaudiotagger-2.2.3', ':gson-2.8.2', ':okhttp-3.9.1', ':okio-1.13.0', ':AudioLib', ':slf4j-android-1.6.1-RC1'
+include ':app', ':clans-fab', ':BaseRecyclerViewAdapterHelper', ':jaudiotagger-2.2.3', ':gson-2.8.2', ':okio-1.13.0', ':slf4j-android-1.6.1-RC1', ':AudioAnalyzeLib'
