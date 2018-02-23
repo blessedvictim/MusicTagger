@@ -6,11 +6,17 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.transition.TransitionManager;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.theonlylies.musictagger.R;
 import com.theonlylies.musictagger.utils.FileUtil;
 import com.theonlylies.musictagger.utils.PreferencesManager;
 
@@ -24,13 +30,24 @@ public class SplashActivity extends AppCompatActivity {
     private static final int OPEN_TREE_REQUEST_CODE = 6 ;
 
 
+    ImageView image;
+    TextView text;
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        initPermissions();
+        setContentView(R.layout.activity_splash);
+        //text = findViewById(R.id.splashText);
+        //image = findViewById(R.id.splashImage);
+        ConstraintLayout layout = findViewById(R.id.splashLayout);
+        layout.animate().alpha(1).setDuration(1200).withEndAction(() -> initPermissions());
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     private void openSdCardTree() {

@@ -39,10 +39,16 @@ import com.theonlylies.musictagger.utils.adapters.MusicFile;
 import com.theonlylies.musictagger.utils.adapters.SimpleListAdapter;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import java8.util.Comparators;
+import java8.util.stream.Collectors;
+import java8.util.stream.StreamSupport;
 
 enum ListState {
     SIMPLE,
@@ -50,16 +56,21 @@ enum ListState {
     GROUP_ARTIST
 }
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, BaseQuickAdapter.OnItemClickListener, BaseQuickAdapter.OnItemLongClickListener, AdapterView.OnItemSelectedListener {
+enum ListStateSort {
+    AZtitle,
+    ZAtitle
+}
 
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, BaseQuickAdapter.OnItemClickListener, BaseQuickAdapter.OnItemLongClickListener, AdapterView.OnItemSelectedListener {
 
     RecyclerView recyclerView;
     ListAdapter adapter;
     ExpandBlockAdapter blockAdapter;
     SearchView searchView;
     Context context;
-    Spinner spinner;
+    Spinner spinner, spinnerSort;
     ListState state = ListState.SIMPLE;
+    ListStateSort stateSort = ListStateSort.AZtitle;
     boolean firstLaunchForSearchView = true;
 
     /**
@@ -68,6 +79,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     /*SnackProgressBarManager snackProgressBarManager;
     SnackProgressBar determinateType;*/
+
+
+    public int index = -1;
+    public int top = -1;
+    LinearLayoutManager layoutManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
          */
         recyclerView = findViewById(R.id.recyclerView);
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         //recyclerView.addItemDecoration(new DividerItemDecoration(getResources().getDrawable( R.drawable.divider )));
 
@@ -131,11 +148,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
          * Spinner initialization
          */
         spinner = findViewById(R.id.spinner);
-        /*ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(this,
-                R.array.spinner_array, android.R.layout.simple_spinner_item);*/                      // OLD
+        spinnerSort = findViewById(R.id.spinnerSort);
+        ArrayAdapter<CharSequence> spinnerSortAdapter = ArrayAdapter.createFromResource(this,
+                R.array.spinner_sort_array, R.layout.item_spinner);
         ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(this,
                 R.array.spinner_array, R.layout.item_spinner);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerSortAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerSort.setAdapter(spinnerSortAdapter);
+        spinnerSort.setOnItemSelectedListener(this);
         spinner.setAdapter(spinnerAdapter);
         spinner.setOnItemSelectedListener(this);
     }
@@ -178,9 +199,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        index = layoutManager.findFirstVisibleItemPosition();
+        View v = recyclerView.getChildAt(0);
+        top = (v == null) ? 0 : (v.getTop() - recyclerView.getPaddingTop());
+    }
+
+    @Override
     protected void onResume() {
         Log.d("onResume", "syka");
         createList(this.state);
+        if (index != -1) {
+            layoutManager.scrollToPositionWithOffset(index, top);
+        }
         super.onResume();
     }
 
@@ -191,12 +223,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        Log.d("onItemSelected", "onItemSelected");
-        if (!spinnerFirst) {
-            firstLaunchForSearchView = false;
-            createList(ListState.values()[i]);
-        } else spinnerFirst = false;
+        Log.d("onItemSelected", String.valueOf(adapterView.getId()));
+        if (adapterView.getId() == R.id.spinner) {
+            if (!spinnerFirst) {
+                firstLaunchForSearchView = false;
+                createList(ListState.values()[i]);
+            } else spinnerFirst = false;
+        }
 
+
+        if (adapterView.getId() == R.id.spinnerSort) {
+            stateSort = ListStateSort.values()[i];
+            if (recyclerView.getAdapter() instanceof ExpandBlockAdapter) {
+                if (stateSort == ListStateSort.AZtitle) {
+                    Collections.sort(((ExpandBlockAdapter) recyclerView.getAdapter()).getData(), (f1, f2) -> f1.getBlockName().compareToIgnoreCase(f2.getBlockName()));
+                    recyclerView.getAdapter().notifyDataSetChanged();
+                } else {
+                    Collections.sort(((ExpandBlockAdapter) recyclerView.getAdapter()).getData(), (f1, f2) -> f2.getBlockName().compareToIgnoreCase(f1.getBlockName()));
+                    recyclerView.getAdapter().notifyDataSetChanged();
+                }
+            } else {
+                Log.e("lol", "sort");
+                createList(state);
+            }
+
+
+        }
     }
 
 
@@ -287,7 +339,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_settings) {
-            Intent intent=new Intent(this,PreferencesActivity.class);
+            Intent intent = new Intent(this, PreferencesActivity.class);
             startActivity(intent);
         }
 
@@ -328,8 +380,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startActivityForResult(intent, REQUEST_UPDATE_CODE);
             }
         } else if (adapter instanceof ExpandBlockAdapter) {
-            if(view.getId()==R.id.groupEditButton){
-                Log.d("MainActivity","groupEditButton click");
+            if (view.getId() == R.id.groupEditButton) {
+                Log.d("MainActivity", "groupEditButton click");
                 Intent intent = new Intent(getApplicationContext(), MuchFileEditActivity.class);
                 ArrayList<String> files = new ArrayList<>();
                 for (MusicFile file : ((ExpandBlockAdapter) adapter).getItem(position).getMusicFiles()) {
@@ -337,7 +389,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 intent.putStringArrayListExtra("files", files);
                 startActivityForResult(intent, REQUEST_UPDATE_ALL_CODE);
-            }else{
+            } else {
                 Log.d("expandItem", "ex");
                 ((ExpandBlockAdapter) adapter).expandItem(position);
             }
@@ -514,10 +566,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
-    private class GroupByAlbumMusicTask extends AsyncTask<Void, BlockItem, Void> {
+    private class GroupByAlbumMusicTask extends AsyncTask<Void, BlockItem, List<BlockItem>> {
 
         @Override
-        protected Void doInBackground(Void... voids) {
+        protected List<BlockItem> doInBackground(Void... voids) {
             final Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
             final String[] cursor_cols = {
                     MediaStore.Audio.Media._ID,
@@ -528,7 +580,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     MediaStore.Audio.Media.ALBUM_ID,
                     MediaStore.Audio.Media.DURATION,};
             final String where = MediaStore.Audio.Media.IS_MUSIC + "!=0";
-            final Cursor cursor = getContentResolver().query(uri, cursor_cols, where, null, MediaStore.Audio.Media.ARTIST);
+            String sort = MediaStore.Audio.Media.ALBUM;
+            switch (stateSort) {
+                case AZtitle: {
+                    sort = sort.concat(" ASC");
+                    break;
+                }
+                case ZAtitle: {
+                    sort = sort.concat(" DESC");
+                    break;
+                }
+            }
+            final Cursor cursor = getContentResolver().query(uri, cursor_cols, where, null, sort);
             ArrayList<BlockItem> list = null;
             if (cursor != null) {
                 try {
@@ -574,19 +637,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     }
 
+                    //files.stream().peek()
+
                     //TODO must optimize logic !
 
-                    String albumId,artist;
+                    String albumId, artist;
                     Iterator<String> it = albums.iterator();
                     Iterator<String> itArtist = artists.iterator();
                     Iterator<String> itAlbumIds = albumIds.iterator();
+                    List<BlockItem> blocks = new ArrayList<>();
                     while (itAlbumIds.hasNext()) {
                         albumId = itAlbumIds.next();
                         BlockItem item = new BlockItem();
                         ArrayList<MusicFile> blockList = new ArrayList<>();
                         for (MusicFile f : files) {
-                            Log.d("ALBUM",albumId);
-                            if (String.valueOf(f.getAlbum_id()).equals(albumId) ) {
+                            Log.d("ALBUM", albumId);
+                            if (String.valueOf(f.getAlbum_id()).equals(albumId)) {
                                 blockList.add(f);
                             }
                         }
@@ -596,8 +662,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         item.setBlockInfo(blockList.size() + " tracks");
                         item.setMusicFiles(blockList);
 
-                        publishProgress(item);
+                        blocks.add(item);
+                        //publishProgress(item);
                     }
+
+                    return blocks;
 
                 } catch (NullPointerException e) {
                     e.printStackTrace();
@@ -618,9 +687,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         @Override
-        protected void onPostExecute(Void list) {
+        protected void onPostExecute(List<BlockItem> list) {
             super.onPostExecute(list);
-
+            blockAdapter.addData(list);
+            recyclerView.scheduleLayoutAnimation();
             //snackProgressBarManager.dismiss();
             //adapter.addData(aVoid);
         }
@@ -651,7 +721,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     MediaStore.Audio.Media.ALBUM_ID,
                     MediaStore.Audio.Media.DURATION,};
             final String where = MediaStore.Audio.Media.IS_MUSIC + "!=0";
-            final Cursor cursor = getContentResolver().query(uri, cursor_cols, where, null, MediaStore.Audio.Media.TITLE);
+            String sort = MediaStore.Audio.Media.TITLE;
+            switch (stateSort) {
+                case AZtitle: {
+                    sort = sort.concat(" ASC");
+                    break;
+                }
+                case ZAtitle: {
+                    sort = sort.concat(" DESC");
+                    break;
+                }
+            }
+            final Cursor cursor = getContentResolver().query(uri, cursor_cols, where, null, sort);
             int i = 0;
             if (cursor != null) {
                 try {
@@ -688,7 +769,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 publishProgress(musicFile);
                             }*/
                         publishProgress(musicFile);
-
 
                     }
                 } catch (NullPointerException e) {

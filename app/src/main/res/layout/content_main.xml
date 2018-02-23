@@ -24,8 +24,7 @@
             android:layout_width="186dp"
             android:layout_height="match_parent"
             android:layout_gravity="end"
-            android:backgroundTint="@color/cardview_light_background"
-            android:dropDownSelector="@drawable/ic_arrow_drop_down_white" />
+            android:backgroundTint="@color/cardview_light_background" />
 
         <Spinner
             android:id="@+id/spinnerSort"

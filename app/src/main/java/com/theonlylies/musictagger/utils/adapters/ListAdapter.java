@@ -1,5 +1,6 @@
 package com.theonlylies.musictagger.utils.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 import android.widget.Filter;
@@ -12,8 +13,12 @@ import com.theonlylies.musictagger.R;
 import com.theonlylies.musictagger.utils.GlideApp;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+
+import java8.util.stream.Stream;
 
 /**
  * Created by linuxoid on 17.12.17.
@@ -38,6 +43,15 @@ public class ListAdapter extends BaseQuickAdapter<MusicFile, ViewHolder>
         dataModelsFULL = getData();
         this.context = context;
     }
+
+
+    /*public void sortTitleReverse(){
+        getData().stream().sorted((f,f1)->{
+            return f.getTitle().compareToIgnoreCase(f1.getTitle());
+        });
+        Collections.reverse(getData());
+        notifyDataSetChanged();
+    }*/
 
     public void toogleSelected(int position){
         ViewHolder viewHolder=(ViewHolder)getRecyclerView().findViewHolderForAdapterPosition(position);

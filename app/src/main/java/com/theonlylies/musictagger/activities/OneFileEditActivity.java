@@ -50,6 +50,7 @@ import com.theonlylies.musictagger.utils.MusicCache;
 import com.theonlylies.musictagger.utils.PreferencesManager;
 import com.theonlylies.musictagger.utils.adapters.ListAdapter;
 import com.theonlylies.musictagger.utils.adapters.MusicFile;
+import com.theonlylies.musictagger.utils.edit.BitmapUtils;
 import com.theonlylies.musictagger.utils.edit.MediaStoreUtils;
 import com.theonlylies.musictagger.utils.edit.TagManager;
 import com.yalantis.ucrop.UCrop;
@@ -99,7 +100,6 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
     SwitchCompat switchRename;
 
     boolean smartSearch = false;
-
 
     //DoConnect smartSearchTask;
 
@@ -360,7 +360,8 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                 if (file != null) {
                     file.setAlbum_id(musicFile.getAlbum_id());
                     file.setRealPath(musicFile.getRealPath());
-                    if (file.getArtworkUri() != null) artWorkWasChanged = true;
+                    artWorkWasChanged = true;
+                    newArtworkUri = file.getArtworkUri();
                     //else artworkWasDeleted=true;
                     initTagsInterface(file);
 
@@ -454,7 +455,8 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
     static boolean artworkWasDeleted = false;
 
     void updateMusicFile(MusicFile file) {
-        musicFile = file;
+        musicFile.setFieldsByMusocFile(file);
+        musicFile.setTitle(file.getTitle());
     }
 
     public MusicFile collectDataFromUI() {
@@ -480,9 +482,11 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                 try {
                     bitmap = GlideApp.with(getApplicationContext())
                             .asBitmap()
-                            .load(musicFile.getArtworkUri())
+                            .centerCrop()
+                            .load(newArtworkUri)
                             .submit()
                             .get();
+                    bitmap = BitmapUtils.getCenterCropedBitmap(bitmap);
                     tagManager.setArtwork(bitmap);
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
@@ -507,15 +511,16 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                     try {
                         bitmap = GlideApp.with(getApplicationContext())
                                 .asBitmap()
-                                .load(musicFile.getArtworkUri())
+                                .centerCrop()
+                                .load(newArtworkUri)
                                 .submit()
                                 .get();
+                        bitmap = BitmapUtils.getCenterCropedBitmap(bitmap);
                         tagManager.setArtwork(bitmap);
                     } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
                     }
-
-                    tagManager.setArtwork(bitmap);
+                    //tagManager.setArtwork(bitmap);
                 } else if (artworkWasDeleted) {
                     tagManager.deleteArtwork();
                 }
@@ -533,6 +538,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
         // Работа с Media Store
         final long album_id = musicFile.getAlbum_id();
+        Log.e("album_id before", String.valueOf(album_id));
 
         //dumpMedia(getApplicationContext());
         dumpAlbums(getApplicationContext());
@@ -552,6 +558,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                 //dumpMedia(getApplicationContext());
                 dumpAlbums(getApplicationContext());
                 updateMusicFile(MediaStoreUtils.getMusicFileByPath(musicFile.getRealPath(), getApplicationContext())); // interface update
+                Log.e("album_id after", String.valueOf(musicFile.getAlbum_id()));
                 if (musicFile.getAlbum_id() == album_id) {
                     if (artWorkWasChanged) {
                         //Bitmap bitmap = ((BitmapDrawable) artworkImageView.getDrawable()).getBitmap();
@@ -584,8 +591,8 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
             super.onPreExecute();
 
             AlertDialog.Builder builder = new AlertDialog.Builder(OneFileEditActivity.this);
-            builder.setTitle("Changes writing...");
             builder.setCancelable(false);
+            builder.setMessage("Changes writing...");
             dialog = builder.create();
             dialog.show();
 
@@ -720,6 +727,8 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                     MusicFile file = (MusicFile) adapter.getData().get(position);
                     file.setAlbum_id(musicFile.getAlbum_id());
                     file.setRealPath(musicFile.getRealPath());
+                    artWorkWasChanged = true;
+                    newArtworkUri = file.getArtworkUri();
                     OneFileEditActivity.this.initTagsInterface(file);
                 }
             });

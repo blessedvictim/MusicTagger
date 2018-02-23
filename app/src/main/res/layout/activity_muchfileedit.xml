@@ -65,7 +65,7 @@
         android:id="@+id/menu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="85dp"
+        android:layout_marginEnd="16dp"
         android:elevation="4dp"
         app:layout_anchor="@id/app_bar"
         app:layout_anchorGravity="bottom|end"
@@ -73,7 +73,7 @@
         app:menu_colorNormal="@color/fabBackColor"
         app:menu_colorPressed="@color/fabBackColorPressed"
         app:menu_fab_size="normal"
-        app:menu_icon="@drawable/ic_plus"
+        app:menu_icon="@drawable/ic_add_a_photo_white"
         app:menu_openDirection="down"
         app:menu_showShadow="false">
 
@@ -81,10 +81,10 @@
             android:id="@+id/fabChooseArtworkFromGallery"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:onClick="onClick"
+            android:src="@drawable/ic_gallery_search"
             app:fab_colorNormal="@color/fabBackColor"
             app:fab_colorPressed="@color/fabBackColor"
-            android:onClick="onClick"
-            android:src="@drawable/ic_heart"
             app:fab_label="Choose from gallery"
             app:fab_size="mini" />
 
@@ -92,10 +92,10 @@
             android:id="@+id/fabChooseArtworkFromInternet"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:onClick="onClick"
+            android:src="@drawable/ic_internet_search"
             app:fab_colorNormal="@color/fabBackColor"
             app:fab_colorPressed="@color/fabBackColor"
-            android:onClick="onClick"
-            android:src="@drawable/ic_heart"
             app:fab_label="Choose from internet"
             app:fab_size="mini" />
 
@@ -103,10 +103,10 @@
             android:id="@+id/fabDeleteArtwork"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:onClick="onClick"
+            android:src="@drawable/ic_delete_black"
             app:fab_colorNormal="@color/fabBackColor"
             app:fab_colorPressed="@color/fabBackColor"
-            android:onClick="onClick"
-            android:src="@drawable/ic_heart"
             app:fab_label="Delete art"
             app:fab_size="mini" />
 
@@ -114,7 +114,7 @@
     </com.github.clans.fab.FloatingActionMenu>
 
 
-    <com.github.clans.fab.FloatingActionMenu
+    <!-- <com.github.clans.fab.FloatingActionMenu
         android:id="@+id/fabGroupSmartSearch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -123,8 +123,8 @@
         app:layout_anchor="@id/app_bar"
         app:layout_anchorGravity="bottom|end"
         app:menu_animationDelayPerItem="15"
-        app:menu_colorNormal="@color/fabBackColor"
-        app:menu_colorPressed="@color/fabBackColorPressed"
+        app:menu_colorNormal="@color/fabSmartBackColor"
+        app:menu_colorPressed="@color/fabSmartBackColorPressed"
         app:menu_fab_size="normal"
         app:menu_icon="@drawable/ic_smart_search"
         app:menu_openDirection="down"
@@ -159,7 +159,7 @@
             app:fab_size="mini" />
 
 
-    </com.github.clans.fab.FloatingActionMenu>
+    </com.github.clans.fab.FloatingActionMenu> -->
 
 
 </android.support.design.widget.CoordinatorLayout>

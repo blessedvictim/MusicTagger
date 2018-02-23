@@ -2,15 +2,15 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/AudioAnalyzeLib/AudioAnalyzeLib.iml" filepath="$PROJECT_DIR$/AudioAnalyzeLib/AudioAnalyzeLib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/AudioAnalyzeLib_1.0.1/AudioAnalyzeLib_1.0.1.iml" filepath="$PROJECT_DIR$/AudioAnalyzeLib_1.0.1/AudioAnalyzeLib_1.0.1.iml" />
       <module fileurl="file://$PROJECT_DIR$/BaseRecyclerViewAdapterHelper/BaseRecyclerViewAdapterHelper.iml" filepath="$PROJECT_DIR$/BaseRecyclerViewAdapterHelper/BaseRecyclerViewAdapterHelper.iml" />
       <module fileurl="file://$PROJECT_DIR$/MusicTagger.iml" filepath="$PROJECT_DIR$/MusicTagger.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/clans-fab/clans-fab.iml" filepath="$PROJECT_DIR$/clans-fab/clans-fab.iml" />
       <module fileurl="file://$PROJECT_DIR$/gson-2.8.2/gson-2.8.2.iml" filepath="$PROJECT_DIR$/gson-2.8.2/gson-2.8.2.iml" />
       <module fileurl="file://$PROJECT_DIR$/jaudiotagger-2.2.3/jaudiotagger-2.2.3.iml" filepath="$PROJECT_DIR$/jaudiotagger-2.2.3/jaudiotagger-2.2.3.iml" />
-      <module fileurl="file://$PROJECT_DIR$/okio-1.13.0/okio-1.13.0.iml" filepath="$PROJECT_DIR$/okio-1.13.0/okio-1.13.0.iml" />
       <module fileurl="file://$PROJECT_DIR$/slf4j-android-1.6.1-RC1/slf4j-android-1.6.1-RC1.iml" filepath="$PROJECT_DIR$/slf4j-android-1.6.1-RC1/slf4j-android-1.6.1-RC1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/streamsupport-1.6.1/streamsupport-1.6.1.iml" filepath="$PROJECT_DIR$/streamsupport-1.6.1/streamsupport-1.6.1.iml" />
     </modules>
   </component>
 </project>

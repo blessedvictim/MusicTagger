@@ -33,6 +33,8 @@ public class BitmapUtils {
                     source.getWidth()
             );
         }
+        if (dstBmp.getHeight() > 800) return getResizedBitmap(dstBmp);
+
         return dstBmp;
     }
 

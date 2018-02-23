@@ -105,11 +105,11 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
                 (CoordinatorLayout.LayoutParams) menu.getLayoutParams();
         params.setBehavior(behavior);
 
-        FloatingActionMenu button=findViewById(R.id.fabGroupSmartSearch);
+        /*FloatingActionMenu button=findViewById(R.id.fabGroupSmartSearch);
         button.setAlwaysClosed(true);
         button.setOnMenuButtonClickListener(this);
         CoordinatorLayout.LayoutParams paramsButton = (CoordinatorLayout.LayoutParams) button.getLayoutParams();
-        paramsButton.setBehavior(behavior);
+        paramsButton.setBehavior(behavior);*/
 
         /*FloatingActionButton aqua = menu.getMenuMainButton();
         CoordinatorLayout.LayoutParams p = (CoordinatorLayout.LayoutParams) aqua.getLayoutParams();

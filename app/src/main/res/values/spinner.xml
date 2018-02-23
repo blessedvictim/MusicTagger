@@ -5,4 +5,9 @@
         <item>Albums</item>
         <!--<item>ARTIST</item>-->
     </string-array>
+
+    <string-array name="spinner_sort_array">
+        <item>A-Z title</item>
+        <item>Z-A title</item>
+    </string-array>
 </resources>
