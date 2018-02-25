@@ -25,15 +25,29 @@
             android:id="@+id/itemSimpleTrNum"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/artworkImageView" />
+            android:layout_marginTop="4dp"
+            android:layout_toEndOf="@id/artworkImageView"
+            android:singleLine="true"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/trackArtistAlbum"
+            android:id="@+id/trackAlbum"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/itemSimpleTrNum"
             android:layout_marginTop="4dp"
-            android:layout_toEndOf="@id/artworkImageView" />
+            android:layout_toEndOf="@id/artworkImageView"
+            android:singleLine="true" />
+
+        <TextView
+            android:id="@+id/trackArtist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/trackAlbum"
+            android:layout_marginTop="4dp"
+            android:layout_toEndOf="@id/artworkImageView"
+            android:singleLine="true" />
 
     </RelativeLayout>
 

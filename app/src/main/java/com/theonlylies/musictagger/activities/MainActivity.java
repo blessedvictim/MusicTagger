@@ -31,6 +31,8 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.google.android.gms.analytics.ExceptionReporter;
+import com.theonlylies.musictagger.Aapplication;
 import com.theonlylies.musictagger.R;
 import com.theonlylies.musictagger.utils.adapters.BlockItem;
 import com.theonlylies.musictagger.utils.adapters.ExpandBlockAdapter;
@@ -89,6 +91,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        Thread.UncaughtExceptionHandler myHandler = new ExceptionReporter(
+                ((Aapplication) getApplication()).getDefaultTracker(),
+                Thread.getDefaultUncaughtExceptionHandler(),
+                this);
+
+        // Make myHandler the new default uncaught exception handler.
+        Thread.setDefaultUncaughtExceptionHandler(myHandler);
 
 
         context = this;
@@ -209,10 +220,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onResume() {
         Log.d("onResume", "syka");
-        createList(this.state);
         if (index != -1) {
             layoutManager.scrollToPositionWithOffset(index, top);
-        }
+        } else createList(this.state);
         super.onResume();
     }
 
@@ -459,11 +469,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+
     //TODO right now nothing to do in this place!
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (actionMode != null) actionMode.finish();
-
+        if (resultCode == REQUEST_UPDATE_CODE) {
+            createList(state);
+        }
     }
 
 
@@ -793,6 +806,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
+            if (index != -1) {
+                layoutManager.scrollToPositionWithOffset(index, top);
+            }
             //snackProgressBarManager.dismiss();
             //adapter.addData(aVoid);
         }

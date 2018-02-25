@@ -11,4 +11,5 @@
     <color name="bestMatchCard">#b3e5fc</color>
     <color name="fabSmartBackColor">#e53935</color>
     <color name="fabSmartBackColorPressed">#ab000d</color>
+    <color name="ucrop_color_toolbar">@color/colorPrimary</color>
 </resources>

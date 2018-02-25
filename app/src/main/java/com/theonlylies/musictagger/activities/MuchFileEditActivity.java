@@ -40,7 +40,6 @@ import com.theonlylies.musictagger.utils.GlideApp;
 import com.theonlylies.musictagger.utils.ParcelableMusicFile;
 import com.theonlylies.musictagger.utils.adapters.MusicFile;
 import com.theonlylies.musictagger.utils.edit.MediaStoreUtils;
-import com.yalantis.ucrop.UCrop;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -380,7 +379,7 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
             String[] from = {"title", "album",
                     "art"};
             // массив ID View-компонентов, в которые будут вставлять данные
-            int[] to = {R.id.itemSimpleTrNum, R.id.trackArtistAlbum, R.id.artworkImageView};
+            int[] to = {R.id.itemSimpleTrNum, R.id.trackAlbum, R.id.artworkImageView};
             SimpleAdapter adapter = new SimpleAdapter(MuchFileEditActivity.this, adapterList, R.layout.item_simple, from, to);
             builder.setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
                 @Override

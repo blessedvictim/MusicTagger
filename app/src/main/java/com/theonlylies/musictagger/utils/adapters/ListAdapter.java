@@ -1,6 +1,5 @@
 package com.theonlylies.musictagger.utils.adapters;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 import android.widget.Filter;
@@ -13,12 +12,8 @@ import com.theonlylies.musictagger.R;
 import com.theonlylies.musictagger.utils.GlideApp;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-
-import java8.util.stream.Stream;
 
 /**
  * Created by linuxoid on 17.12.17.
@@ -44,14 +39,6 @@ public class ListAdapter extends BaseQuickAdapter<MusicFile, ViewHolder>
         this.context = context;
     }
 
-
-    /*public void sortTitleReverse(){
-        getData().stream().sorted((f,f1)->{
-            return f.getTitle().compareToIgnoreCase(f1.getTitle());
-        });
-        Collections.reverse(getData());
-        notifyDataSetChanged();
-    }*/
 
     public void toogleSelected(int position){
         ViewHolder viewHolder=(ViewHolder)getRecyclerView().findViewHolderForAdapterPosition(position);
@@ -80,12 +67,8 @@ public class ListAdapter extends BaseQuickAdapter<MusicFile, ViewHolder>
     @Override
     protected void convert(ViewHolder helper, MusicFile item,int position) {
         helper.trackTitle.setText(item.getTitle());
-        String album = item.getAlbum();
-        String artist = item.getArtist();
-        StringBuilder res = new StringBuilder();
-        if (album != null) res.append(album);
-        if (artist != null) res.append(" | ".concat(artist));
-        helper.trackArtistAlbum.setText(res.toString());
+        helper.trackAlbum.setText(item.getAlbum());
+        helper.trackArtist.setText(item.getArtist());
         GlideApp.with(context)
                 .load(item.getArtworkUri())
                 .signature(new MediaStoreSignature("lol",System.currentTimeMillis(),3))

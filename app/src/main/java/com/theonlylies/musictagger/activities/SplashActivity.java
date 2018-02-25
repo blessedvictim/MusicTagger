@@ -42,7 +42,7 @@ public class SplashActivity extends AppCompatActivity {
         //text = findViewById(R.id.splashText);
         //image = findViewById(R.id.splashImage);
         ConstraintLayout layout = findViewById(R.id.splashLayout);
-        layout.animate().alpha(1).setDuration(1200).withEndAction(() -> initPermissions());
+        layout.animate().alpha(1).setDuration(900).withEndAction(() -> initPermissions());
     }
 
     @Override

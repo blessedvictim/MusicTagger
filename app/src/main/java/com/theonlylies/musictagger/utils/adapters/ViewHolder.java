@@ -16,7 +16,8 @@ import com.theonlylies.musictagger.R;
 
 public class ViewHolder extends BaseViewHolder {
     public TextView trackTitle;
-    public TextView trackArtistAlbum;
+    public TextView trackAlbum;
+    public TextView trackArtist;
     public ImageView atrworkImageView;
     public CardView cardView;
     ColorStateList color;
@@ -25,7 +26,8 @@ public class ViewHolder extends BaseViewHolder {
         super(itemView);
         atrworkImageView=itemView.findViewById(R.id.artworkImageView);
         trackTitle=itemView.findViewById(R.id.itemSimpleTrNum);
-        trackArtistAlbum=itemView.findViewById(R.id.trackArtistAlbum);
+        trackAlbum = itemView.findViewById(R.id.trackAlbum);
+        trackArtist = itemView.findViewById(R.id.trackArtist);
         cardView=itemView.findViewById(R.id.card_item_simple);
         color = cardView.getCardBackgroundColor();
     }

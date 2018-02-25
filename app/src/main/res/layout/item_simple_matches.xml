@@ -30,40 +30,38 @@
             android:id="@+id/itemSimpleTrNum"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="9dp"
+            android:singleLine="true"
             android:textSize="12sp"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/artworkImageView"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/trackArtistAlbum"
+            android:id="@+id/trackAlbum"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/itemSimpleTrNum"
-            android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="4dp"
             android:layout_toEndOf="@id/artworkImageView"
+            android:singleLine="true"
             android:textSize="12sp"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/artworkImageView"
             app:layout_constraintTop_toBottomOf="@+id/itemSimpleTrNum" />
 
         <TextView
-            android:id="@+id/textView7"
+            android:id="@+id/trackArtist"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="4dp"
-            android:text="ываыыва"
+            android:singleLine="true"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/artworkImageView"
-            app:layout_constraintTop_toBottomOf="@+id/trackArtistAlbum" />
+            app:layout_constraintTop_toBottomOf="@+id/trackAlbum" />
 
     </android.support.constraint.ConstraintLayout>
 

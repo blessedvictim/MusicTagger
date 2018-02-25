@@ -43,6 +43,8 @@ import com.bumptech.glide.signature.MediaStoreSignature;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.github.clans.fab.FloatingActionMenu;
 import com.github.clans.fab.FloatingActionMenuBehavior;
+import com.google.android.gms.analytics.ExceptionReporter;
+import com.theonlylies.musictagger.Aapplication;
 import com.theonlylies.musictagger.R;
 import com.theonlylies.musictagger.utils.FileUtil;
 import com.theonlylies.musictagger.utils.GlideApp;
@@ -101,12 +103,15 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
     boolean smartSearch = false;
 
+    SmartSearchTask smartSearchTask = null;
+
     //DoConnect smartSearchTask;
 
     @Override
     protected void onDestroy() {
         Log.d("onDestroy", "syka");
-        //if(smartSearchTask!=null) smartSearchTask.cancel(true);
+        if (smartSearchTask != null && smartSearchTask.getStatus() == AsyncTask.Status.RUNNING)
+            smartSearchTask.cancel(true);
         if (mp3Play != null && mp3Play.isPlaying()) mp3Play.reset();
         Log.d("onDestroy", "syka2");
         super.onDestroy();
@@ -145,6 +150,16 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_onefiledit);
+
+        Thread.UncaughtExceptionHandler myHandler = new ExceptionReporter(
+                ((Aapplication) getApplication()).getDefaultTracker(),
+                Thread.getDefaultUncaughtExceptionHandler(),
+                this);
+
+        // Make myHandler the new default uncaught exception handler.
+        Thread.setDefaultUncaughtExceptionHandler(myHandler);
+        ///Exceptions handler LOL
+
         context = this;
 
         titleEdit = findViewById(R.id.titleEdit);
@@ -298,6 +313,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
             new WriteChanges().execute(musicFile);
         }
         if (id == android.R.id.home) {
+            setResult(RESULT_CANCELED);
             finish();
         }
         return super.onOptionsItemSelected(item);
@@ -324,7 +340,8 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                     Log.d("sd", "azazaazzaz");
                     //smartSearchTask = new DoConnect();
                     //smartSearchTask.execute(musicFile.getRealPath());
-                    new SmartSearchTask().execute(musicFile.getRealPath());
+                    smartSearchTask = new SmartSearchTask();
+                    smartSearchTask.execute(musicFile.getRealPath());
                     goToView(cardBestSearched);
                 }else{
                     builder.setTitle("");
@@ -610,6 +627,11 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                 Toast.makeText(OneFileEditActivity.this,
                         "You provide bad SD-Card path permission,please setup right path in settings and try again", Toast.LENGTH_LONG).show();
             }
+            /*Intent intent = new Intent();
+            intent.putExtra("prevID",)*/
+            //TODO need store old version of musicFile instance for remember old album id and send as activity result old album id and new album id
+            setResult(RESULT_OK);
+            finish();
         }
     }
 
@@ -650,7 +672,29 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
     public native String fpCalc(String[] args);
 
-    class SmartSearchTask extends AsyncTask<String, Void, List<MusicFile>> {
+    class SmartSearchTask extends AsyncTask<String, Double, List<MusicFile>> {
+
+        class MyProgressState extends ProgressState {
+
+            protected MyProgressState(int size, String name, String desc) throws ProgressStateException {
+                super(size, name, desc);
+            }
+
+            @Override
+            protected void onDone() {
+
+            }
+
+            @Override
+            protected void onResize() {
+
+            }
+
+            @Override
+            protected void onChange() {
+
+            }
+        }
 
         class FpcaltThread implements FingerPrintThread {
 
@@ -736,13 +780,34 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         }
 
         @Override
+        protected void onProgressUpdate(Double... values) {
+            super.onProgressUpdate(values);
+            textProgress.setText("Data loading.Please wait... (" + values[0].shortValue() + "%)");
+        }
+
+        @Override
         protected List<MusicFile> doInBackground(String... params) {
             List<ID3V2> result = null;
             ArrayList<String> list = new ArrayList<>();
             list.add(params[0]);
             try {
-                ProgressState Line4 = new CustomProgressState(0, "Common", "All progress");
-                result = SearchLib.SearchTags(params[0], new FpcaltThread(), Line4, 4);
+                //ProgressState Line4 = new CustomProgressState(0, "Common", "All progress");
+                result = SearchLib.SearchTags(params[0], new FpcaltThread(), new ProgressState(0, "Common", "All progress") {
+                    @Override
+                    protected void onDone() {
+
+                    }
+
+                    @Override
+                    protected void onResize() {
+
+                    }
+
+                    @Override
+                    protected void onChange() {
+                        SmartSearchTask.this.publishProgress(((double) this.state) / ((double) this.getSize()) * 100);
+                    }
+                }, 4);
                 ArrayList<MusicFile> data = new ArrayList(result.size());
                 for (ID3V2 id3V2 : result) {
                     MusicFile file = new MusicFile();
