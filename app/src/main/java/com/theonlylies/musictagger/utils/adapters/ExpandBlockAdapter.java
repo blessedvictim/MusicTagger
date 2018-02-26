@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageButton;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -15,18 +17,29 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.theonlylies.musictagger.R;
 import com.theonlylies.musictagger.utils.GlideApp;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * Created by linuxoid on 22.12.17.
  */
 
-public class ExpandBlockAdapter extends BaseQuickAdapter<BlockItem, BlockViewHolder> implements BaseQuickAdapter.OnItemChildClickListener {
+public class ExpandBlockAdapter extends BaseQuickAdapter<BlockItem, BlockViewHolder>
+        implements BaseQuickAdapter.OnItemChildClickListener, Filterable {
     private Context context;
     private OnItemClickListener clickListener;
+
+    public int getDataModelSize() {
+        return dataModelsFULL.size();
+    }
+
+    private List<BlockItem> dataModelsFULL;
 
     public ExpandBlockAdapter(int layoutResId, Context context, OnItemClickListener listener) {
         super(layoutResId);
         this.context = context;
         this.clickListener = listener;
+        dataModelsFULL = getData();
         setOnItemChildClickListener(this);
     }
 
@@ -86,5 +99,43 @@ public class ExpandBlockAdapter extends BaseQuickAdapter<BlockItem, BlockViewHol
                 clickListener.onItemClick(this, view, position);
             }
         }
+    }
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            List<BlockItem> data = new LinkedList<>();
+            List<BlockItem> dataFiltered;
+
+            @Override
+            protected FilterResults performFiltering(CharSequence charSequence) {
+                Log.d("COUNT", String.valueOf(getDataModelSize()));
+                Log.d("COUNT ADAPTER", String.valueOf(getItemCount()));
+                data.addAll(dataModelsFULL);
+                String charString = charSequence.toString();
+                if (charString.isEmpty() || charString == null) {
+                    dataFiltered = data;
+                } else {
+                    dataFiltered = new LinkedList<>();
+                    for (BlockItem row : data) {
+                        if (row.getBlockName().toLowerCase().contains(charString.toLowerCase())
+                                || row.getBlockInfo().toLowerCase().contains(charString.toLowerCase())
+                                || row.getBlockScName().toLowerCase().contains(charString.toLowerCase())) {
+                            dataFiltered.add(row);
+                        }
+                    }
+                }
+
+                FilterResults filterResults = new FilterResults();
+                filterResults.values = dataFiltered;
+                return filterResults;
+            }
+
+            @Override
+            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+                setNewData((List<BlockItem>) filterResults.values);
+                ///notifyDataSetChanged();
+            }
+        };
     }
 }

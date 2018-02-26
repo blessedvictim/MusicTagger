@@ -47,6 +47,6 @@ dependencies {
     implementation project(':slf4j-android-1.6.1-RC1')
     implementation 'com.github.bumptech.glide:glide:4.4.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.4.0'
-    implementation project(':AudioAnalyzeLib_1.0.1')
     implementation project(':streamsupport-1.6.1')
+    implementation project(':AudioAnalyze')
 }

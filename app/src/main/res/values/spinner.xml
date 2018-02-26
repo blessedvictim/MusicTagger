@@ -3,11 +3,11 @@
     <string-array name="spinner_array">
         <item>All files</item>
         <item>Albums</item>
-        <!--<item>ARTIST</item>-->
+        <item>Artists</item>
     </string-array>
 
     <string-array name="spinner_sort_array">
-        <item>A-Z title</item>
-        <item>Z-A title</item>
+        <item>A-Z</item>
+        <item>Z-A</item>
     </string-array>
 </resources>

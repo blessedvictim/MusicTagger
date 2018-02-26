@@ -76,7 +76,6 @@ import Fox.core.lib.general.utils.NoAccessingFilesException;
 import Fox.core.lib.general.utils.NoMatchesException;
 import Fox.core.lib.general.utils.ProgressStateException;
 import Fox.core.main.SearchLib;
-import Fox.test.util.CustomProgressState;
 
 import static com.theonlylies.musictagger.utils.edit.MediaStoreUtils.GENRES;
 import static com.theonlylies.musictagger.utils.edit.MediaStoreUtils.dumpAlbums;
@@ -837,10 +836,10 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                 bestSearchHolderLayout.setVisibility(View.VISIBLE);
                 MusicFile track = tracks.get(0);
                 tracks.remove(0);
-                Log.d("Title", track.getTitle());
+                /*Log.d("Title", track.getTitle());
                 Log.d("Artist", track.getArtist());
                 Log.d("Album", track.getAlbum());
-                Log.d("artlink", track.getArtworkUri().toString());
+                Log.d("artlink", track.getArtworkUri().toString());*/
 
                 bestMatchAlbumTextView.setText(track.getAlbum(), TextView.BufferType.EDITABLE);
                 bestMatchArtistTextView.setText(track.getArtist(), TextView.BufferType.EDITABLE);
