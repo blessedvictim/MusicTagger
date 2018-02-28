@@ -1,6 +1,7 @@
 package com.theonlylies.musictagger.utils.adapters;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Filter;
 import android.widget.Filterable;
@@ -35,10 +36,21 @@ public class ListAdapter extends BaseQuickAdapter<MusicFile, ViewHolder>
 
     public ListAdapter(int layoutResId, Context context) {
         super(layoutResId);
-        dataModelsFULL = getData();
+        dataModelsFULL = new ArrayList<>();
+
         this.context = context;
     }
 
+    public void setNewDataForSearch(@Nullable List<MusicFile> data) {
+        super.setNewData(data);
+    }
+
+    @Override
+    public void setNewData(@Nullable List<MusicFile> data) {
+        super.setNewData(data);
+        dataModelsFULL.clear();
+        if (data != null) dataModelsFULL.addAll(data);
+    }
 
     public void toogleSelected(int position){
         ViewHolder viewHolder=(ViewHolder)getRecyclerView().findViewHolderForAdapterPosition(position);
@@ -118,7 +130,7 @@ public class ListAdapter extends BaseQuickAdapter<MusicFile, ViewHolder>
 
             @Override
             protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-                setNewData((List<MusicFile>) filterResults.values);
+                setNewDataForSearch((List<MusicFile>) filterResults.values);
                 ///notifyDataSetChanged();
             }
         };

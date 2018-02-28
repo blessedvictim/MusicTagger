@@ -1,6 +1,5 @@
 package com.theonlylies.musictagger.activities;
 
-import android.app.SearchManager;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +10,7 @@ import android.os.Bundle;
 import android.os.Process;
 import android.provider.MediaStore;
 import android.support.design.widget.NavigationView;
+import android.support.transition.Explode;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -19,6 +19,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.transition.Transition;
+import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -27,6 +29,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -42,13 +45,11 @@ import com.theonlylies.musictagger.utils.adapters.SimpleListAdapter;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import java8.util.Comparators;
 import java8.util.stream.Collectors;
 import java8.util.stream.StreamSupport;
 
@@ -86,6 +87,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     static public int index = -1;
     static public int top = -1;
     LinearLayoutManager layoutManager;
+
+
+    List<MusicFile> adapterData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -172,10 +176,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         spinner.setOnItemSelectedListener(this);
 
         //
+        adapterData = new ArrayList<>();
+
         createList(state);
     }
 
-    void createList(ListState newState) {
+    void createListOld(ListState newState) {
         if (this.state != newState && actionMode != null) actionMode.finish();
         this.state = newState;
         switch (state) {
@@ -211,6 +217,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    void createList(ListState newState) {
+        if (this.state != newState && actionMode != null) actionMode.finish();
+        this.state = newState;
+        adapterData.clear();
+        new ReadMediaStoreTask().execute();
+    }
+
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -231,33 +245,67 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     boolean spinnerFirst = true;
 
+    public void sortAdapter(int sortState) {
+        stateSort = ListStateSort.values()[sortState];
+        if (recyclerView.getAdapter() instanceof ExpandBlockAdapter) {
+            if (stateSort == ListStateSort.AZtitle) {
+                Collections.sort(((ExpandBlockAdapter) recyclerView.getAdapter()).getData(), (f1, f2) -> f1.getBlockName().compareToIgnoreCase(f2.getBlockName()));
+                recyclerView.getAdapter().notifyDataSetChanged();
+            } else {
+                Collections.sort(((ExpandBlockAdapter) recyclerView.getAdapter()).getData(), (f1, f2) -> f2.getBlockName().compareToIgnoreCase(f1.getBlockName()));
+                recyclerView.getAdapter().notifyDataSetChanged();
+            }
+        } else {
+            if (stateSort == ListStateSort.AZtitle) {
+                Collections.sort(((ListAdapter) recyclerView.getAdapter()).getData(), (f1, f2) -> f1.getTitle().compareToIgnoreCase(f2.getTitle()));
+                recyclerView.getAdapter().notifyDataSetChanged();
+            } else {
+                Collections.sort(((ListAdapter) recyclerView.getAdapter()).getData(), (f1, f2) -> f2.getTitle().compareToIgnoreCase(f1.getTitle()));
+                recyclerView.getAdapter().notifyDataSetChanged();
+            }
+        }
+
+    }
+
+    public void updateAdapter(ListState newState) {
+        this.state = newState;
+        switch (this.state) {
+            case SIMPLE: {
+                recyclerView.setAdapter(adapter);
+                sortAdapter(this.stateSort.ordinal());
+                recyclerView.scheduleLayoutAnimation();
+                break;
+            }
+            case GROUP_ALBUM: {
+                recyclerView.setAdapter(blockAdapter);
+                blockAdapter.setNewData(createBlockData(adapterData, ListState.GROUP_ALBUM));
+                sortAdapter(this.stateSort.ordinal());
+                recyclerView.scheduleLayoutAnimation();
+                break;
+            }
+            case GROUP_ARTIST: {
+                recyclerView.setAdapter(blockAdapter);
+                blockAdapter.setNewData(createBlockData(adapterData, ListState.GROUP_ARTIST));
+                sortAdapter(this.stateSort.ordinal());
+                recyclerView.scheduleLayoutAnimation();
+                break;
+            }
+        }
+    }
+
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         Log.d("onItemSelected", String.valueOf(adapterView.getId()));
         if (adapterView.getId() == R.id.spinner) {
             if (!spinnerFirst) {
                 firstLaunchForSearchView = false;
-                createList(ListState.values()[i]);
+                //createList(ListState.values()[i]);
+                updateAdapter(ListState.values()[i]);
             } else spinnerFirst = false;
         }
 
-
         if (adapterView.getId() == R.id.spinnerSort) {
-            stateSort = ListStateSort.values()[i];
-            if (recyclerView.getAdapter() instanceof ExpandBlockAdapter) {
-                if (stateSort == ListStateSort.AZtitle) {
-                    Collections.sort(((ExpandBlockAdapter) recyclerView.getAdapter()).getData(), (f1, f2) -> f1.getBlockName().compareToIgnoreCase(f2.getBlockName()));
-                    recyclerView.getAdapter().notifyDataSetChanged();
-                } else {
-                    Collections.sort(((ExpandBlockAdapter) recyclerView.getAdapter()).getData(), (f1, f2) -> f2.getBlockName().compareToIgnoreCase(f1.getBlockName()));
-                    recyclerView.getAdapter().notifyDataSetChanged();
-                }
-            } else {
-                Log.e("lol", "sort");
-                createList(state);
-            }
-
-
+            sortAdapter(i);
         }
     }
 
@@ -331,6 +379,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public boolean onQueryTextChange(String query) {
                 // filter recycler view when text is changed
                 if (recyclerView.getAdapter() instanceof ListAdapter) {
+                    Log.e("onTextChanged", String.valueOf(((ListAdapter) recyclerView.getAdapter()).getData().size()));
                     adapter.getFilter().filter(query);
                 }
                 if (recyclerView.getAdapter() instanceof ExpandBlockAdapter) {
@@ -500,6 +549,60 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (index != -1) layoutManager.scrollToPositionWithOffset(index, top);
             }
         }
+    }
+
+    public List<BlockItem> createBlockData(List<MusicFile> data, ListState state) {
+        List<BlockItem> blockItems = new ArrayList<>();
+        switch (state) {
+            case GROUP_ARTIST: {
+                Set<String> artists = new HashSet<>();
+                for (MusicFile file : data)
+                    artists.add(file.getArtist());
+                for (String artist : artists) {
+                    BlockItem item = new BlockItem();
+                    ArrayList<MusicFile> blockList = new ArrayList<>();
+                    for (MusicFile file : data)
+                        if (file.getArtist().equals(artist)) blockList.add(file);
+
+                    item.setMusicFiles(blockList);
+                    item.setBlockName(blockList.get(0).getArtist());
+                    item.setBlockScName(blockList.get(0).getAlbum());
+                    if (blockList.size() == 1) {
+                        item.setBlockInfo(blockList.size() + " song");
+                    } else {
+                        item.setBlockInfo(blockList.size() + " songs");
+                    }
+                    blockItems.add(item);
+                }
+                break;
+            }
+            case GROUP_ALBUM: {
+                Set<Long> albumIds = new HashSet<>();
+                for (MusicFile file : data) {
+                    albumIds.add(file.getAlbum_id());
+                }
+
+                for (Long albumId : albumIds) {
+
+                    BlockItem item = new BlockItem();
+                    ArrayList<MusicFile> blockList = new ArrayList<>();
+                    for (MusicFile file : data)
+                        if (file.getAlbum_id() == albumId) blockList.add(file);
+
+                    item.setMusicFiles(blockList);
+                    item.setBlockName(blockList.get(0).getAlbum());
+                    item.setBlockScName(blockList.get(0).getArtist());
+                    if (blockList.size() == 1) {
+                        item.setBlockInfo(blockList.size() + " song");
+                    } else {
+                        item.setBlockInfo(blockList.size() + " songs");
+                    }
+                    blockItems.add(item);
+                }
+                break;
+            }
+        }
+        return blockItems;
     }
 
 
@@ -859,14 +962,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 publishProgress(musicFile);
                             }*/
                         publishProgress(musicFile);
-
                     }
                 } catch (NullPointerException e) {
                     e.printStackTrace();
                 } finally {
                     cursor.close();
                 }
-
             }
 
             return null;
@@ -888,6 +989,95 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             //snackProgressBarManager.dismiss();
             //adapter.addData(aVoid);
+        }
+    }
+
+    private class ReadMediaStoreTask extends AsyncTask<Void, Void, Void> {
+
+        RelativeLayout progressLayout;
+
+        @Override
+        protected void onPreExecute() {
+            progressLayout = findViewById(R.id.main_progressLayout);
+            progressLayout.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            Process.setThreadPriority(Process.THREAD_PRIORITY_DISPLAY);
+            final Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+            final String[] cursor_cols = {
+                    MediaStore.Audio.Media._ID,
+                    MediaStore.Audio.Media.ARTIST,
+                    MediaStore.Audio.Media.ALBUM,
+                    MediaStore.Audio.Media.TITLE,
+                    MediaStore.Audio.Media.DATA,
+                    MediaStore.Audio.Media.ALBUM_ID,
+                    MediaStore.Audio.Media.DURATION};
+            final String where = MediaStore.Audio.Media.IS_MUSIC + "!=0";
+
+            final Cursor cursor = getContentResolver().query(uri, cursor_cols, where, null, null);
+            if (cursor != null) {
+                try {
+                    double count = cursor.getCount();
+                    Log.d("cursor count", String.valueOf(count));
+                    while (cursor.moveToNext()) {
+                        MusicFile musicFile = new MusicFile();
+
+                        String artist = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
+                        String album = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM));
+                        String title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
+                        String data = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
+                        if (!data.endsWith("mp3")) continue;
+                        String albumId = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
+                        Log.w("title", title);
+                        String id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
+                        Uri albumArtUri = ContentUris.withAppendedId(Uri.parse("content://media/external/audio/albumart"), Long.decode(albumId));
+                        musicFile.setAlbum(album);
+                        musicFile.setArtist(artist);
+                        musicFile.setRealPath(data);
+                        musicFile.setTitle(title);
+                        musicFile.setAlbum_id(Long.parseLong(albumId));
+                        musicFile.setArtworkUri(albumArtUri);
+
+                        adapterData.add(musicFile);
+                    }
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                } finally {
+                    cursor.close();
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+            switch (state) {
+                case SIMPLE: {
+                    recyclerView.setAdapter(adapter);
+                    adapter.setNewData(adapterData);
+                    break;
+                }
+                case GROUP_ALBUM: {
+                    recyclerView.setAdapter(blockAdapter);
+                    blockAdapter.setNewData(createBlockData(adapterData, ListState.GROUP_ALBUM));
+                    break;
+                }
+                case GROUP_ARTIST: {
+                    recyclerView.setAdapter(blockAdapter);
+                    blockAdapter.setNewData(createBlockData(adapterData, ListState.GROUP_ARTIST));
+                    break;
+                }
+            }
+            sortAdapter(stateSort.ordinal());
+            TransitionManager.beginDelayedTransition(progressLayout);
+            progressLayout.setVisibility(View.GONE);
+            recyclerView.scheduleLayoutAnimation();
+            Log.e("onPostExec adapterData", String.valueOf(adapterData.size()));
         }
     }
 

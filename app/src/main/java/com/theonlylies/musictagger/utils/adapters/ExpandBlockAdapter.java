@@ -1,6 +1,7 @@
 package com.theonlylies.musictagger.utils.adapters;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.transition.TransitionManager;
 import android.util.Log;
@@ -17,6 +18,7 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.theonlylies.musictagger.R;
 import com.theonlylies.musictagger.utils.GlideApp;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -39,8 +41,19 @@ public class ExpandBlockAdapter extends BaseQuickAdapter<BlockItem, BlockViewHol
         super(layoutResId);
         this.context = context;
         this.clickListener = listener;
-        dataModelsFULL = getData();
+        dataModelsFULL = new ArrayList<>();
         setOnItemChildClickListener(this);
+    }
+
+    public void setNewDataForSearch(@Nullable List<BlockItem> data) {
+        super.setNewData(data);
+    }
+
+    @Override
+    public void setNewData(@Nullable List<BlockItem> data) {
+        super.setNewData(data);
+        dataModelsFULL.clear();
+        if (data != null) dataModelsFULL.addAll(data);
     }
 
     public void expandItem(int position) {
@@ -133,7 +146,7 @@ public class ExpandBlockAdapter extends BaseQuickAdapter<BlockItem, BlockViewHol
 
             @Override
             protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-                setNewData((List<BlockItem>) filterResults.values);
+                setNewDataForSearch((List<BlockItem>) filterResults.values);
                 ///notifyDataSetChanged();
             }
         };

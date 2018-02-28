@@ -1,5 +1,6 @@
 package com.theonlylies.musictagger.activities;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,7 +19,6 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -485,7 +485,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         return musicFile;
     }
 
-    public boolean saveChanges(final MusicFile musicFile) {
+    public boolean saveChanges(final MusicFile musicFile, AlertDialog progressDialog) {
         Bitmap bitmap = null;
         if (!FileUtil.fileOnSdCard(new File(musicFile.getRealPath()))) {
             Log.d("OneFileEdit", "file in internal storage!...");
@@ -583,6 +583,10 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                         MediaStoreUtils.deleteAlbumArt(getApplicationContext(), musicFile.getAlbum_id());
                     }
                 }
+                progressDialog.dismiss();
+                //TODO need store old version of musicFile instance for remember old album id and send as activity result old album id and new album id
+                setResult(RESULT_OK);
+                finish();
             }
         });
 
@@ -616,21 +620,15 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
         @Override
         protected Boolean doInBackground(MusicFile... files) {
-            return saveChanges(files[0]);
+            return saveChanges(files[0], dialog);
         }
 
         @Override
         protected void onPostExecute(Boolean aBoolean) {
-            dialog.dismiss();
             if (!aBoolean) {
                 Toast.makeText(OneFileEditActivity.this,
                         "You provide bad SD-Card path permission,please setup right path in settings and try again", Toast.LENGTH_LONG).show();
             }
-            /*Intent intent = new Intent();
-            intent.putExtra("prevID",)*/
-            //TODO need store old version of musicFile instance for remember old album id and send as activity result old album id and new album id
-            setResult(RESULT_OK);
-            finish();
         }
     }
 

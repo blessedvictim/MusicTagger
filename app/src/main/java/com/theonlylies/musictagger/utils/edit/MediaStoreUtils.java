@@ -42,8 +42,6 @@ public class MediaStoreUtils {
         Log.d("cursor count:", String.valueOf(cursor.getCount()));
         MusicFile musicFile = new MusicFile();
         if (cursor.moveToFirst()) {
-
-            s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
             s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
             musicFile.setTitle(s);
             s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM));
@@ -53,9 +51,8 @@ public class MediaStoreUtils {
             musicFile.setAlbum_id(id);
             s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
             musicFile.setArtist(s);
-            s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED));
-            s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.YEAR));
             s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TRACK));
+            musicFile.setTrackNumber(s);
             s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
             musicFile.setRealPath(s);
             s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.YEAR));
