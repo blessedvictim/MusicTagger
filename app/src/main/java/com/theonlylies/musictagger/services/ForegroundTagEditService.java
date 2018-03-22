@@ -1,5 +1,6 @@
 package com.theonlylies.musictagger.services;
 
+import android.app.Activity;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -9,6 +10,11 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.os.Binder;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.ResultReceiver;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -36,15 +42,40 @@ import java.util.concurrent.ExecutionException;
 public class ForegroundTagEditService extends IntentService {
 
     public ForegroundTagEditService() {
-        super("petuch");
+        super("ForegroundService");
         context = this;
     }
 
     Context context;
 
+    public static class ServiceResultReciever extends ResultReceiver {
+
+        public interface Receiver {
+            public void onReceiveResult(int resultCode, Bundle data);
+        }
+
+        private Receiver mReceiver;
+
+        public ServiceResultReciever(Handler handler) {
+            super(handler);
+        }
+
+        public void setReceiver(Receiver receiver) {
+            mReceiver = receiver;
+        }
+
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+            if (mReceiver != null) {
+                mReceiver.onReceiveResult(resultCode, resultData);
+            }
+        }
+    }
+
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         if (intent != null) {
+            final ResultReceiver resultReceiver = intent.getParcelableExtra("result");
             ArrayList<ParcelableMusicFile> files = intent.getParcelableArrayListExtra("files");
             ParcelableMusicFile destinationMusicFile = intent.getParcelableExtra("dest_file");
             String uri = intent.getStringExtra("bitmap");
@@ -55,6 +86,8 @@ public class ForegroundTagEditService extends IntentService {
             } else { // equals nothing
                 saveChanges(destinationMusicFile, files, null,false);
             }
+
+            resultReceiver.send(Activity.RESULT_OK, null);
 
             stopSelf();
         }
@@ -116,7 +149,7 @@ public class ForegroundTagEditService extends IntentService {
                 }
                 succesed++;
             } else {
-                Log.d("OneFileEdit", "fuck you sd card access");
+                Log.d("Foreground service", "fuck you sd card access");
                 Toast.makeText(this, "fuck you sd card access", Toast.LENGTH_SHORT).show();
             }
         }
@@ -124,16 +157,18 @@ public class ForegroundTagEditService extends IntentService {
 
 
         Bitmap finalBmp = bmp;//just copy of bmp link for ...
-        int finalSuccesed = succesed-1;
-        MediaStoreUtils.updateMuchFilesMediaStore(sources, getApplicationContext(), new MediaScannerConnection.OnScanCompletedListener() {
+        MediaStoreUtils.insertMusicFilesIntoMediaStoreTEST(this, sources);
+        /*MediaStoreUtils.updateMuchFilesMediaStore(sources, getApplicationContext(), new MediaScannerConnection.OnScanCompletedListener() {
                     @Override
                     public void onScanCompleted(String path, Uri uri) {
                         MusicFile ddd = MediaStoreUtils.getMusicFileByPath(path,context);
+                        Log.e("Scanned file album_id ", String.valueOf(ddd.getAlbum_id()));
                         sources.remove(0);
                         for (MusicFile f : sources){
                             f.setFieldsByMusocFile(ddd);
                         }
                         for(MusicFile scanFile : sources){
+                            Log.e("file for ins album id ", String.valueOf(scanFile.getAlbum_id()));
                             Log.e("insert file",String.valueOf(MediaStoreUtils.insertMusicFileIntoMediaStore(context,scanFile)));
                         }
 
@@ -157,18 +192,16 @@ public class ForegroundTagEditService extends IntentService {
                         Notification notification = new NotificationCompat.Builder(context, "my_channel_01")
                                 .setSmallIcon(R.mipmap.ic_launcher)
                                 .setContentTitle("Update tags finshed!")
-                                .setContentText("Successed : " + finalSuccesed + " Failed : " + (sources.size() - finalSuccesed))
+                                .setContentText("Files was edited")
                                 .setLargeIcon(finalBmp)
                                 .setChannelId("my_channel_01")
                                 .build();
 
                         notificationManager.notify(1,notification);
 
-                        MediaStoreUtils.dumpAlbums(context);
-
                     }
                 }
-        );
+        );*/
 
     }
 }

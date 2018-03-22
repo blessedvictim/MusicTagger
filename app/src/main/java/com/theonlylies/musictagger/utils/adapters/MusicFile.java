@@ -17,6 +17,7 @@ public class MusicFile {
     protected String trackNumber;
     protected String year;
     protected Uri artworkUri;
+    protected String artworkPath;
     public AtomicInteger progress;
     protected long album_id;
 
@@ -36,6 +37,14 @@ public class MusicFile {
         this.setYear(file.getYear());
     }
 
+    public static MusicFile createEmpty() {
+        MusicFile file = new MusicFile();
+        file.title = "empty";
+        file.artist = "empty";
+        file.album = "empty";
+        return file;
+    }
+
     public MusicFile(){
         title=null;
         artist=null;
@@ -49,6 +58,15 @@ public class MusicFile {
         progress=new AtomicInteger();
         progress.set(0);
         album_id=-1;
+        artworkPath = null;
+    }
+
+    public String getArtworkPath() {
+        return artworkPath;
+    }
+
+    public void setArtworkPath(String artworkPath) {
+        this.artworkPath = artworkPath;
     }
 
     public String getTitle() {

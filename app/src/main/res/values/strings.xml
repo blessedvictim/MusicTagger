@@ -1,6 +1,12 @@
 <resources>
 
     <string name="app_name">Advanced Music Tagger</string>
+    <string name="activity_muchfileedit_name">Album mode</string>
+    <string name="activity_onefileedit_name">Single mode</string>
+    <string name="activity_coverart_name">Pick cover art</string>
+    <string name="activity_faq_name">FAQ</string>
+    <string name="activity_help_name">Help</string>
+    <string name="activity_about_name">About</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -18,4 +24,8 @@
         "flexibility of the material creates new affordances that supercede those in the physical "
         "world, without breaking the rules of physics.\n"
     </string>
+
+    <string name="faqFileName">faq/index.html</string>
+    <string name="helpFileName">help/index.html</string>
+    <string name="aboutFileName">about/index.html</string>
 </resources>

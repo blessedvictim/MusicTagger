@@ -8,6 +8,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
 
 import com.theonlylies.musictagger.R;
 
@@ -27,6 +28,7 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
         sdcardEditText = (EditTextPreference) findPreference("sdcard_uri");
 
         sdcardEditText.setOnPreferenceClickListener(this);
+        //getActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
@@ -35,6 +37,14 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
             openSdCardTree();
         }
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private final int OPEN_TREE_REQUEST_CODE = 44;

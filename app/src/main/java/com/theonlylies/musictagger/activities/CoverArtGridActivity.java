@@ -16,6 +16,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
@@ -55,6 +56,7 @@ public class CoverArtGridActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_grid_gallery);
         gridView = (GridView) findViewById(R.id.gridView);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         String searchAlbum = getIntent().getStringExtra("album");
         String searchArtist = getIntent().getStringExtra("artist");
@@ -83,6 +85,16 @@ public class CoverArtGridActivity extends AppCompatActivity {
             new AsyncGridImageLoader(searchAlbum, searchArtist, target.MusicBrainz).execute();
         else if (searchSource.equals("lastfm"))
             new AsyncGridImageLoader(searchAlbum, searchArtist, target.LastFM).execute();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     class AsyncGridImageLoader extends AsyncTask<String, AsyncGridImageLoader.Data, Boolean> {
@@ -115,6 +127,8 @@ public class CoverArtGridActivity extends AppCompatActivity {
         boolean albumartist = true;
         int count;
 
+        RelativeLayout progressLayout;
+
         @Override
         protected void onPreExecute() {
             Log.d("CoverArtGridActivity","Using target:"+source);
@@ -124,6 +138,7 @@ public class CoverArtGridActivity extends AppCompatActivity {
             albumartist = PreferencesManager.getStringValue(CoverArtGridActivity.this, "artwork-rule-term", "albumartist")
                     .equals("albumartist");
             count = Integer.parseInt(PreferencesManager.getStringValue(CoverArtGridActivity.this, "artwork-rule-count", "8"));
+            progressLayout = findViewById(R.id.coverProgressLayout);
         }
 
         @Override
@@ -146,7 +161,6 @@ public class CoverArtGridActivity extends AppCompatActivity {
                         try {
                             Log.d("CoverArtGridActivity","url="+q.getUrl());
                             publishProgress(new Data(q.getAlbum(),q.getArtist(),q.getUrl()));
-
                         } catch (Exception e) {
                             e.printStackTrace();
                         };
@@ -154,6 +168,7 @@ public class CoverArtGridActivity extends AppCompatActivity {
                 }
             } catch (NoMatchesException e) {
                 e.printStackTrace();
+                return false;
             }
 
 
@@ -162,6 +177,7 @@ public class CoverArtGridActivity extends AppCompatActivity {
 
         @Override
         protected void onProgressUpdate(Data... values) {
+            progressLayout.setVisibility(View.GONE);
             gridAdapter.addData(values[0].album,values[0].artist,values[0].url);
             super.onProgressUpdate(values);
         }

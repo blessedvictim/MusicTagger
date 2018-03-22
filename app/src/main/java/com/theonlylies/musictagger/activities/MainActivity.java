@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Process;
 import android.provider.MediaStore;
 import android.support.design.widget.NavigationView;
@@ -42,6 +43,7 @@ import com.theonlylies.musictagger.utils.adapters.ExpandBlockAdapter;
 import com.theonlylies.musictagger.utils.adapters.ListAdapter;
 import com.theonlylies.musictagger.utils.adapters.MusicFile;
 import com.theonlylies.musictagger.utils.adapters.SimpleListAdapter;
+import com.theonlylies.musictagger.utils.edit.MediaStoreUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -410,11 +412,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_share) {
-
+        if (id == R.id.nav_help) {
+            new Handler().postDelayed(() -> {
+                Intent intent = new Intent(this, HelpActivity.class);
+                startActivity(intent);
+            }, 200);
         } else if (id == R.id.nav_settings) {
-            Intent intent = new Intent(this, PreferencesActivity.class);
-            startActivity(intent);
+            new Handler().postDelayed(() -> {
+                Intent intent = new Intent(this, PreferencesActivity.class);
+                startActivity(intent);
+            }, 200);
+
+        } else if (id == R.id.nav_faq) {
+            new Handler().postDelayed(() -> {
+                Intent intent = new Intent(this, FAQActivity.class);
+                startActivity(intent);
+            }, 200);
+        } else if (id == R.id.nav_about) {
+            new Handler().postDelayed(() -> {
+                Intent intent = new Intent(this, AboutActivity.class);
+                startActivity(intent);
+            }, 200);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -425,7 +443,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     /**
      * Permission block
      */
-
 
     /**
      * It for adapter onClick action
@@ -475,7 +492,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             intent.putExtra("pos", position);
             startActivityForResult(intent, REQUEST_UPDATE_CODE);
         }
-
 
     }
 
@@ -539,7 +555,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (actionMode != null) actionMode.finish();
 
-        if (requestCode == REQUEST_UPDATE_CODE) {
+        if (requestCode == REQUEST_UPDATE_CODE || requestCode == REQUEST_UPDATE_ALL_CODE) {
             Log.w("onActivityResult", "REQUEST_UPDATE_CODE");
             if (resultCode == RESULT_OK) {
                 Log.w("onActivityResult", "RESULT_OK");
@@ -987,8 +1003,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Log.e("onPostExecute", "i dont understand what next");
                 layoutManager.scrollToPositionWithOffset(index, top);
             }
-            //snackProgressBarManager.dismiss();
-            //adapter.addData(aVoid);
         }
     }
 
@@ -1004,6 +1018,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         @Override
         protected Void doInBackground(Void... voids) {
+            MediaStoreUtils.dumpAlbums(MainActivity.this);
             Process.setThreadPriority(Process.THREAD_PRIORITY_DISPLAY);
             final Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
             final String[] cursor_cols = {

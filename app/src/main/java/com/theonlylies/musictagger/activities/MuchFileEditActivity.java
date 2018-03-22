@@ -12,6 +12,8 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.widget.NestedScrollView;
@@ -139,6 +141,7 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
     }
 
 
+    //
     void initTagsInterface(MusicFile file){
         albumEdit.setText(file.getAlbum());
         artistEdit.setText(file.getArtist());
@@ -281,6 +284,7 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
 
     private BroadcastReceiver receiver;
 
+
     public void saveChanges(ParcelableMusicFile musicFile){
         musicFile= (ParcelableMusicFile) collectDataFromUI();
         /**
@@ -298,25 +302,17 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
         }else intent.putExtra("bitmap","nothing");
 
 
-        startService(intent);
         ProgressDialog dialog = ProgressDialog.show(MuchFileEditActivity.this, "",
                 "Changing tags. Please wait...", true);
 
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("CHANGE_TAG_FINISHED_ADMT");
-
-        receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                dialog.dismiss();
-                unregisterReceiver(receiver);
-                finish();
-            }
-        };
-        registerReceiver(receiver, filter);
-
-
-        //All done
+        ForegroundTagEditService.ServiceResultReciever resultReciever = new ForegroundTagEditService.ServiceResultReciever(new Handler());
+        resultReciever.setReceiver((resultCode, data) -> {
+            dialog.dismiss();
+            setResult(RESULT_OK);
+            finish();
+        });
+        intent.putExtra("result", resultReciever);
+        startService(intent);
     }
 
     public boolean isOnline() {
@@ -352,7 +348,6 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
                 list.add( new ParcelableMusicFile( MediaStoreUtils.getMusicFileByPath(s,context) ) );
             }
 
-
             //TagManager manager = new TagManager(strings[0]);
             //file.setGenre(manager.getGenre());
             return list;
@@ -361,6 +356,8 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
         @Override
         protected void onPostExecute(ArrayList<ParcelableMusicFile> file) {
             super.onPostExecute(file);
+
+            musicFiles.add(new ParcelableMusicFile(MusicFile.createEmpty()));
             musicFiles.addAll(file);
 
             Log.d("musicFile size", String.valueOf(musicFiles.size()));
@@ -386,6 +383,7 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
                 public void onClick(DialogInterface dialog, int which) {
                     musicFile = musicFiles.get(which);
                     initTagsInterface(musicFile);
+                    musicFiles.remove(0);
                     dialog.dismiss();
                 }
             });

@@ -1,14 +1,9 @@
 package com.theonlylies.musictagger.utils;
 
-import android.content.ContentUris;
-import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.theonlylies.musictagger.utils.adapters.MusicFile;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by theonlylies on 05.01.18.
@@ -24,7 +19,9 @@ public class ParcelableMusicFile extends MusicFile implements Parcelable {
         genre = in.readString();
         trackNumber = in.readString();
         year = in.readString();
-        artworkUri = Uri.parse( in.readString() );
+        //String uri = in.readString();
+        /*if(uri==null || uri.isEmpty())artworkUri=null;
+        else artworkUri = Uri.parse( uri);*/
         album_id = in.readLong();
     }
 
@@ -54,7 +51,9 @@ public class ParcelableMusicFile extends MusicFile implements Parcelable {
         dest.writeString(genre);
         dest.writeString(trackNumber);
         dest.writeString(year);
-        dest.writeString(artworkUri.toString());
+        /*if(artworkUri==null)dest.writeString(null);
+        else dest.writeString(artworkUri.toString());*/
+
         dest.writeLong(album_id);
     }
 

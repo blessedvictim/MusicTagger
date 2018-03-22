@@ -12,9 +12,13 @@
                 android:icon="@drawable/ic_settings_black_24dp"
                 android:title="Settings" />
             <item
-                android:id="@+id/nav_share"
+                android:id="@+id/nav_help"
                 android:icon="@drawable/ic_help_black"
                 android:title="Help" />
+            <item
+                android:id="@+id/nav_faq"
+                android:icon="@drawable/ic_help_black"
+                android:title="FAQ" />
         </menu>
     </item>
 

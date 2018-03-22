@@ -12,6 +12,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.provider.DocumentFile;
 import android.util.Log;
+import android.widget.ExpandableListAdapter;
 
 import com.theonlylies.musictagger.utils.FileUtil;
 import com.theonlylies.musictagger.utils.ParcelableMusicFile;
@@ -39,7 +40,6 @@ public class MediaStoreUtils {
         path = "\"" + path + "\"";
         Cursor cursor = context.getContentResolver().query(contentUri, null, MediaStore.Audio.Media.IS_MUSIC + "!= 0 and " + MediaStore.Audio.Media.DATA + "==" + path, null, null);
         String s;
-        Log.d("cursor count:", String.valueOf(cursor.getCount()));
         MusicFile musicFile = new MusicFile();
         if (cursor.moveToFirst()) {
             s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
@@ -59,8 +59,7 @@ public class MediaStoreUtils {
             musicFile.setYear(s);
 
             musicFile.setArtworkUri(getAlbumArtUriByAlbumId(id));
-            //Log.d("DATA COL", s = s != null ? s : "empty");
-            //Log.d("---", "------------------------------------------------------------------");
+
 
         }
         return musicFile;
@@ -92,7 +91,7 @@ public class MediaStoreUtils {
         Cursor cursor = context.getContentResolver().query(contentUri, null, MediaStore.Audio.Media.DATA + "==" + nPath, null, null);
         long id = -1;
 
-        try {
+        /*try {
             if (cursor != null && cursor.moveToFirst()) {
                 id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
                 if (id != -1) {
@@ -142,7 +141,8 @@ public class MediaStoreUtils {
         } catch (NullPointerException | IllegalArgumentException e) {
             e.printStackTrace();
             return false;
-        }
+        }*/
+        scanFile(musicFile.getRealPath(), context, listener);
         return true;
     }
 
@@ -196,6 +196,40 @@ public class MediaStoreUtils {
         }
     }
 
+    static public void insertMusicFilesIntoMediaStoreTEST(Context context, ArrayList<ParcelableMusicFile> files) {
+        Uri contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        for (MusicFile musicFile : files) {
+            try {
+                String nPath = "\"" + musicFile.getRealPath() + "\"";
+                Cursor cursor = context.getContentResolver().query(contentUri, null, MediaStore.Audio.Media.DATA + "==" + nPath, null, null);
+                if (cursor != null && cursor.moveToFirst()) {
+                    long id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
+                    context.getContentResolver().delete(ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id), null, null);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        for (MusicFile musicFile : files) {
+            try {
+                context.getContentResolver().delete(ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, musicFile.getAlbum_id()), null, null);
+                String nPath = "\"" + musicFile.getRealPath() + "\"";
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.Audio.AudioColumns.DATA, musicFile.getRealPath());
+                values.put(MediaStore.Audio.AudioColumns.TITLE, musicFile.getTitle());
+                values.put(MediaStore.Audio.AudioColumns.ALBUM, musicFile.getAlbum());
+                //values.put(MediaStore.Audio.AudioColumns.ALBUM_ID,musicFile.getAlbum_id());
+                values.put(MediaStore.Audio.AudioColumns.ARTIST, musicFile.getArtist());
+                values.put(MediaStore.Audio.AudioColumns.YEAR, musicFile.getYear());
+                values.put(MediaStore.Audio.AudioColumns.IS_MUSIC, 1);
+                Uri uri = context.getContentResolver().insert(contentUri, values);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
         static public void updateMuchFilesMediaStore
         (List < ParcelableMusicFile > musicFiles, Context
         context, MediaScannerConnection.OnScanCompletedListener listener){
@@ -214,6 +248,7 @@ public class MediaStoreUtils {
                         String albumName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM));
                         String artistName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
                         if (id != -1) {
+                            //my fucking shit
                             /*Data data = getAllMusicFilesIDsWithThisArtPath(context, musicFile.getRealPath());
                             if (data.ids.size() > 1) {
                                 for (int i = 0; i < data.ids.size(); i++) {
@@ -227,6 +262,7 @@ public class MediaStoreUtils {
                                 pathsToScan.add(musicFile.getRealPath());
                                 context.getContentResolver().delete(ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id), null, null);
                             }*/
+                            //
                             context.getContentResolver().delete(ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id), null, null);
                         }
 

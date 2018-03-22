@@ -37,13 +37,13 @@
             android:screenOrientation="portrait"
             android:name=".activities.PreferencesActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme">
         </activity>
 
         <activity android:name=".activities.OneFileEditActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan"
-            android:label="@string/app_name"
+            android:label="@string/activity_onefileedit_name"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
 
@@ -51,20 +51,37 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan"
             android:theme="@style/AppTheme.NoActionBar"
-            android:label="@string/app_name"
+            android:label="@string/activity_muchfileedit_name"
             />
 
         <activity android:name=".activities.CoverArtGridActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:label="@string/app_name"
-            />
+            android:theme="@style/AppTheme"
+            android:label="@string/activity_coverart_name" />
 
         <activity
-        android:name="com.yalantis.ucrop.UCropActivity"
-        android:screenOrientation="portrait"
-        android:theme="@style/AppTheme.NoActionBar"/>
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity
+            android:name=".activities.FAQActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme"
+            android:label="@string/activity_faq_name" />
+
+        <activity
+            android:name=".activities.AboutActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme"
+            android:label="@string/activity_about_name" />
+
+        <activity
+            android:name=".activities.HelpActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme"
+            android:label="@string/activity_help_name" />
 
         <service android:name=".services.ForegroundTagEditService" >
         </service>
