@@ -78,7 +78,7 @@ public class MediaStoreUtils {
         MediaScannerConnection.scanFile(context, paths, null, listener);
     }
 
-    // return true if we must rename file as want user!
+    // return true if we can rename file as want user!
     static private boolean mustRenameFile(String origFilePath, String newName) {
         File file = new File(origFilePath);
         File newFile = new File(file.getParentFile(), newName);
@@ -88,199 +88,63 @@ public class MediaStoreUtils {
     static public boolean updateFileMediaStoreMedia(MusicFile musicFile, Context context, PreferencesManager.RenameRules rule, MediaScannerConnection.OnScanCompletedListener listener) {
         Uri contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String nPath = "\"" + musicFile.getRealPath() + "\"";
-        Cursor cursor = context.getContentResolver().query(contentUri, null, MediaStore.Audio.Media.DATA + "==" + nPath, null, null);
-        long id = -1;
 
-        /*try {
-            if (cursor != null && cursor.moveToFirst()) {
-                id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
-                if (id != -1) {
-                    int deleted = context.getContentResolver().delete(ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id), null, null);
-                    Log.d("getContentResolver", new TagManager(musicFile.getRealPath()).getAlbum());
-                    Log.d("updateFileMediaStoreMed", "delete record from mediastore");
-                    Log.d("updateFileMediaStoreMed", "deleted " + deleted);
+        try {
+            if (rule != null && rule != PreferencesManager.RenameRules.none) {
+                String newName;
+                switch (rule) {
+                    case title:
+                        newName = musicFile.getTitle() + ".mp3";
+                        break;
+                    case title_album:
+                        newName = musicFile.getTitle() + "-" + musicFile.getAlbum() + ".mp3";
+                        break;
+                    case title_artist:
+                        newName = musicFile.getTitle() + "-" + musicFile.getArtist() + ".mp3";
+                        break;
+                    case title_album_artist:
+                        newName = musicFile.getTitle() + "-" + musicFile.getAlbum() + "-" + musicFile.getArtist() + ".mp3";
+                        break;
+                    default:
+                        newName = new File(musicFile.getRealPath()).getName();
                 }
-
-                if (rule != null && rule != PreferencesManager.RenameRules.none) {
-                    String newName;
-                    switch (rule) {
-                        case title:
-                            newName = musicFile.getTitle() + ".mp3";
-                            break;
-                        case title_album:
-                            newName = musicFile.getTitle() + "-" + musicFile.getAlbum() + ".mp3";
-                            break;
-                        case title_artist:
-                            newName = musicFile.getTitle() + "-" + musicFile.getArtist() + ".mp3";
-                            break;
-                        case title_album_artist:
-                            newName = musicFile.getTitle() + "-" + musicFile.getAlbum() + "-" + musicFile.getArtist() + ".mp3";
-                            break;
-                        default:
-                            newName = new File(musicFile.getRealPath()).getName();
-                    }
-                    if (mustRenameFile(musicFile.getRealPath(), newName)) {
-                        if (FileUtil.fileOnSdCard(new File(musicFile.getRealPath()))) {
-                            Log.d("renameOnSDCard", "rename");
-                            DocumentFile file = FileUtil.getDocumentFile(new File(musicFile.getRealPath()), false, context);
-                            if (file != null) {
-                                file.renameTo(newName);
-                            }
-                        } else {
-                            Log.d("renameOnInternal", "rename");
-                            File file = new File(musicFile.getRealPath());
-                            file = new File(file.getParentFile(), newName);
-                            musicFile.setRealPath(file.getPath());
+                if (mustRenameFile(musicFile.getRealPath(), newName)) {
+                    int deleted = context.getContentResolver().delete(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, MediaStore.Audio.Media.DATA + "==" + nPath, null);
+                    Log.d("deleted rows count", String.valueOf(deleted));
+                    if (FileUtil.fileOnSdCard(new File(musicFile.getRealPath()))) {
+                        Log.d("renameOnSDCard", "rename");
+                        DocumentFile file = FileUtil.getDocumentFile(new File(musicFile.getRealPath()), false, context);
+                        if (file != null) {
+                            file.renameTo(newName);
                         }
-
+                    } else {
+                        Log.d("renameOnInternal", "rename");
+                        File file = new File(musicFile.getRealPath());
+                        file = new File(file.getParentFile(), newName);
+                        musicFile.setRealPath(file.getPath());
                     }
-                }
 
-                scanFile(musicFile.getRealPath(), context, listener);
+                }
             }
+
+            scanFile(musicFile.getRealPath(), context, listener);
         } catch (NullPointerException | IllegalArgumentException e) {
             e.printStackTrace();
             return false;
-        }*/
+        }
         scanFile(musicFile.getRealPath(), context, listener);
         return true;
     }
 
-    static class Data {
-        List<String> ids;
-        List<String> paths;
-    }
 
-    static public Data getAllMusicFilesIDsWithThisArtPath(Context context, String path) {
-        Uri contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Data data = new Data();
-        data.paths=new ArrayList<>();
-        data.ids=new ArrayList<>();
-        path = "\"" + path + "\"";
-        Cursor cursor = context.getContentResolver().query(contentUri, null, MediaStore.Audio.Media.DATA + "==" + path, null, null);
-        try {
-            String albumId = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
-            Log.e("getALl",albumId);
-            cursor = context.getContentResolver().query(contentUri, null, MediaStore.Audio.Media.ALBUM_ID + "==" + albumId, null, null);
-            if (cursor != null) {
-                while (cursor.moveToNext()) {
-                    String nPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
-                    String nId = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
-                    data.paths.add(nPath);
-                    data.ids.add(nId);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return data;
-    }
-
-    static public boolean insertMusicFileIntoMediaStore(Context context, MusicFile musicFile) {
-        Uri contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        try {
-            String nPath = "\"" + musicFile.getRealPath() + "\"";
-            ContentValues values = new ContentValues();
-            values.put(MediaStore.Audio.AudioColumns.DATA, musicFile.getRealPath());
-            values.put(MediaStore.Audio.AudioColumns.TITLE, musicFile.getTitle());
-            values.put(MediaStore.Audio.AudioColumns.ALBUM,musicFile.getAlbum());
-            values.put(MediaStore.Audio.AudioColumns.ALBUM_ID,musicFile.getAlbum_id());
-            values.put(MediaStore.Audio.AudioColumns.ARTIST,musicFile.getArtist());
-            values.put(MediaStore.Audio.AudioColumns.YEAR,musicFile.getYear());
-            values.put(MediaStore.Audio.AudioColumns.IS_MUSIC,1);
-            Uri uri = context.getContentResolver().insert(contentUri,values);
-            return uri!=null;
-        }catch (Exception e){
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    static public void insertMusicFilesIntoMediaStoreTEST(Context context, ArrayList<ParcelableMusicFile> files) {
-        Uri contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        for (MusicFile musicFile : files) {
-            try {
-                String nPath = "\"" + musicFile.getRealPath() + "\"";
-                Cursor cursor = context.getContentResolver().query(contentUri, null, MediaStore.Audio.Media.DATA + "==" + nPath, null, null);
-                if (cursor != null && cursor.moveToFirst()) {
-                    long id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
-                    context.getContentResolver().delete(ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id), null, null);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        for (MusicFile musicFile : files) {
-            try {
-                context.getContentResolver().delete(ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, musicFile.getAlbum_id()), null, null);
-                String nPath = "\"" + musicFile.getRealPath() + "\"";
-                ContentValues values = new ContentValues();
-                values.put(MediaStore.Audio.AudioColumns.DATA, musicFile.getRealPath());
-                values.put(MediaStore.Audio.AudioColumns.TITLE, musicFile.getTitle());
-                values.put(MediaStore.Audio.AudioColumns.ALBUM, musicFile.getAlbum());
-                //values.put(MediaStore.Audio.AudioColumns.ALBUM_ID,musicFile.getAlbum_id());
-                values.put(MediaStore.Audio.AudioColumns.ARTIST, musicFile.getArtist());
-                values.put(MediaStore.Audio.AudioColumns.YEAR, musicFile.getYear());
-                values.put(MediaStore.Audio.AudioColumns.IS_MUSIC, 1);
-                Uri uri = context.getContentResolver().insert(contentUri, values);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-    }
-
-        static public void updateMuchFilesMediaStore
-        (List < ParcelableMusicFile > musicFiles, Context
-        context, MediaScannerConnection.OnScanCompletedListener listener){
-
-            Uri contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-            ArrayList<String> pathsToScan = new ArrayList<>();
-
-            for (ParcelableMusicFile musicFile : musicFiles) {
-                try {
-                    String nPath = "\"" + musicFile.getRealPath() + "\"";
-                    Cursor cursor = context.getContentResolver().query(contentUri, null, MediaStore.Audio.Media.DATA + "==" + nPath, null, null);
-                    long id = -1;
-
-                    if (cursor != null && cursor.moveToFirst()) {
-                        id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
-                        String albumName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM));
-                        String artistName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
-                        if (id != -1) {
-                            //my fucking shit
-                            /*Data data = getAllMusicFilesIDsWithThisArtPath(context, musicFile.getRealPath());
-                            if (data.ids.size() > 1) {
-                                for (int i = 0; i < data.ids.size(); i++) {
-                                    String nId = data.ids.get(i);
-                                    String pathToScan = data.paths.get(i);
-                                    deleteAlbumArt(context, Long.valueOf(data.ids.get(i)));
-                                    context.getContentResolver().delete(ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, Integer.valueOf(nId)), null, null);
-                                    pathsToScan.add(pathToScan);
-                                }
-                            } else {
-                                pathsToScan.add(musicFile.getRealPath());
-                                context.getContentResolver().delete(ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id), null, null);
-                            }*/
-                            //
-                            context.getContentResolver().delete(ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id), null, null);
-                        }
-
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            /*ArrayList<String> paths = new ArrayList<>(musicFiles.size());
+    static public void updateMuchFilesMediaStore(List<ParcelableMusicFile> musicFiles, Context context,
+                                                 MediaScannerConnection.OnScanCompletedListener listener) {
+        ArrayList<String> paths = new ArrayList<>(musicFiles.size());
             for (ParcelableMusicFile q : musicFiles) {
-                //context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(q.getRealPath()))));
                 paths.add(q.getRealPath());
-            }*/
+            }
 
-            //scanFiles(pathsToScan.toArray(new String[pathsToScan.size()]), context, listener);
-            scanFile(musicFiles.get(0).getRealPath(),context,listener);
+        scanFiles(paths.toArray(new String[paths.size()]), context, listener);
         }
 
         static public boolean setAlbumArt (Bitmap bitmap, Context context,long album_id){

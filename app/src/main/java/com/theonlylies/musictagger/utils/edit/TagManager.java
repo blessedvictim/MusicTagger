@@ -268,7 +268,11 @@ public class TagManager {
     private boolean setTag(FieldKey key, String newContent) {
 
         try {
-            tag.setField(key, newContent);
+            if (tag.hasField(key)) {
+                tag.setField(key, newContent);
+            } else {
+                tag.addField(key, newContent);
+            }
             return true;
         } catch (FieldDataInvalidException e) {
             e.printStackTrace();

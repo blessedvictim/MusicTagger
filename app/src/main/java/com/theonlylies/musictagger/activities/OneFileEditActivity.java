@@ -493,90 +493,6 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         return musicFile;
     }
 
-    public boolean saveChangesTEST(final MusicFile musicFile, AlertDialog progressDialog) {
-        Bitmap bitmap = null;
-
-        Log.e("deleteStatus", String.valueOf(MediaUtils.deleteMusicFileFromMediaStore(this, musicFile.getRealPath())));
-        if (MediaUtils.getCountOfMusicFileInAlbum(this, musicFile.getAlbum_id()) == 1) {
-            MediaUtils.deleteAlbumArtFileWithAlbumId(this, musicFile.getAlbum_id());
-        }
-
-        if (!FileUtil.fileOnSdCard(new File(musicFile.getRealPath()))) {
-            Log.d("OneFileEdit", "file in internal storage!...");
-            TagManager tagManager = new TagManager(musicFile.getRealPath());
-            tagManager.setTagsFromMusicFile(
-                    collectDataFromUI());
-            if (artWorkWasChanged) {
-
-                try {
-                    bitmap = GlideApp.with(getApplicationContext())
-                            .asBitmap()
-                            .centerCrop()
-                            .load(newArtworkUri)
-                            .submit()
-                            .get();
-                    bitmap = BitmapUtils.getCenterCropedBitmap(bitmap);
-                    tagManager.setArtwork(bitmap);
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
-                }
-
-
-            } else if (artworkWasDeleted) {
-                tagManager.deleteArtwork();
-            }
-            tagManager.save();
-        } else if (FileUtil.fileOnSdCard(new File(musicFile.getRealPath())) &&
-                FileUtil.canWriteThisFileSAF(this, musicFile.getRealPath())) {
-            Log.d("OneFileEdit", "file on sdcard ! EDITITNG!");
-            MusicCache cache = new MusicCache(this);
-            try {
-                File file = cache.cacheMusicFile(new File(musicFile.getRealPath()));
-                TagManager tagManager = new TagManager(file.getPath());
-                tagManager.setTagsFromMusicFile(
-                        collectDataFromUI());
-                if (artWorkWasChanged) {
-
-                    try {
-                        bitmap = GlideApp.with(getApplicationContext())
-                                .asBitmap()
-                                .centerCrop()
-                                .load(newArtworkUri)
-                                .submit()
-                                .get();
-                        bitmap = BitmapUtils.getCenterCropedBitmap(bitmap);
-                        tagManager.setArtwork(bitmap);
-                    } catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
-                    }
-                    //tagManager.setArtwork(bitmap);
-                } else if (artworkWasDeleted) {
-                    tagManager.deleteArtwork();
-                }
-                tagManager.save();
-                cache.replaceCache();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        } else {
-            Log.d("OneFileEdit", "fuck you sd card access");
-            //Toast.makeText(this,"fuck you sd card access",Toast.LENGTH_SHORT).show();
-            return false;
-        }
-
-        Log.e("insert file", String.valueOf(MediaUtils.insertMusicFileWithPath(this, musicFile, musicFile.getRealPath())));
-        MusicFile newMusicFile = MediaUtils.getMusicFileWithPath(this, musicFile.getRealPath());
-        if (newMusicFile != null && artWorkWasChanged) {
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-            Log.e("insert album art", String.valueOf(MediaUtils.insertAlbumArtWithAlbumId(this, newMusicFile.getAlbum_id(), stream.toByteArray())));
-        }
-
-
-        return true;
-    }
-
     public boolean saveChanges(final MusicFile musicFile, AlertDialog progressDialog) {
         Bitmap bitmap = null;
         if (!FileUtil.fileOnSdCard(new File(musicFile.getRealPath()))) {
@@ -591,6 +507,8 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                             .asBitmap()
                             .centerCrop()
                             .load(newArtworkUri)
+                            .diskCacheStrategy(DiskCacheStrategy.NONE)
+                            .skipMemoryCache(true)
                             .submit()
                             .get();
                     bitmap = BitmapUtils.getCenterCropedBitmap(bitmap);
@@ -668,7 +586,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
             //                 interface  music file update
             updateMusicFile(MediaStoreUtils.getMusicFileByPath(musicFile.getRealPath(), getApplicationContext())); // interface update
             //                 interface  music file update END !!!
-            
+
             //FIXME need change album art
             Log.e("album_id after", String.valueOf(musicFile.getAlbum_id()));
             if (musicFile.getAlbum_id() == album_id) {

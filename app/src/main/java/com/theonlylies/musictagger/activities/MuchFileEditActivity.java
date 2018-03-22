@@ -282,9 +282,7 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
     static boolean artWorkWasChanged=false;
     static boolean artworkWasDeleted=false;
 
-    private BroadcastReceiver receiver;
-
-
+    public static String BROADCAST_ACTION = "FOREGROUND_SERVICE_ADMT_FINISH";
     public void saveChanges(ParcelableMusicFile musicFile){
         musicFile= (ParcelableMusicFile) collectDataFromUI();
         /**
@@ -297,7 +295,8 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
         intent.putExtra("dest_file",musicFile);
         if(artWorkWasChanged){
             intent.putExtra("bitmap",newArtworkUri.toString());
-        }else if(artworkWasDeleted){
+        }
+        if (artworkWasDeleted) {
             intent.putExtra("bitmap","delete");
         }else intent.putExtra("bitmap","nothing");
 
@@ -305,13 +304,20 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
         ProgressDialog dialog = ProgressDialog.show(MuchFileEditActivity.this, "",
                 "Changing tags. Please wait...", true);
 
-        ForegroundTagEditService.ServiceResultReciever resultReciever = new ForegroundTagEditService.ServiceResultReciever(new Handler());
-        resultReciever.setReceiver((resultCode, data) -> {
-            dialog.dismiss();
-            setResult(RESULT_OK);
-            finish();
-        });
-        intent.putExtra("result", resultReciever);
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                dialog.dismiss();
+                MuchFileEditActivity.this.setResult(RESULT_OK);
+                unregisterReceiver(this);
+                MuchFileEditActivity.this.finish();
+            }
+        };
+        // создаем фильтр для BroadcastReceiver
+        IntentFilter intFilt = new IntentFilter(BROADCAST_ACTION);
+        // регистрируем (включаем) BroadcastReceiver
+        registerReceiver(receiver, intFilt);
+
         startService(intent);
     }
 
@@ -347,9 +353,6 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
             for(String s : strings[0]){
                 list.add( new ParcelableMusicFile( MediaStoreUtils.getMusicFileByPath(s,context) ) );
             }
-
-            //TagManager manager = new TagManager(strings[0]);
-            //file.setGenre(manager.getGenre());
             return list;
         }
 
@@ -373,8 +376,7 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
                 adapterList.add(map);
             }
             // массив имен атрибутов, из которых будут читаться данные
-            String[] from = {"title", "album",
-                    "art"};
+            String[] from = {"title", "album", "art"};
             // массив ID View-компонентов, в которые будут вставлять данные
             int[] to = {R.id.itemSimpleTrNum, R.id.trackAlbum, R.id.artworkImageView};
             SimpleAdapter adapter = new SimpleAdapter(MuchFileEditActivity.this, adapterList, R.layout.item_simple, from, to);
