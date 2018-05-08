@@ -21,7 +21,9 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.theonlylies.musictagger.R;
 import com.theonlylies.musictagger.utils.PreferencesManager;
@@ -102,7 +104,8 @@ public class CoverArtGridActivity extends AppCompatActivity {
         target source;
         //CoverArtSearch arts;
         AlbumArtCompilation arts;
-        ProgressDialog dialog;
+        TextView label;
+        ProgressBar progressBar;
 
         class Data{
             String album,artist,url;
@@ -132,13 +135,13 @@ public class CoverArtGridActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             Log.d("CoverArtGridActivity","Using target:"+source);
-            dialog = ProgressDialog.show(CoverArtGridActivity.this, "",
-                    "Loading. Please wait...", true);
 
             albumartist = PreferencesManager.getStringValue(CoverArtGridActivity.this, "artwork-rule-term", "albumartist")
                     .equals("albumartist");
             count = Integer.parseInt(PreferencesManager.getStringValue(CoverArtGridActivity.this, "artwork-rule-count", "8"));
             progressLayout = findViewById(R.id.coverProgressLayout);
+            label = findViewById(R.id.textLabel);
+            progressBar = findViewById(R.id.progressBar);
         }
 
         @Override
@@ -186,20 +189,9 @@ public class CoverArtGridActivity extends AppCompatActivity {
         protected void onPostExecute(Boolean status) {
             Log.d("end","end");
             if (!status) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(CoverArtGridActivity.this);
-                builder.setPositiveButton("understand", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        CoverArtGridActivity.this.finish();
-                    }
-                });
-                builder.setTitle("Error");
-                builder.setMessage("No matched finded");
-                // Create the AlertDialog
-                AlertDialog dialog = builder.create();
-                dialog.show();
+                progressBar.setVisibility(View.INVISIBLE);
+                label.setText("Sorry,nothing found");
             }
-            dialog.dismiss();
         }
 
 

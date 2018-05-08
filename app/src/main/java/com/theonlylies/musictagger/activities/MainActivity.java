@@ -461,6 +461,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     ((ListAdapter) adapter).toogleSelected(position);
                     if (this.adapter.getSelectedCount() == 0 && actionMode != null)
                         actionMode.finish();
+                    else actionMode.setTitle(String.valueOf(this.adapter.getSelectedCount()));
                 }
 
             } else {
@@ -513,6 +514,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     MenuInflater inflater = mode.getMenuInflater();
                     inflater.inflate(R.menu.cab_menu, menu);
                     spinner.setEnabled(false);
+                    spinnerSort.setEnabled(false);
                     return true;
                 }
 
@@ -540,9 +542,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     ((ListAdapter) adapter).setMultiselect(false);
                     actionMode = null;
                     spinner.setEnabled(true);
+                    spinnerSort.setEnabled(true);
                 }
             });
             this.adapter.toogleSelected(position);
+            actionMode.setTitle(String.valueOf(this.adapter.getSelectedCount()));
         }
 
 

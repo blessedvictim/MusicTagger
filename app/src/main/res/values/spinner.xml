@@ -10,4 +10,10 @@
         <item>A-Z</item>
         <item>Z-A</item>
     </string-array>
+
+    <string-array name="image_actions">
+        <item>Pick album art from device</item>
+        <item>Pick album art from Internet</item>
+        <item>Delete album art</item>
+    </string-array>
 </resources>

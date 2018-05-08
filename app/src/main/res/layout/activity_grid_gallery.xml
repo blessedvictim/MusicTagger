@@ -15,13 +15,23 @@
         android:visibility="visible">
 
         <ProgressBar
-            android:id="@+id/progressBar3"
-            style="?android:attr/progressBarStyle"
+            android:id="@+id/progressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:indeterminate="true" />
+
+        <TextView
+            android:id="@+id/textLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/progressBar"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="4dp"
+            android:text="Please waiting ..."
+            android:textColor="@color/textWhitePrimary"
+            android:textSize="24sp" />
     </RelativeLayout>
 
     <GridView

@@ -15,9 +15,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
@@ -42,14 +43,11 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.signature.MediaStoreSignature;
 import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.github.clans.fab.FloatingActionMenu;
-import com.github.clans.fab.FloatingActionMenuBehavior;
 import com.google.android.gms.analytics.ExceptionReporter;
 import com.theonlylies.musictagger.Aapplication;
 import com.theonlylies.musictagger.R;
 import com.theonlylies.musictagger.utils.FileUtil;
 import com.theonlylies.musictagger.utils.GlideApp;
-import com.theonlylies.musictagger.utils.MediaUtils;
 import com.theonlylies.musictagger.utils.MusicCache;
 import com.theonlylies.musictagger.utils.PreferencesManager;
 import com.theonlylies.musictagger.utils.adapters.ListAdapter;
@@ -60,12 +58,9 @@ import com.theonlylies.musictagger.utils.edit.TagManager;
 import com.yalantis.ucrop.UCrop;
 
 import org.jetbrains.annotations.NotNull;
-import org.musicbrainz.android.api.data.Tag;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -86,7 +81,7 @@ import static com.theonlylies.musictagger.utils.edit.MediaStoreUtils.GENRES;
 
 public class OneFileEditActivity extends AppCompatActivity implements View.OnClickListener {
 
-    FloatingActionMenu menu, playMenu;
+    FloatingActionButton fabPlayer;
 
     EditText titleEdit, albumEdit, artistEdit, yearEdit, trackNumberEdit;
     AutoCompleteTextView genreEdit;
@@ -107,6 +102,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
     boolean smartSearch = false;
 
     SmartSearchTask smartSearchTask = null;
+
 
     //DoConnect smartSearchTask;
 
@@ -133,7 +129,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                 mp3Play.prepare();
                 mp3Play.setLooping(false);
                 mp3Play.start();
-                playMenu.getMenuMainButton().setImageDrawable(drawPause);
+                fabPlayer.setImageDrawable(drawPause);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -144,7 +140,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                 mp3Play.reset();
             }
 
-            playMenu.getMenuMainButton().setImageDrawable(drawPlay);
+            fabPlayer.setImageDrawable(drawPlay);
         }
         play = !play;
     }
@@ -186,6 +182,10 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         cardBestSearched.setOnClickListener(this);
         nestedScrollView = findViewById(R.id.nestedScrollView);
 
+        fabPlayer = findViewById(R.id.fabPlayer);
+        drawPlay = (VectorDrawable) ContextCompat.getDrawable(this, R.drawable.ic_play_icon);
+        drawPause = (VectorDrawable) ContextCompat.getDrawable(this, R.drawable.ic_pause_icon);
+
         switchRename = findViewById(R.id.switchFileRename);
         if (!PreferencesManager.getStringValue(this, "rename-rule", "4").equals("4")) {
             switchRename.setChecked(true);
@@ -196,38 +196,10 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
-        /*
-         * This Block for FABs init
-         */
+        appBarLayout = findViewById(R.id.app_bar_much_act);
+        CardView cardView = findViewById(R.id.cardView);
 
-        final CardView cardView = findViewById(R.id.cardView);
 
-        menu = findViewById(R.id.menu);
-
-        appBarLayout = findViewById(R.id.app_bar);
-
-        FloatingActionMenuBehavior behavior = new FloatingActionMenuBehavior();
-        int topInset = getStatusBarHeight(getResources());
-        behavior.setTopInset(topInset);
-
-        CoordinatorLayout.LayoutParams params =
-                (CoordinatorLayout.LayoutParams) menu.getLayoutParams();
-        params.setBehavior(behavior);
-
-        FloatingActionMenu button = findViewById(R.id.fabSmartSearch);
-        button.setAlwaysClosed(true);
-        button.setOnMenuButtonClickListener(this);
-        CoordinatorLayout.LayoutParams paramsButton = (CoordinatorLayout.LayoutParams) button.getLayoutParams();
-        paramsButton.setBehavior(behavior);
-
-        playMenu = findViewById(R.id.fabPlayer);
-        playMenu.setAlwaysClosed(true);
-        drawPlay = (VectorDrawable) ContextCompat.getDrawable(this, R.drawable.ic_play_icon);
-        drawPause = (VectorDrawable) ContextCompat.getDrawable(this, R.drawable.ic_pause_icon);
-        playMenu.getMenuMainButton().setImageDrawable(drawPlay);
-        playMenu.setOnMenuButtonClickListener(this);
-        CoordinatorLayout.LayoutParams paramsPlayButton = (CoordinatorLayout.LayoutParams) playMenu.getLayoutParams();
-        paramsPlayButton.setBehavior(behavior);
 
         appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override
@@ -238,15 +210,10 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
             }
         });
 
-        /**
-         * FAB init block END!
-         */
+
 
 
         String path = getIntent().getStringExtra("music_file_path");
-        //Start
-        //musicFile = MediaStoreUtils.getMusicFileByPath(path,this);
-        //initTagsInterface(musicFile);
         new ReadFromMediaStore().execute(path);
     }
 
@@ -256,13 +223,10 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         artistEdit.setText(file.getArtist());
         yearEdit.setText(file.getYear());
         genreEdit.setText(file.getGenre());
-        // addititional infoapp_name Log.d("sd", "azazaazzaz");
         musicFilePathView.setText(file.getRealPath());
         trackNumberEdit.setText(file.getTrackNumber());
         reloadImage(file);
         musicFile = file;
-        //dumpMedia(this);
-        //dumpAlbums(this);
     }
 
     private void reloadImage(MusicFile file) {
@@ -276,16 +240,9 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                 .into(artworkImageView);
     }
 
-    private static int getStatusBarHeight(android.content.res.Resources res) {
-        return (int) (24 * res.getDisplayMetrics().density);
-    }
-
     @Override
     public void onBackPressed() {
-        if (menu.isOpened()) {
-            menu.close(true);
-            Log.d("sd", "azazaazzaz");
-        } else super.onBackPressed();
+        super.onBackPressed();
     }
 
     @Override
@@ -342,8 +299,6 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
             if (!smartSearch) {
                 if(this.isOnline()){
                     Log.d("sd", "azazaazzaz");
-                    //smartSearchTask = new DoConnect();
-                    //smartSearchTask.execute(musicFile.getRealPath());
                     smartSearchTask = new SmartSearchTask();
                     smartSearchTask.execute(musicFile.getRealPath());
                     goToView(cardBestSearched);
@@ -353,16 +308,40 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                     AlertDialog dialog = builder.create();
                     dialog.show();
                 }
-
-                /*builder.setTitle("");
-                builder.setMessage("867-5309");
-                AlertDialog dialog = builder.create();
-                dialog.show();*/
             } else {
                 goToView(cardBestSearched);
             }
-
         }
+        if (v.getId() == R.id.action_crop) {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            if (!smartSearch) {// если еще не прикрепили тег(MusicFile объект)
+                if (this.isOnline()) {
+                    new SmartSearchTask().execute(musicFile.getRealPath());
+                } else {
+                    builder.setTitle("");
+                    builder.setMessage("Please turn on internet connection and repeat");
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
+            } else if (v.getTag() != null) {
+                MusicFile file = (MusicFile) v.getTag();
+                if (file != null) {
+                    file.setAlbum_id(musicFile.getAlbum_id());
+                    file.setRealPath(musicFile.getRealPath());
+                    artworkAction = ArtworkAction.CHANGED;
+                    newArtworkUri = file.getArtworkUri();
+                    initTagsInterface(file);
+                    //NEW
+                    Toast.makeText(this, "Tags was applied", Toast.LENGTH_SHORT).show();
+
+                }
+            }
+
+            //Toast.makeText(this, "card best match clicked!", Toast.LENGTH_SHORT).show();
+        }
+
         if (v.getId() == R.id.cardBestSearched) {
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -381,7 +360,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                 if (file != null) {
                     file.setAlbum_id(musicFile.getAlbum_id());
                     file.setRealPath(musicFile.getRealPath());
-                    artWorkWasChanged = true;
+                    artworkAction = ArtworkAction.CHANGED;
                     newArtworkUri = file.getArtworkUri();
                     initTagsInterface(file);
                     //NEW
@@ -394,77 +373,88 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         }
 
 
+
         if (v.getId() == R.id.fabPlayer) {
 
             swapAnimationOfplayer();
         }
 
-        if (v.getId() == R.id.fabChooseArtworkFromGallery || v.getId() == R.id.artwortImageView) {
-            Intent intent = new Intent(Intent.ACTION_PICK);
-            intent.setType("image/*");
-            intent.setAction(Intent.ACTION_GET_CONTENT);
-            startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_CODE_GALLERY_PICK);
-        }
-
-        if (v.getId() == R.id.fabDeleteArtwork) {
-            artworkWasDeleted = true;
-            GlideApp.with(this).load(R.drawable.vector_artwork_placeholder).error(R.drawable.vector_artwork_placeholder).into(artworkImageView);
-        }
-
-        if (v.getId() == R.id.fabChooseArtworkFromInternet) {
+        if (v.getId() == R.id.fabImage) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            if (this.isOnline()) {
-                Intent intent = new Intent(this, CoverArtGridActivity.class);
-                intent.putExtra("album", this.albumEdit.getText().toString());
-                intent.putExtra("artist", this.artistEdit.getText().toString());
-
-                builder.setItems(new CharSequence[]{"MusicBrainz", "LastFM"}, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (which == 0) intent.putExtra("source", "musicbrainz");
-                        else if (which == 1) intent.putExtra("source", "lastfm");
-                        else return;
-                        startActivityForResult(intent, REQUEST_CODE_INTERNET_PICK);
+            builder.setItems(R.array.image_actions, (dialog, which) -> {
+                switch (which) {
+                    case 0: {
+                        Intent intent = new Intent(Intent.ACTION_PICK);
+                        intent.setType("image/*");
+                        intent.setAction(Intent.ACTION_GET_CONTENT);
+                        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_CODE_GALLERY_PICK);
+                        break;
                     }
-                });
-                builder.setTitle("Select a source of coverarts");
-                // Create the AlertDialog
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            } else {
-                builder.setTitle("");
-                builder.setMessage("Please turn on internet connection and repeat");
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            }
-        }
+                    case 1: {
+                        AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
+                        if (this.isOnline()) {
+                            Intent intent = new Intent(this, CoverArtGridActivity.class);
+                            intent.putExtra("album", this.albumEdit.getText().toString());
+                            intent.putExtra("artist", this.artistEdit.getText().toString());
 
+                            builder1.setItems(new CharSequence[]{"MusicBrainz", "LastFM"}, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    if (which == 0) intent.putExtra("source", "musicbrainz");
+                                    else if (which == 1) intent.putExtra("source", "lastfm");
+                                    else return;
+                                    startActivityForResult(intent, REQUEST_CODE_INTERNET_PICK);
+                                }
+                            });
+                            builder1.setTitle("Select a source of coverarts");
+                            // Create the AlertDialog
+                            AlertDialog dialog1 = builder1.create();
+                            dialog1.show();
+                        } else {
+                            builder1.setTitle("");
+                            builder1.setMessage("Please turn on internet connection and repeat");
+                            AlertDialog dialog1 = builder1.create();
+                            dialog1.show();
+                        }
+                        break;
+                    }
+                    case 2: {
+                        artworkAction = ArtworkAction.DELETED;
+                        GlideApp.with(this).load(R.drawable.vector_artwork_placeholder).error(R.drawable.vector_artwork_placeholder).into(artworkImageView);
+                        break;
+                    }
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (menu.isOpened()) menu.close(false);
         if (data != null && resultCode == AppCompatActivity.RESULT_OK) {
             switch (requestCode) {
                 case REQUEST_CODE_GALLERY_PICK: {
                     newArtworkUri = data.getData();
                     GlideApp.with(this).load(newArtworkUri).centerCrop().error(R.drawable.vector_artwork_placeholder).into(artworkImageView);
-                    artWorkWasChanged = true;
+                    artworkAction = ArtworkAction.CHANGED;
                     break;
                 }
                 case REQUEST_CODE_INTERNET_PICK: {
                     newArtworkUri = Uri.parse(data.getStringExtra("image"));
                     GlideApp.with(this).load(newArtworkUri).centerCrop().error(R.drawable.vector_artwork_placeholder).into(artworkImageView);
-                    artWorkWasChanged = true;
+                    artworkAction = ArtworkAction.CHANGED;
                     break;
                 }
                 case UCrop.REQUEST_CROP: {
                     final Uri resultUri = UCrop.getOutput(data);
-                    MusicFile file = new MusicFile();
                     newArtworkUri = resultUri;
-                    artWorkWasChanged = true;
-                    file.setArtworkUri(resultUri);
-                    reloadImage(file);
+                    artworkAction = ArtworkAction.CHANGED;
+                    GlideApp.with(this)
+                            .load(newArtworkUri)
+                            .error(R.drawable.vector_artwork_placeholder)
+                            .transition(DrawableTransitionOptions.withCrossFade())
+                            .into(artworkImageView);
                 }
             }
         }
@@ -475,8 +465,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
      * artWorkWasChanged for check state of artwork change or not fck my eng!
      */
 
-    static boolean artWorkWasChanged = false;
-    static boolean artworkWasDeleted = false;
+    static ArtworkAction artworkAction = ArtworkAction.NONE;
 
     void updateMusicFile(MusicFile file) {
         musicFile.setFieldsByMusocFile(file);
@@ -493,47 +482,24 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         return musicFile;
     }
 
-    public boolean saveChanges(final MusicFile musicFile, AlertDialog progressDialog) {
+    public boolean saveChanges(final MusicFile musicFile, AlertDialog dialog) {
         Bitmap bitmap = null;
+
+        PreferencesManager.RenameRules rule = PreferencesManager.
+                RenameRules.values()[Integer.parseInt(PreferencesManager.getStringValue(this, "rename-rule", "4"))];
+        if (!switchRename.isChecked()) rule = PreferencesManager.RenameRules.none;
+
+
+        //update musicFile instance for editing
+        collectDataFromUI();
+
         if (!FileUtil.fileOnSdCard(new File(musicFile.getRealPath()))) {
             Log.d("OneFileEdit", "file in internal storage!...");
+            TagManager.rewriteTag(this.musicFile.getRealPath());
             TagManager tagManager = new TagManager(musicFile.getRealPath());
-            tagManager.setTagsFromMusicFile(
-                    collectDataFromUI());
-            if (artWorkWasChanged) {
-
-                try {
-                    bitmap = GlideApp.with(getApplicationContext())
-                            .asBitmap()
-                            .centerCrop()
-                            .load(newArtworkUri)
-                            .diskCacheStrategy(DiskCacheStrategy.NONE)
-                            .skipMemoryCache(true)
-                            .submit()
-                            .get();
-                    bitmap = BitmapUtils.getCenterCropedBitmap(bitmap);
-                    tagManager.setArtwork(bitmap);
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
-                }
-
-
-            } else if (artworkWasDeleted) {
-                tagManager.deleteArtwork();
-            }
-            tagManager.save();
-            TagManager.rewriteTag(musicFile.getRealPath());
-        } else if (FileUtil.fileOnSdCard(new File(musicFile.getRealPath())) &&
-                FileUtil.canWriteThisFileSAF(this, musicFile.getRealPath())) {
-            Log.d("OneFileEdit", "file on sdcard ! EDITITNG!");
-            MusicCache cache = new MusicCache(this);
-            try {
-                File file = cache.cacheMusicFile(new File(musicFile.getRealPath()));
-                TagManager tagManager = new TagManager(file.getPath());
-                tagManager.setTagsFromMusicFile(
-                        collectDataFromUI());
-                if (artWorkWasChanged) {
-
+            tagManager.setTagsFromMusicFile(this.musicFile);
+            switch (artworkAction) {
+                case CHANGED: {
                     try {
                         bitmap = GlideApp.with(getApplicationContext())
                                 .asBitmap()
@@ -546,12 +512,46 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                     } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
                     }
-                    //tagManager.setArtwork(bitmap);
-                } else if (artworkWasDeleted) {
-                    tagManager.deleteArtwork();
+                    break;
                 }
+                case DELETED: {
+                    tagManager.deleteArtwork();
+                    break;
+                }
+            }
+            tagManager.save();
+        } else if (FileUtil.fileOnSdCard(new File(musicFile.getRealPath())) /*&&
+                FileUtil.canWriteThisFileSAF(this, musicFile.getRealPath())*/) {
+            Log.d("OneFileEdit", "file on sdcard ! EDITITNG!");
+            MusicCache cache = new MusicCache(this);
+            try {
+                File file = cache.cacheMusicFile(new File(musicFile.getRealPath()));
+                TagManager.rewriteTag(file.getAbsolutePath());
+                TagManager tagManager = new TagManager(file.getPath());
+                tagManager.setTagsFromMusicFile(this.musicFile);
+                switch (artworkAction) {
+                    case CHANGED: {
+                        try {
+                            bitmap = GlideApp.with(getApplicationContext())
+                                    .asBitmap()
+                                    .centerCrop()
+                                    .load(newArtworkUri)
+                                    .submit()
+                                    .get();
+                            bitmap = BitmapUtils.getCenterCropedBitmap(bitmap);
+                            tagManager.setArtwork(bitmap);
+                        } catch (InterruptedException | ExecutionException e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    }
+                    case DELETED: {
+                        tagManager.deleteArtwork();
+                        break;
+                    }
+                }
+
                 tagManager.save();
-                TagManager.rewriteTag(musicFile.getRealPath());
                 cache.replaceCache();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -570,19 +570,25 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         //dumpMedia(getApplicationContext());
         //dumpAlbums(getApplicationContext());
 
-        // TODO renaming for sdcard files !
-        PreferencesManager.RenameRules rule = PreferencesManager.
-                RenameRules.values()[Integer.parseInt(PreferencesManager.getStringValue(this, "rename-rule", "4"))];
+        //renaming
+        String newName = MediaStoreUtils.generateNewName(this.musicFile, rule);
+        if (rule != PreferencesManager.RenameRules.none) {
+            if (!new File(musicFile.getRealPath()).getName().equals(newName)) {
+                String oldPath = "\"" + musicFile.getRealPath() + "\"";
+                if (FileUtil.renameFile(this, musicFile, newName)) {
+                    int deleted = context.getContentResolver().delete(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, MediaStore.Audio.Media.DATA + "==" + oldPath, null);
+                    Log.d("deleted rows count", String.valueOf(deleted));
+                    Log.v("renaming", "success");
+                } else Log.v("renaming", "failed");
+            }
+        }
 
-        if (!switchRename.isChecked()) rule = PreferencesManager.RenameRules.none;
+
 
         Bitmap finalBitmap = bitmap;
-        MediaStoreUtils.updateFileMediaStoreMedia(musicFile, this, rule, (path, uri) -> {
+        MediaStoreUtils.updateFileMediaStoreMedia(musicFile, this, (path, uri) -> {
             Log.i("ExternalStorage", "Scanned " + path + ":");
             Log.i("ExternalStorage", "-> uri=" + uri);
-            //dumpMedia(getApplicationContext());
-            //dumpAlbums(getApplicationContext());
-
             //                 interface  music file update
             updateMusicFile(MediaStoreUtils.getMusicFileByPath(musicFile.getRealPath(), getApplicationContext())); // interface update
             //                 interface  music file update END !!!
@@ -590,16 +596,22 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
             //FIXME need change album art
             Log.e("album_id after", String.valueOf(musicFile.getAlbum_id()));
             if (musicFile.getAlbum_id() == album_id) {
-                if (artWorkWasChanged) {
-                    //Bitmap bitmap = ((BitmapDrawable) artworkImageView.getDrawable()).getBitmap();
-                    Log.d("setArtwork()", String.valueOf(MediaStoreUtils.setAlbumArt(finalBitmap, getApplicationContext(), musicFile.getAlbum_id())));
-                } else if (artworkWasDeleted) {
-                    MediaStoreUtils.deleteAlbumArt(getApplicationContext(), musicFile.getAlbum_id());
+                switch (artworkAction) {
+                    case CHANGED: {
+                        //Bitmap bitmap = ((BitmapDrawable) artworkImageView.getDrawable()).getBitmap();
+                        Log.d("setArtwork()", String.valueOf(MediaStoreUtils.setAlbumArt(finalBitmap, getApplicationContext(), musicFile.getAlbum_id())));
+                        break;
+                    }
+                    case DELETED: {
+                        MediaStoreUtils.deleteAlbumArt(getApplicationContext(), musicFile.getAlbum_id());
+                    }
                 }
             }
-            progressDialog.dismiss();
-            setResult(RESULT_OK);
-            finish();
+
+            if (dialog != null) dialog.dismiss();
+            OneFileEditActivity.this.setResult(RESULT_OK);
+            finishAfterTransition();
+
         });
 
         //All done
@@ -635,8 +647,8 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                             if (dialog != null && dialog.isShowing()) {
                                 dialog.dismiss();
                                 Toast.makeText(OneFileEditActivity.this, "Something wrong", Toast.LENGTH_LONG).show();
-                                setResult(RESULT_OK);
-                                finish();
+                                OneFileEditActivity.this.setResult(RESULT_OK);
+                                finishAfterTransition();
                             }
                             break;
 
@@ -650,9 +662,8 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
             builder.setCancelable(false);
             builder.setMessage("Changes writing...");
             dialog = builder.create();
-            mHandler.sendEmptyMessageDelayed(MSG_DISMISS_DIALOG, TIME_OUT);
             dialog.show();
-
+            mHandler.sendEmptyMessageDelayed(MSG_DISMISS_DIALOG, TIME_OUT);
         }
 
         @Override
@@ -662,13 +673,6 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
         }
 
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-            if (!aBoolean) {
-                Toast.makeText(OneFileEditActivity.this,
-                        "You provide bad SD-Card path permission,please setup right path in settings and try again", Toast.LENGTH_LONG).show();
-            }
-        }
     }
 
     class ReadFromMediaStore extends AsyncTask<String, Void, MusicFile> {
@@ -710,27 +714,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
     class SmartSearchTask extends AsyncTask<String, Double, List<MusicFile>> {
 
-        class MyProgressState extends ProgressState {
 
-            protected MyProgressState(int size, String name, String desc) throws ProgressStateException {
-                super(size, name, desc);
-            }
-
-            @Override
-            protected void onDone() {
-
-            }
-
-            @Override
-            protected void onResize() {
-
-            }
-
-            @Override
-            protected void onChange() {
-
-            }
-        }
 
         class FpcaltThread implements FingerPrintThread {
 
@@ -807,7 +791,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                     MusicFile file = (MusicFile) adapter.getData().get(position);
                     file.setAlbum_id(musicFile.getAlbum_id());
                     file.setRealPath(musicFile.getRealPath());
-                    artWorkWasChanged = true;
+                    artworkAction = ArtworkAction.CHANGED;
                     newArtworkUri = file.getArtworkUri();
                     OneFileEditActivity.this.initTagsInterface(file);
                 }

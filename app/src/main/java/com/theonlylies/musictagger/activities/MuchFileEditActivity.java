@@ -12,8 +12,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.ResultReceiver;
+import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.widget.NestedScrollView;
@@ -33,8 +32,6 @@ import android.widget.SimpleAdapter;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.signature.MediaStoreSignature;
-import com.github.clans.fab.FloatingActionMenu;
-import com.github.clans.fab.FloatingActionMenuBehavior;
 import com.theonlylies.musictagger.R;
 import com.theonlylies.musictagger.services.ForegroundTagEditService;
 
@@ -42,7 +39,9 @@ import com.theonlylies.musictagger.utils.GlideApp;
 import com.theonlylies.musictagger.utils.ParcelableMusicFile;
 import com.theonlylies.musictagger.utils.adapters.MusicFile;
 import com.theonlylies.musictagger.utils.edit.MediaStoreUtils;
+import com.yalantis.ucrop.UCrop;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,7 +54,7 @@ import static com.theonlylies.musictagger.utils.edit.MediaStoreUtils.GENRES;
  */
 
 public class MuchFileEditActivity extends AppCompatActivity implements View.OnClickListener {
-    FloatingActionMenu menu;
+
 
     EditText albumEdit,artistEdit,yearEdit;
     AutoCompleteTextView genreEdit;
@@ -94,27 +93,10 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
 
         final CardView cardView=findViewById(R.id.cardView);
 
-        menu = findViewById(R.id.menu);
 
-        appBarLayout=findViewById(R.id.app_bar);
+        appBarLayout = findViewById(R.id.app_bar_much_act);
 
-        FloatingActionMenuBehavior behavior = new FloatingActionMenuBehavior();
-        int topInset=getStatusBarHeight(getResources());
-        behavior.setTopInset(topInset);
 
-        CoordinatorLayout.LayoutParams params =
-                (CoordinatorLayout.LayoutParams) menu.getLayoutParams();
-        params.setBehavior(behavior);
-
-        /*FloatingActionMenu button=findViewById(R.id.fabGroupSmartSearch);
-        button.setAlwaysClosed(true);
-        button.setOnMenuButtonClickListener(this);
-        CoordinatorLayout.LayoutParams paramsButton = (CoordinatorLayout.LayoutParams) button.getLayoutParams();
-        paramsButton.setBehavior(behavior);*/
-
-        /*FloatingActionButton aqua = menu.getMenuMainButton();
-        CoordinatorLayout.LayoutParams p = (CoordinatorLayout.LayoutParams) aqua.getLayoutParams();
-        p.setBehavior(behaviorButton);*/
 
 
         appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
@@ -163,15 +145,10 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
         //dumpAlbums(this);
     }
 
-    private static int getStatusBarHeight(android.content.res.Resources res) {
-        return (int) (24 * res.getDisplayMetrics().density);
-    }
 
     @Override
     public void onBackPressed(){
-        if( menu.isOpened() ) {
-            menu.close(true);
-        }else super.onBackPressed();
+        super.onBackPressed();
     }
 
     @Override
@@ -190,13 +167,17 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
 
         Log.d("id",String.valueOf(id));
 
-        //noinspection SimplifiableIfStatement
-        /*if (id == R.id.action_crop) {//TODO CROP OF IMAGES
-            return true;
-        }*/
+
         if(id==R.id.action_save_file){
             saveChanges(musicFile);
             //new WriteChanges().execute(musicFile);
+        }
+        if (id == R.id.action_crop) {
+            UCrop.of(musicFile.getArtworkUri(), Uri.fromFile(new File(getCacheDir(), "lol")))
+                    .withAspectRatio(1, 1)
+                    .withMaxResultSize(800, 800)
+                    .start(this);
+            return true;
         }
         if(id==android.R.id.home){
             //TODO create return intent with msg for update recyclerView !!!
@@ -211,44 +192,54 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
     @Override
     public void onClick(View v) {
 
-        if(v.getId()==R.id.fabChooseArtworkFromGallery){
-            Intent intent = new Intent(Intent.ACTION_PICK);
-            intent.setType("image/*");
-            intent.setAction(Intent.ACTION_GET_CONTENT);
-            startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_CODE_GALLERY_PICK);
-        }
-
-        if(v.getId()==R.id.fabDeleteArtwork){
-            artworkWasDeleted=true;
-            GlideApp.with(this).load(R.drawable.vector_artwork_placeholder).error(R.drawable.vector_artwork_placeholder).into(artworkImageView);
-        }
-
-        if(v.getId()==R.id.fabChooseArtworkFromInternet){
-            android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
-            if (this.isOnline()) {
-                Intent intent = new Intent(this, CoverArtGridActivity.class);
-                intent.putExtra("album", this.albumEdit.getText().toString());
-                intent.putExtra("artist", this.artistEdit.getText().toString());
-
-                builder.setItems(new CharSequence[]{"MusicBrainz", "LastFM"}, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (which == 0) intent.putExtra("source", "musicbrainz");
-                        else if (which == 1) intent.putExtra("source", "lastfm");
-                        else return;
-                        startActivityForResult(intent, REQUEST_CODE_INTERNET_PICK);
+        if (v.getId() == R.id.fabImage) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setItems(R.array.image_actions, (dialog, which) -> {
+                switch (which) {
+                    case 0: {
+                        Intent intent = new Intent(Intent.ACTION_PICK);
+                        intent.setType("image/*");
+                        intent.setAction(Intent.ACTION_GET_CONTENT);
+                        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_CODE_GALLERY_PICK);
+                        break;
                     }
-                });
-                builder.setTitle("Select a source of coverarts");
-                // Create the AlertDialog
-                android.support.v7.app.AlertDialog dialog = builder.create();
-                dialog.show();
-            } else {
-                builder.setTitle("");
-                builder.setMessage("Please turn on internet connection and repeat");
-                android.support.v7.app.AlertDialog dialog = builder.create();
-                dialog.show();
-            }
+                    case 1: {
+                        android.support.v7.app.AlertDialog.Builder builder1 = new android.support.v7.app.AlertDialog.Builder(this);
+                        if (this.isOnline()) {
+                            Intent intent = new Intent(this, CoverArtGridActivity.class);
+                            intent.putExtra("album", this.albumEdit.getText().toString());
+                            intent.putExtra("artist", this.artistEdit.getText().toString());
+
+                            builder1.setItems(new CharSequence[]{"MusicBrainz", "LastFM"}, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    if (which == 0) intent.putExtra("source", "musicbrainz");
+                                    else if (which == 1) intent.putExtra("source", "lastfm");
+                                    else return;
+                                    startActivityForResult(intent, REQUEST_CODE_INTERNET_PICK);
+                                }
+                            });
+                            builder1.setTitle("Select a source of coverarts");
+                            // Create the AlertDialog
+                            android.support.v7.app.AlertDialog dialog1 = builder1.create();
+                            dialog1.show();
+                        } else {
+                            builder1.setTitle("");
+                            builder1.setMessage("Please turn on internet connection and repeat");
+                            android.support.v7.app.AlertDialog dialog1 = builder1.create();
+                            dialog1.show();
+                        }
+                        break;
+                    }
+                    case 2: {
+                        artworkAction = ArtworkAction.DELETED;
+                        GlideApp.with(this).load(R.drawable.vector_artwork_placeholder).error(R.drawable.vector_artwork_placeholder).into(artworkImageView);
+                        break;
+                    }
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
         }
 
     }
@@ -259,15 +250,16 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
             switch (requestCode){
                 case REQUEST_CODE_GALLERY_PICK:{
                     newArtworkUri = data.getData();
-                    //Log.d("artUri",newArtworkUri.toString());
+                    Log.e("onActivityResult", "GALLERY_PICK");
                     GlideApp.with(this).load(newArtworkUri).centerCrop().error(R.drawable.vector_artwork_placeholder).into(artworkImageView);
-                    artWorkWasChanged=true;
+                    artworkAction = ArtworkAction.CHANGED;
                     break;
                 }
                 case REQUEST_CODE_INTERNET_PICK: {
+                    Log.e("onActivityResult", "INTERNET_PICK");
                     newArtworkUri = Uri.parse(data.getStringExtra("image"));
-                    GlideApp.with(this).load(newArtworkUri).centerCrop().error(R.drawable.vector_artwork_placeholder).into(artworkImageView);
-                    artWorkWasChanged = true;
+                    GlideApp.with(this).load(newArtworkUri).centerCrop().into(artworkImageView);
+                    artworkAction = ArtworkAction.CHANGED;
                     break;
                 }
             }
@@ -279,8 +271,7 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
      * artWorkWasChanged for check state of artwork change or not fck my eng!
      */
 
-    static boolean artWorkWasChanged=false;
-    static boolean artworkWasDeleted=false;
+    static ArtworkAction artworkAction = ArtworkAction.NONE;
 
     public static String BROADCAST_ACTION = "FOREGROUND_SERVICE_ADMT_FINISH";
     public void saveChanges(ParcelableMusicFile musicFile){
@@ -293,12 +284,9 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
         Intent intent = new Intent(this, ForegroundTagEditService.class);
         intent.putParcelableArrayListExtra("files",musicFiles);
         intent.putExtra("dest_file",musicFile);
-        if(artWorkWasChanged){
-            intent.putExtra("bitmap",newArtworkUri.toString());
-        }
-        if (artworkWasDeleted) {
-            intent.putExtra("bitmap","delete");
-        }else intent.putExtra("bitmap","nothing");
+        intent.putExtra("artwork_action", artworkAction);
+        Log.e("artworkAction", artworkAction.name());
+        intent.putExtra("bitmap", newArtworkUri.toString());
 
 
         ProgressDialog dialog = ProgressDialog.show(MuchFileEditActivity.this, "",
@@ -372,7 +360,10 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
                 Map<String, Object> map = new HashMap<>();
                 map.put("title", f.getTitle());
                 map.put("album", f.getAlbum());
-                map.put("art", f.getArtworkUri());
+                if (f.getArtworkUri() != null) map.put("art", f.getArtworkUri());
+                else map.put("art", Uri.parse("android.resource://" + context.getPackageName()
+                        + "/" + R.drawable.vector_artwork_placeholder));
+                Log.e("art_uri", ((Uri) map.get("art")).toString());
                 adapterList.add(map);
             }
             // массив имен атрибутов, из которых будут читаться данные
@@ -390,9 +381,15 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
                 }
             });
             builder.setTitle("Select tag donor file");
+            builder.setCancelable(false);
+            builder.setNegativeButton("Close", (dialog, which) -> {
+                MuchFileEditActivity.this.setResult(RESULT_CANCELED);
+                finish();
+            });
 
             // Create the AlertDialog
             AlertDialog dialog = builder.create();
+
             dialog.show();
 
         }

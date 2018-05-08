@@ -9,6 +9,7 @@ import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -17,6 +18,9 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.provider.DocumentFile;
 import android.util.Log;
+
+import com.theonlylies.musictagger.utils.adapters.MusicFile;
+import com.theonlylies.musictagger.utils.edit.MediaStoreUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,6 +32,8 @@ import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.channels.FileChannel;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +41,38 @@ import java.util.List;
  * Utility class for helping parsing file systems.
  */
 public abstract class FileUtil {
+
+    static public boolean renameFile(Context context, MusicFile musicFile, String newName) {
+        try {
+            if (FileUtil.fileOnSdCard(new File(musicFile.getRealPath()))) {
+                Log.d("renameOnSDCard", "rename");
+                File f = new File(musicFile.getRealPath());
+                DocumentFile file = FileUtil.getDocumentFile(new File(musicFile.getRealPath()), false, context);
+                if (file != null) {
+                    if (file.renameTo(newName)) {
+                        Log.e("renameFile", file.getUri().toString());
+                        File tmpFile = new File(musicFile.getRealPath());
+                        File newFile = new File(tmpFile.getParentFile(), newName);
+                        Log.e("renameFile", newFile.getAbsolutePath());
+                        musicFile.setRealPath(newFile.getAbsolutePath());
+                        return true;
+                    }
+                }
+            } else {
+                Log.d("renameOnInternal", "rename");
+                File file = new File(musicFile.getRealPath());
+                File newFile = new File(file.getParentFile(), newName);
+                if (file.renameTo(newFile)) {
+                    musicFile.setRealPath(newFile.getAbsolutePath());
+                    return true;
+                }
+
+            }
+        } catch (NullPointerException | IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     static public boolean canWriteThisFileSAF(Context context, String path) {
         String access = PreferencesManager.getStringValue(context, "sdcard_uri", null);
@@ -55,7 +93,7 @@ public abstract class FileUtil {
     }
 
     static public boolean haveSdCardWriteAccess(Context context) {
-        String access = PreferencesManager.getStringValue(context, "sdcard_uri",null);
+        String access = PreferencesManager.getStringValue(context, "sdcard_uri", null);
 
         if (access != null) {
             //TODO create write check for prove this preference
@@ -493,6 +531,19 @@ public abstract class FileUtil {
         return getExtSdCardFolder(file, c) != null;
     }
 
+
+    public static String getRealPathFromURI(Context context, Uri contentUri) {
+        try {
+            String[] proj = {MediaStore.Audio.Media.DATA};
+            Cursor cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
+            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
+            cursor.moveToFirst();
+            return cursor.getString(column_index);
+        } catch (NullPointerException e) {
+            return null;
+        }
+    }
+
     /**
      * Get a DocumentFile corresponding to the given file (for writing on ExtSdCard on Android 5). If the file is not
      * existing, it is created.
@@ -521,7 +572,7 @@ public abstract class FileUtil {
             originalDirectory = true;
             //continue
         }
-        String as = PreferencesManager.getStringValue(context, "sdcard_uri",null);
+        String as = PreferencesManager.getStringValue(context, "sdcard_uri", null);
         //TO DO windows with write access
 
         Uri treeUri = null;
@@ -537,6 +588,7 @@ public abstract class FileUtil {
         for (int i = 0; i < parts.length; i++) {
             //my implementation
             if (document != null) {
+                Log.w("parts", parts[i]);
                 document = document.findFile(parts[i]);
             }
 
