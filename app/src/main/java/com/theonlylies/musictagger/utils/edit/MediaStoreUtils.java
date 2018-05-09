@@ -12,7 +12,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.theonlylies.musictagger.utils.ParcelableMusicFile;
+import com.theonlylies.musictagger.utils.adapters.ParcelableMusicFile;
 import com.theonlylies.musictagger.utils.PreferencesManager;
 import com.theonlylies.musictagger.utils.adapters.MusicFile;
 

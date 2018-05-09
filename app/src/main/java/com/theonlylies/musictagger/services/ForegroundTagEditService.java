@@ -22,7 +22,7 @@ import com.theonlylies.musictagger.activities.MuchFileEditActivity;
 import com.theonlylies.musictagger.utils.FileUtil;
 import com.theonlylies.musictagger.utils.GlideApp;
 import com.theonlylies.musictagger.utils.MusicCache;
-import com.theonlylies.musictagger.utils.ParcelableMusicFile;
+import com.theonlylies.musictagger.utils.adapters.ParcelableMusicFile;
 import com.theonlylies.musictagger.utils.adapters.MusicFile;
 import com.theonlylies.musictagger.utils.edit.BitmapUtils;
 import com.theonlylies.musictagger.utils.edit.MediaStoreUtils;

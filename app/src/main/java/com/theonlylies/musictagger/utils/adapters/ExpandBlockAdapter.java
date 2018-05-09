@@ -61,7 +61,7 @@ public class ExpandBlockAdapter extends BaseQuickAdapter<BlockItem, BlockViewHol
         ConstraintLayout rv =  (ConstraintLayout)getViewByPosition(getRecyclerView(), position, R.id.layout_recyclerExpand);
         ImageButton button = (ImageButton) getViewByPosition(getRecyclerView(), position, R.id.expandButton);
 
-        TransitionManager.beginDelayedTransition(rv);
+
         BlockItem item = getItem(position);
         item.visible = !item.visible;
 
@@ -71,6 +71,7 @@ public class ExpandBlockAdapter extends BaseQuickAdapter<BlockItem, BlockViewHol
 
         rotateAnim.setFillAfter(true);
         button.startAnimation(rotateAnim);
+        TransitionManager.beginDelayedTransition(rv);
         rv.setVisibility(item.visible ? View.VISIBLE : View.GONE);
     }
 

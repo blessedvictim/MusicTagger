@@ -1,9 +1,7 @@
-package com.theonlylies.musictagger.utils;
+package com.theonlylies.musictagger.utils.adapters;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import com.theonlylies.musictagger.utils.adapters.MusicFile;
 
 /**
  * Created by theonlylies on 05.01.18.

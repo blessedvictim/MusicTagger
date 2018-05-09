@@ -12,13 +12,14 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,16 +33,16 @@ import android.widget.SimpleAdapter;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.signature.MediaStoreSignature;
+import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.theonlylies.musictagger.R;
 import com.theonlylies.musictagger.services.ForegroundTagEditService;
 
 import com.theonlylies.musictagger.utils.GlideApp;
-import com.theonlylies.musictagger.utils.ParcelableMusicFile;
+import com.theonlylies.musictagger.utils.adapters.ParcelableMusicFile;
+import com.theonlylies.musictagger.utils.adapters.ListAdapter;
 import com.theonlylies.musictagger.utils.adapters.MusicFile;
 import com.theonlylies.musictagger.utils.edit.MediaStoreUtils;
-import com.yalantis.ucrop.UCrop;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +54,7 @@ import static com.theonlylies.musictagger.utils.edit.MediaStoreUtils.GENRES;
  * Created by theonlylies on 05.01.18.
  */
 
-public class MuchFileEditActivity extends AppCompatActivity implements View.OnClickListener {
+public class MuchFileEditActivity extends AppCompatActivity implements View.OnClickListener,BaseQuickAdapter.OnItemClickListener {
 
 
     EditText albumEdit,artistEdit,yearEdit;
@@ -64,6 +65,9 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
     NestedScrollView nestedScrollView;
     AppBarLayout appBarLayout;
     ArrayList<ParcelableMusicFile> musicFiles;
+
+    RecyclerView selectedRecyclerView;
+    ListAdapter selectedAdapter;
 
     Uri newArtworkUri;
 
@@ -78,7 +82,7 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
         yearEdit = findViewById(R.id.yearEdit);
         genreEdit = findViewById(R.id.genreEdit);
         artworkImageView = findViewById(R.id.artwortImageView);
-
+        selectedRecyclerView = findViewById(R.id.selectedRecyclerView);
 
         nestedScrollView = findViewById(R.id.nestedScrollView);
 
@@ -108,17 +112,17 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
             }
         });
 
-        /**
-         * FAB init block END!
-         */
+
 
 
         ArrayList<String> files = getIntent().getStringArrayListExtra("files");
-        //Start
-        //musicFile = MediaStoreUtils.getMusicFileByPath(path,this);
-        //initTagsInterface(musicFile);
-
         musicFiles= new ArrayList<>(files.size());
+        selectedAdapter=new ListAdapter(R.layout.item_simple,this);
+        selectedRecyclerView.setAdapter(selectedAdapter);
+        selectedRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        selectedAdapter.setOnItemClickListener(this);
+        selectedAdapter.bindToRecyclerView(selectedRecyclerView);
+
         new ReadFromMediaStore().execute(files);
     }
 
@@ -242,6 +246,13 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
             dialog.show();
         }
 
+        if (v.getId()==R.id.cardSelected){
+            int visible = selectedRecyclerView.getVisibility();
+            if(visible==View.GONE)selectedRecyclerView.setVisibility(View.VISIBLE);
+            else selectedRecyclerView.setVisibility(View.GONE);
+            TransitionManager.beginDelayedTransition(selectedRecyclerView);
+        }
+
     }
 
     @Override
@@ -282,7 +293,7 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
 
         //TODO change artwork with right logic !!!!! I think i do this !!!!! see service sources !
         Intent intent = new Intent(this, ForegroundTagEditService.class);
-        intent.putParcelableArrayListExtra("files",musicFiles);
+        intent.putParcelableArrayListExtra("files", musicFiles);
         intent.putExtra("dest_file",musicFile);
         intent.putExtra("artwork_action", artworkAction);
         Log.e("artworkAction", artworkAction.name());
@@ -324,6 +335,14 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
         return musicFile;
     }
 
+    @Override
+    public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
+        if (adapter instanceof ListAdapter){
+            initTagsInterface(musicFiles.get(position));
+            selectedAdapter.changeSelected(position);
+        }
+    }
+
 
     class ReadFromMediaStore extends AsyncTask<ArrayList<String>,Void,ArrayList<ParcelableMusicFile>> {
 
@@ -350,6 +369,10 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
 
             musicFiles.add(new ParcelableMusicFile(MusicFile.createEmpty()));
             musicFiles.addAll(file);
+            ArrayList<MusicFile> files = new ArrayList<>();
+            files.addAll(musicFiles);
+            files.remove(0);
+            selectedAdapter.setNewData(files);//FIXME very strange behaviour of javac
 
             Log.d("musicFile size", String.valueOf(musicFiles.size()));
 
@@ -374,7 +397,8 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
             builder.setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    musicFile = musicFiles.get(which);
+                    musicFile = (ParcelableMusicFile) musicFiles.get(which);
+                    if(which>0) selectedAdapter.changeSelected(which-1);
                     initTagsInterface(musicFile);
                     musicFiles.remove(0);
                     dialog.dismiss();

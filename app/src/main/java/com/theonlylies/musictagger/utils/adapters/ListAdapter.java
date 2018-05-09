@@ -46,7 +46,7 @@ public class ListAdapter extends BaseQuickAdapter<MusicFile, ViewHolder>
     }
 
     @Override
-    public void setNewData(@Nullable List<MusicFile> data) {
+    public void setNewData(List<MusicFile> data) {
         super.setNewData(data);
         dataModelsFULL.clear();
         if (data != null) dataModelsFULL.addAll(data);
@@ -61,6 +61,21 @@ public class ListAdapter extends BaseQuickAdapter<MusicFile, ViewHolder>
             selectedPositions.add(position);
             if(viewHolder!=null)viewHolder.setSelected(true);
         }
+    }
+
+
+    /**
+     * Отменяет все выделения и выделяет элемент newPos
+     * @param newPos
+     */
+    public void changeSelected(int newPos){
+        ViewHolder viewHolder=(ViewHolder)getRecyclerView().findViewHolderForAdapterPosition(newPos);
+        for(int i : selectedPositions) {
+            toogleSelected(i);
+        }
+        selectedPositions.clear();
+        selectedPositions.add(newPos);
+        if(viewHolder!=null)viewHolder.setSelected(true);
     }
 
     public int getSelectedCount(){
