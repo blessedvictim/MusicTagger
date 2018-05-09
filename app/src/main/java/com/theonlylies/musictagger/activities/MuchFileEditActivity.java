@@ -172,13 +172,13 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
             saveChanges(musicFile);
             //new WriteChanges().execute(musicFile);
         }
-        if (id == R.id.action_crop) {
+        /*if (id == R.id.action_crop) {
             UCrop.of(musicFile.getArtworkUri(), Uri.fromFile(new File(getCacheDir(), "lol")))
                     .withAspectRatio(1, 1)
                     .withMaxResultSize(800, 800)
                     .start(this);
             return true;
-        }
+        }*/
         if(id==android.R.id.home){
             //TODO create return intent with msg for update recyclerView !!!
             finish();

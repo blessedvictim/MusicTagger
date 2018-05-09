@@ -232,7 +232,6 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
     private void reloadImage(MusicFile file) {
         GlideApp.with(this)
                 .load(file.getArtworkUri())
-                .signature(new MediaStoreSignature("lol", System.currentTimeMillis(), 3))
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .skipMemoryCache(true)
                 .error(R.drawable.vector_artwork_placeholder)
@@ -262,13 +261,19 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         Log.d("id", String.valueOf(id));
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_crop) {
-            UCrop.of(musicFile.getArtworkUri(), Uri.fromFile(new File(getCacheDir(), "lol")))
+        /*if (id == R.id.action_crop) {
+            File cache = new File(getCacheDir(), "lol");
+            if(cache.exists()) cache.delete();
+            Uri uri;
+            if(artworkAction==ArtworkAction.CHANGED)uri=newArtworkUri;
+            else  if(artworkAction==ArtworkAction.NONE)uri=this.musicFile.getArtworkUri();
+            else uri=null;
+            if(uri!=null)
+            UCrop.of(this.musicFile.getArtworkUri(), Uri.fromFile(cache))
                     .withAspectRatio(1, 1)
                     .withMaxResultSize(800, 800)
                     .start(this);
-            return true;
-        }
+        }*/
         if (id == R.id.action_save_file) {
             //saveChanges(musicFile);
             new WriteChanges().execute(musicFile);
@@ -311,35 +316,6 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
             } else {
                 goToView(cardBestSearched);
             }
-        }
-        if (v.getId() == R.id.action_crop) {
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-            if (!smartSearch) {// если еще не прикрепили тег(MusicFile объект)
-                if (this.isOnline()) {
-                    new SmartSearchTask().execute(musicFile.getRealPath());
-                } else {
-                    builder.setTitle("");
-                    builder.setMessage("Please turn on internet connection and repeat");
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
-                }
-            } else if (v.getTag() != null) {
-                MusicFile file = (MusicFile) v.getTag();
-                if (file != null) {
-                    file.setAlbum_id(musicFile.getAlbum_id());
-                    file.setRealPath(musicFile.getRealPath());
-                    artworkAction = ArtworkAction.CHANGED;
-                    newArtworkUri = file.getArtworkUri();
-                    initTagsInterface(file);
-                    //NEW
-                    Toast.makeText(this, "Tags was applied", Toast.LENGTH_SHORT).show();
-
-                }
-            }
-
-            //Toast.makeText(this, "card best match clicked!", Toast.LENGTH_SHORT).show();
         }
 
         if (v.getId() == R.id.cardBestSearched) {
@@ -754,7 +730,6 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         }
 
         Context context;
-        String bmp = null;
         RecyclerView recyclerView;
         ListAdapter adapter;
         ConstraintLayout searchedView;
@@ -794,6 +769,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                     artworkAction = ArtworkAction.CHANGED;
                     newArtworkUri = file.getArtworkUri();
                     OneFileEditActivity.this.initTagsInterface(file);
+                    Toast.makeText(OneFileEditActivity.this, "Tags was applied", Toast.LENGTH_SHORT).show();
                 }
             });
             adapter.bindToRecyclerView(recyclerView);
