@@ -4,22 +4,29 @@ import android.net.Uri;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Created by linuxoid on 20.12.17.
  */
 
 public class MusicFile {
-    protected String title;
-    protected String artist;
-    protected String album;
-    protected String realPath;
-    protected String genre;
-    protected String trackNumber;
-    protected String year;
-    protected Uri artworkUri;
-    protected String artworkPath;
-    public AtomicInteger progress;
-    protected long album_id;
+    @Getter @Setter protected String title;
+    @Getter @Setter protected String artist;
+    @Getter @Setter protected String album;
+    @Getter @Setter protected String realPath;
+    @Getter @Setter protected String genre;
+    @Getter @Setter protected String trackNumber;
+    @Getter @Setter protected String year;
+    @Getter @Setter protected String discNumber;
+    @Getter @Setter protected String albumArtist;
+    @Getter @Setter protected String comment;
+    @Getter @Setter protected String composer;
+    @Getter @Setter protected Uri artworkUri;
+    @Getter @Setter protected String artworkPath;
+    @Getter @Setter public AtomicInteger progress;
+    @Getter @Setter protected long album_id;
 
     /**
      * set all fields like @file stay unchanged title and realPath
@@ -59,85 +66,5 @@ public class MusicFile {
         progress.set(0);
         album_id=-1;
         artworkPath = null;
-    }
-
-    public String getArtworkPath() {
-        return artworkPath;
-    }
-
-    public void setArtworkPath(String artworkPath) {
-        this.artworkPath = artworkPath;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getArtist() {
-        return artist;
-    }
-
-    public void setArtist(String artist) {
-        this.artist = artist;
-    }
-
-    public String getAlbum() {
-        return album;
-    }
-
-    public void setAlbum(String album) {
-        this.album = album;
-    }
-
-    public String getRealPath() {
-        return realPath;
-    }
-
-    public void setRealPath(String realPath) {
-        this.realPath = realPath;
-    }
-
-    public Uri getArtworkUri() {
-        return artworkUri;
-    }
-
-    public void setArtworkUri(Uri artworkUri) {
-        this.artworkUri = artworkUri;
-    }
-
-    public String getGenre() {
-        return genre;
-    }
-
-    public void setGenre(String genre) {
-        this.genre = genre;
-    }
-
-    public String getTrackNumber() {
-        return trackNumber;
-    }
-
-    public void setTrackNumber(String trackNumber) {
-        this.trackNumber = trackNumber;
-    }
-
-    public String getYear() {
-        return year;
-    }
-
-    public void setYear(String year) {
-        this.year = year;
-    }
-
-    public long getAlbum_id() {
-        return album_id;
-    }
-
-    public void setAlbum_id(long album_id) {
-        this.album_id = album_id;
     }
 }

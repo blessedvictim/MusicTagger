@@ -24,6 +24,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
@@ -244,13 +245,6 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
             });
             AlertDialog dialog = builder.create();
             dialog.show();
-        }
-
-        if (v.getId()==R.id.cardSelected){
-            int visible = selectedRecyclerView.getVisibility();
-            if(visible==View.GONE)selectedRecyclerView.setVisibility(View.VISIBLE);
-            else selectedRecyclerView.setVisibility(View.GONE);
-            TransitionManager.beginDelayedTransition(selectedRecyclerView);
         }
 
     }

@@ -27,10 +27,12 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
+import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
@@ -41,7 +43,6 @@ import android.widget.Toast;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-import com.bumptech.glide.signature.MediaStoreSignature;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.android.gms.analytics.ExceptionReporter;
 import com.theonlylies.musictagger.Aapplication;
@@ -65,6 +66,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
 import java.util.concurrent.ExecutionException;
 
 import Fox.core.lib.general.data.FingerPrint;
@@ -76,6 +78,8 @@ import Fox.core.lib.general.utils.NoAccessingFilesException;
 import Fox.core.lib.general.utils.NoMatchesException;
 import Fox.core.lib.general.utils.ProgressStateException;
 import Fox.core.main.SearchLib;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 import static com.theonlylies.musictagger.utils.edit.MediaStoreUtils.GENRES;
 
@@ -83,7 +87,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
     FloatingActionButton fabPlayer;
 
-    EditText titleEdit, albumEdit, artistEdit, yearEdit, trackNumberEdit;
+    EditText titleEdit, albumEdit, artistEdit, yearEdit, trackNumberEdit,composerEdit,discNumEdit,commentEdit;
     AutoCompleteTextView genreEdit;
     ImageView artworkImageView, bestMatchArtworkImageView;
     TextView bestMatchAlbumTextView, bestMatchArtistTextView, bestMatchTitleTextView;
@@ -166,6 +170,9 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         artistEdit = findViewById(R.id.artistEdit);
         yearEdit = findViewById(R.id.yearEdit);
         genreEdit = findViewById(R.id.genreEdit);
+        commentEdit = findViewById(R.id.commentEdit);
+        composerEdit = findViewById(R.id.composerEdit);
+        discNumEdit = findViewById(R.id.discNumEdit);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_dropdown_item_1line, GENRES);
         genreEdit.setAdapter(adapter);
@@ -225,6 +232,9 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         genreEdit.setText(file.getGenre());
         musicFilePathView.setText(file.getRealPath());
         trackNumberEdit.setText(file.getTrackNumber());
+        discNumEdit.setText(file.getDiscNumber());
+        composerEdit.setText(file.getComposer());
+        commentEdit.setText(file.getComment());
         reloadImage(file);
         musicFile = file;
     }
@@ -345,7 +355,8 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                 }
             }
 
-            //Toast.makeText(this, "card best match clicked!", Toast.LENGTH_SHORT).show();
+
+
         }
 
 
@@ -404,6 +415,14 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
             AlertDialog dialog = builder.create();
             dialog.show();
         }
+
+        if (v.getId()==R.id.cardOtherTags){
+            ViewGroup group = findViewById(R.id.layoutOtherTags);
+            TransitionManager.beginDelayedTransition(group);
+            if(group.getVisibility()!=View.VISIBLE)group.setVisibility(View.VISIBLE);
+            else group.setVisibility(View.GONE);
+        }
+
     }
 
     @Override
@@ -610,36 +629,31 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
         static final int MSG_DISMISS_DIALOG = 0;
 
-        private Handler mHandler;
 
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            mHandler = new Handler() {
-                public void handleMessage(Message msg) {
-                    switch (msg.what) {
-                        case MSG_DISMISS_DIALOG:
-                            if (dialog != null && dialog.isShowing()) {
-                                dialog.dismiss();
-                                Toast.makeText(OneFileEditActivity.this, "Something wrong", Toast.LENGTH_LONG).show();
-                                OneFileEditActivity.this.setResult(RESULT_OK);
-                                finishAfterTransition();
-                            }
-                            break;
-
-                        default:
-                            break;
-                    }
-                }
-            };
 
             AlertDialog.Builder builder = new AlertDialog.Builder(OneFileEditActivity.this);
             builder.setCancelable(false);
             builder.setMessage("Changes writing...");
             dialog = builder.create();
             dialog.show();
-            mHandler.sendEmptyMessageDelayed(MSG_DISMISS_DIALOG, TIME_OUT);
+            io.reactivex.Observable.fromCallable(()->{
+                Thread.sleep(5000);
+                return true;
+            })
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe((result)->{
+                        if (dialog != null && dialog.isShowing()) {
+                            dialog.dismiss();
+                            Toast.makeText(OneFileEditActivity.this, "Something wrong", Toast.LENGTH_LONG).show();
+                            OneFileEditActivity.this.setResult(RESULT_OK);
+                            finishAfterTransition();
+                        }
+                    });
         }
 
         @Override
@@ -664,9 +678,12 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         @Override
         protected MusicFile doInBackground(String... strings) {
             MusicFile file = MediaStoreUtils.getMusicFileByPath(strings[0], context);
+            MusicFile file1 = TagManager.getMusicFileByPath(strings[0]);
+            file1.setAlbum_id(file.getAlbum_id());
+            file1.setArtworkUri(file.getArtworkUri());
             TagManager manager = new TagManager(strings[0]);
             file.setGenre(manager.getGenre());
-            return file;
+            return file1;
         }
 
         @Override

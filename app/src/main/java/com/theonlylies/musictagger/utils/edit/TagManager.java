@@ -25,6 +25,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
+import lombok.experimental.var;
+
 /**
  * Created by Alexander Polumestniy on 29.12.2017.
  */
@@ -56,6 +58,23 @@ public class TagManager {
             e.printStackTrace();
         }
 
+    }
+
+    static public MusicFile getMusicFileByPath(String path){
+        var tagManager = new TagManager(path);
+        var musicFile = new MusicFile();
+        musicFile.setComposer(tagManager.getComposer());
+        musicFile.setAlbum(tagManager.getAlbum());
+        musicFile.setAlbumArtist(tagManager.getAlbumArtist());
+        musicFile.setArtist(tagManager.getArtist());
+        musicFile.setComment(tagManager.getComment());
+        musicFile.setDiscNumber(tagManager.getDiscNum());
+        musicFile.setGenre(tagManager.getGenre());
+        musicFile.setRealPath(path);
+        musicFile.setTitle(tagManager.getTitle());
+        musicFile.setTrackNumber(tagManager.getTrackNum());
+        musicFile.setYear(tagManager.getYear());
+        return musicFile;
     }
 
 
@@ -202,9 +221,12 @@ public class TagManager {
         return getTag(FieldKey.COMPOSER);
     }
 
+    public String getAlbumArtist(){return getTag(FieldKey.ALBUM_ARTIST);}
+
     public String getLyrics() {
         return getTag(FieldKey.LYRICS);
     }
+
 
 
     //////////////////Методы записи//////////////////////////////////////
@@ -248,6 +270,11 @@ public class TagManager {
     public void setLyrics(String newContent) {
         setTag(FieldKey.LYRICS, newContent);
     }
+
+    public void setAlbumArtist(String newContent){
+        setTag(FieldKey.ALBUM_ARTIST, newContent);
+    }
+
 
     /////////////////////////////////////////////////////////////////////////////////////
 

@@ -52,6 +52,8 @@ public class MediaStoreUtils {
             musicFile.setRealPath(s);
             s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.YEAR));
             musicFile.setYear(s);
+            s = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.COMPOSER));
+            musicFile.setComposer(s);
 
             musicFile.setArtworkUri(getAlbumArtUriByAlbumId(id));
 
