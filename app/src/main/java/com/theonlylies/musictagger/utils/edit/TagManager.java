@@ -88,9 +88,7 @@ public class TagManager {
                 song = new MP3File(new File(path), MP3File.LOAD_ALL);
                 oritag = song.getID3v2Tag();
                 ID3v24Tag newtag = new ID3v24Tag();
-
                 // copy metadata
-
                 newtag.setField(FieldKey.ARTIST, oritag.getFirst(FieldKey.ARTIST));
                 newtag.setField(FieldKey.ALBUM, oritag.getFirst(FieldKey.ALBUM));
                 newtag.setField(FieldKey.GENRE, oritag.getFirst(FieldKey.GENRE));
@@ -98,7 +96,7 @@ public class TagManager {
                 newtag.setField(FieldKey.TRACK, oritag.getFirst(FieldKey.TRACK));
                 newtag.setField(FieldKey.COMMENT, oritag.getFirst(FieldKey.COMMENT));
                 newtag.setField(FieldKey.YEAR, oritag.getFirst(FieldKey.YEAR));
-                newtag.setField(FieldKey.COMMENT, oritag.getFirst(FieldKey.COMMENT));
+                newtag.setField(FieldKey.ALBUM_ARTIST, oritag.getFirst(FieldKey.ALBUM_ARTIST));
                 newtag.setField(FieldKey.COMPOSER, oritag.getFirst(FieldKey.COMPOSER));
                 newtag.setField(FieldKey.DISC_NO, oritag.getFirst(FieldKey.DISC_NO));
                 if (oritag.hasField(FieldKey.COVER_ART))
@@ -108,7 +106,6 @@ public class TagManager {
                     song.save();
                 } catch (IOException e) {
                     e.printStackTrace();
-
                 }
             }
 
@@ -123,12 +120,8 @@ public class TagManager {
      * @param musicFile is MusicFile instance
      */
     public void setTagsFromMusicFile(MusicFile musicFile) {
-        setAlbum(musicFile.getAlbum());
-        setArtist(musicFile.getArtist());
         setTitle(musicFile.getTitle());
-        setGenre(musicFile.getGenre());
-        setYear(musicFile.getYear());
-        setTrackNum(musicFile.getTrackNumber());
+        this.setGeneralTagsFromMusicFile(musicFile);
     }
 
     public void setGeneralTagsFromMusicFile(MusicFile musicFile) {
@@ -136,14 +129,17 @@ public class TagManager {
         setArtist(musicFile.getArtist());
         setGenre(musicFile.getGenre());
         setYear(musicFile.getYear());
-        setTrackNum(musicFile.getTrackNumber());
+        setAlbumArtist(musicFile.getAlbumArtist());
+        setComment(musicFile.getComment());
+        setComposer(musicFile.getComposer());
+        setDiscNum(musicFile.getDiscNumber());
     }
 
 
     public static boolean canRead(String path) {
         try {
             MP3File mp3File = (MP3File) AudioFileIO.read(new File(path));
-            MP3AudioHeader audioHeader = (MP3AudioHeader) mp3File.getAudioHeader();
+            //MP3AudioHeader audioHeader = (MP3AudioHeader) mp3File.getAudioHeader();
             return true;
         } catch (CannotReadException | InvalidAudioFrameException | TagException | IOException e) {
             e.printStackTrace();
@@ -293,7 +289,7 @@ public class TagManager {
 
     /////////////////////////////////////////////////////////////////////////////
     private boolean setTag(FieldKey key, String newContent) {
-
+        if (newContent==null)newContent="";
         try {
             if (tag.hasField(key)) {
                 tag.setField(key, newContent);

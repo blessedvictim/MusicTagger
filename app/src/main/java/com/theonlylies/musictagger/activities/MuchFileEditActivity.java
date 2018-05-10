@@ -58,7 +58,7 @@ import static com.theonlylies.musictagger.utils.edit.MediaStoreUtils.GENRES;
 public class MuchFileEditActivity extends AppCompatActivity implements View.OnClickListener,BaseQuickAdapter.OnItemClickListener {
 
 
-    EditText albumEdit,artistEdit,yearEdit;
+    EditText albumEdit,artistEdit,yearEdit,albumArtistEdit,composerEdit,discNumEdit,commentEdit;
     AutoCompleteTextView genreEdit;
     ImageView artworkImageView;
     ParcelableMusicFile musicFile;
@@ -82,6 +82,11 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
         artistEdit = findViewById(R.id.artistEdit);
         yearEdit = findViewById(R.id.yearEdit);
         genreEdit = findViewById(R.id.genreEdit);
+        commentEdit = findViewById(R.id.commentEdit);
+        composerEdit = findViewById(R.id.composerEdit);
+        albumArtistEdit = findViewById(R.id.albumArtistEdit);
+        discNumEdit = findViewById(R.id.discNumberEdit);
+
         artworkImageView = findViewById(R.id.artwortImageView);
         selectedRecyclerView = findViewById(R.id.selectedRecyclerView);
 
@@ -321,11 +326,16 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
     }
 
     public MusicFile collectDataFromUI(){
+        ///musicFile.setArtworkUri(newArtworkUri); //FIXME странный фрагмент
+
         musicFile.setAlbum(albumEdit.getText().toString());
         musicFile.setArtist(artistEdit.getText().toString());
         musicFile.setYear(yearEdit.getText().toString());
         musicFile.setGenre(genreEdit.getText().toString());
-        musicFile.setArtworkUri(newArtworkUri);
+        musicFile.setDiscNumber(discNumEdit.getText().toString());
+        musicFile.setComment(commentEdit.getText().toString());
+        musicFile.setAlbumArtist(albumArtistEdit.getText().toString());
+        musicFile.setComposer(composerEdit.getText().toString());
         return musicFile;
     }
 

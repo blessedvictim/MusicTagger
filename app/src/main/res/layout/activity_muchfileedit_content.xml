@@ -135,7 +135,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="46dp"
                     android:layout_marginStart="8dp"
-                    android:inputType="number"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/textView21" />
@@ -156,7 +155,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="46dp"
                     android:layout_marginStart="8dp"
-                    android:inputType="number"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/textView22" />
@@ -198,7 +196,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="46dp"
                     android:layout_marginStart="8dp"
-                    android:inputType="number"
+                    android:maxLines="3"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/textView24" />

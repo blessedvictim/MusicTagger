@@ -87,7 +87,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
     FloatingActionButton fabPlayer;
 
-    EditText titleEdit, albumEdit, artistEdit, yearEdit, trackNumberEdit,composerEdit,discNumEdit,commentEdit;
+    EditText titleEdit, albumEdit, artistEdit, yearEdit, trackNumberEdit,albumArtistEdit,composerEdit,discNumEdit,commentEdit;
     AutoCompleteTextView genreEdit;
     ImageView artworkImageView, bestMatchArtworkImageView;
     TextView bestMatchAlbumTextView, bestMatchArtistTextView, bestMatchTitleTextView;
@@ -153,6 +153,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_onefiledit);
+        Log.w("artworkAction",artworkAction.name());
 
         Thread.UncaughtExceptionHandler myHandler = new ExceptionReporter(
                 ((Aapplication) getApplication()).getDefaultTracker(),
@@ -172,6 +173,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         genreEdit = findViewById(R.id.genreEdit);
         commentEdit = findViewById(R.id.commentEdit);
         composerEdit = findViewById(R.id.composerEdit);
+        albumArtistEdit = findViewById(R.id.albumArtistEdit);
         discNumEdit = findViewById(R.id.discNumEdit);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_dropdown_item_1line, GENRES);
@@ -460,7 +462,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
      * artWorkWasChanged for check state of artwork change or not fck my eng!
      */
 
-    static ArtworkAction artworkAction = ArtworkAction.NONE;
+    ArtworkAction artworkAction = ArtworkAction.NONE;
 
     void updateMusicFile(MusicFile file) {
         musicFile.setFieldsByMusocFile(file);
@@ -474,10 +476,17 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         musicFile.setYear(yearEdit.getText().toString());
         musicFile.setTrackNumber(trackNumberEdit.getText().toString());
         musicFile.setGenre(genreEdit.getText().toString());
+        musicFile.setDiscNumber(discNumEdit.getText().toString());
+        musicFile.setComment(commentEdit.getText().toString());
+        musicFile.setAlbumArtist(albumArtistEdit.getText().toString());
+        musicFile.setComposer(composerEdit.getText().toString());
         return musicFile;
     }
 
     public boolean saveChanges(final MusicFile musicFile, AlertDialog dialog) {
+
+        Log.w("artworkAction",artworkAction.name());
+
         Bitmap bitmap = null;
 
         PreferencesManager.RenameRules rule = PreferencesManager.
