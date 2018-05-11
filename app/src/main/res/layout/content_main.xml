@@ -65,6 +65,6 @@
             android:layout_below="@+id/progressBar2"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="12dp"
-            android:text="Please wait,data loading..." />
+            android:text="@string/wait_loading_string" />
     </RelativeLayout>
 </RelativeLayout>

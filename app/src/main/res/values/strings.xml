@@ -13,19 +13,64 @@
 
     <string name="action_crop">Crop image</string>
 
-    <string name="large_text">
-        "Material is the metaphor.\n\n"
+    <!-- General string -->
+    <string name="wait_loading_string">Please wait,data loading…</string>
+    <string name="turnoninternet_string">Please turn on internet connection and repeat</string>
+    <string name="changeswriting_string">Changes writing…</string>
+    <string name="something_wrong_string">Something wrong</string>
 
-        "A material metaphor is the unifying theory of a rationalized space and a system of motion."
-        "The material is grounded in tactile reality, inspired by the study of paper and ink, yet "
-        "technologically advanced and open to imagination and magic.\n"
-        "Surfaces and edges of the material provide visual cues that are grounded in reality. The "
-        "use of familiar tactile attributes helps users quickly understand affordances. Yet the "
-        "flexibility of the material creates new affordances that supercede those in the physical "
-        "world, without breaking the rules of physics.\n"
-    </string>
 
+    <!-- HTML resources links -->
     <string name="faqFileName">faq/index.html</string>
     <string name="helpFileName">help/index.html</string>
     <string name="aboutFileName">about/index.html</string>
+
+    <!-- sd alert dialog stings -->
+    <string name="sd_access_attention_string">Следуйте шагам на изображении чтобы выбрать корневой каталог sd карты</string>
+    <string name="null_uri_string">Вы неправильно указали путь
+    если у вас есть sd card измените ее путь в настройках</string>
+
+    <!-- MainActivity stings -->
+    <string name="setting_string">Settings</string>
+    <string name="help_string">Help</string>
+    <string name="faq_string">FAQ</string>
+    <string name="aboutapp_string">About application</string>
+
+    <!-- Edit tags stings -->
+    <string name="title_string">Title</string>
+    <string name="album_string">Album</string>
+    <string name="artist_string">Artist</string>
+    <string name="genre_string">Genre</string>
+    <string name="year_string">Year</string>
+    <string name="tracknum_string">Track number</string>
+    <string name="composer_string">Composer</string>
+    <string name="discnum_string">Disc number</string>
+    <string name="albumartist_string">Album artist</string>
+    <string name="comment_string">Comment</string>
+
+    <string name="selectedfiles_string">Selected files</string>
+    <string name="othertags_string">Other tags</string>
+    <string name="filepath_string">File path</string>
+    <string name="changefilename_string">Change file name</string>
+
+    <!-- Smart search stings -->
+    <string name="titlesmart_string">Title:</string>
+    <string name="albumsmart_string">Album:</string>
+    <string name="artistsmart_string">Artist:</string>
+    <string name="bestmatch_string">BEST MATCH</string>
+    <string name="othermatches_string">Other matches:</string>
+    <string name="taptostart_string">Tap to start smart search</string>
+    <string name="dataloading_string">Data loading…</string>
+    <string name="tags_apllied_string">Tags was applied</string>
+    <string name="no_matches_string">No matches</string>
+
+    <!-- Change album art actions strings -->
+    <string-array name="image_actions">
+        <item>Pick album art from device</item>
+        <item>Pick album art from Internet</item>
+        <item>Delete album art</item>
+    </string-array>
+    <string name="selectsource_string">Select the source of coverarts</string>
+    <string name="selectpic_string">Select Picture</string>
+
 </resources>

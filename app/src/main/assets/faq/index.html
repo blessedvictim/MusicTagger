@@ -54,20 +54,18 @@
     <div class="card-header" id="headingOne" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
       <h5 class="mb-0">
         <button class="btn btn-link collapsed" >
-          Начало работы
+            Что делает приложение?
         </button>
       </h5>
     </div>
 
     <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
       <div class="card-body">
-        Главный экран с вашими трэками.
-        <img src="images/1.jpg" class="rounded mx-auto d-block" alt=""><br>
-
-         Кликните на одном из них и вы попадете в меню изменнения тегов. Здесь вы можете изменять имя исполнителя, название альбома, наименование трэка и многое другое
-         <img src="images/1.jpg" class="rounded mx-auto d-block" alt=""><br>
-
-        По клику на иконку применения изменений - <img src="images/3.jpg" class="iconic" alt="">, ваши измененные теги применятся к аудиофайлу.<br>
+          Данное приложение позволяет редактировать метаданные ваших музыкальных файлов, то есть
+          изменять данные о названии трека, альбома, имени исполнителя и т. д.,
+          которые используются медиаплеерами и другими программами, а также аппаратными
+          проигрывателями для отображения информации о файле и автоматического упорядочивания
+          аудиоколлекции.
     </div>
   </div>
   </div>
@@ -75,14 +73,17 @@
     <div class="card-header" id="headingTwo" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
       <h5 class="mb-0">
         <button class="btn btn-link collapsed">
-          "Умный" поиск
+            Что такое "умный" поиск?
         </button>
       </h5>
     </div>
     <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
       <div class="card-body">
-        Воспользуйтесь умным подбором тегов для вашего трека. Для этого нажмите на иконку smart search на экране изменения тегов - <img src="images/3.jpg" class="iconic" alt=""><br>
-        Или нажмите на виджет, пролистав экран в самый низ - <img src="images/3.jpg" class="iconic" alt=""><br>
+          "Умный" поиск - функция находящая правильные метаданные для трека в автоматическом режиме,
+          избавляя вас от ручного редактирования тегов.
+          Чтобы узнать как можно использовать умный поиск, загляните в справку.Обратите ванимание
+          что данная функция применима только к файлах у которых длина аудиодорожки больше 120
+          секунд.
       </div>
     </div>
   </div>
@@ -90,15 +91,18 @@
     <div class="card-header" id="headingThree" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
       <h5 class="mb-0">
         <button class="btn btn-link collapsed">
-        Отображение библиотеки треков
+            Почему "умный" поиск ничего не нашел?
         </button>
       </h5>
     </div>
     <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
       <div class="card-body">
-        Чтобы включить группировку по альбомам откройте меню с видом отображением *скрин* и выберите пункт albums.<br>
-        Так же можно включить сортировку по алфавиту выбрав соотеветственный пункт в меню. *скрин*<br>
-
+          "Умный" поиск работает посредством снятия с трека цифрового отпечатка и поиска по нему
+          тегов в отрытых источниках,
+          которые могут содержать данные не о всех треках(особенно если исполнитель непопулярный или
+          песня слишком новая).
+          Также проблемы могут возникнуть если звуковая дорожка была изменена с помощью какого либо
+          ПО.
       </div>
     </div>
   </div>
@@ -106,17 +110,41 @@
     <div class="card-header" id="headingFour" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
       <h5 class="mb-0">
         <button class="btn btn-link collapsed">
-        Пункт настройки
+            Как пользоваться приложением?
         </button>
       </h5>
     </div>
     <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordion">
       <div class="card-body">
-      Тут шото пэзда ничего непонятна
+          Для быстрой навигации по музыкальной коллекции вы можете группировать файлы по
+          исполнителю,по альбому или показывать все файлы сразу.
+          <br>
+          Долгим нажатием вы можете включить режим выделения, с помощью которого вы можете
+          редактировать теги в режиме альбомов!?
+          <br>
+          Для дополнительной информации смотрите справку
       </div>
     </div>
   </div>
-</div>
+
+  <div class="card">
+      <div class="card-header" id="headingFive" data-toggle="collapse" data-target="#collapseFive"
+           aria-expanded="false" aria-controls="collapseFour">
+          <h5 class="mb-0">
+              <button class="btn btn-link collapsed">
+                  Почему не редактируются файлы<br>расположенные на microSD?
+              </button>
+          </h5>
+      </div>
+      <div id="collapseFive" class="collapse" aria-labelledby="headingFour"
+           data-parent="#accordion">
+          <div class="card-body">
+              При первом запуске мы просили дать разрешение на запись памяти и выбрать корневой
+              каталог microSD, возможно вы указали неправильный корневой каталог вашей microSD,
+              тогда вы можете зайти в настройки и указать его повторно.
+      </div>
+    </div>
+  </div>
 
     <script src="../js/jquery-3.2.1.slim.min.js"></script>
     <script src="../js/popper.min.js"></script>

@@ -13,8 +13,6 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.AppBarLayout;
@@ -66,7 +64,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Observable;
 import java.util.concurrent.ExecutionException;
 
 import Fox.core.lib.general.data.FingerPrint;
@@ -87,7 +84,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
     FloatingActionButton fabPlayer;
 
-    EditText titleEdit, albumEdit, artistEdit, yearEdit, trackNumberEdit,albumArtistEdit,composerEdit,discNumEdit,commentEdit;
+    EditText titleEdit, albumEdit, artistEdit, yearEdit, trackNumberEdit, albumArtistEdit, composerEdit, discNumEdit, commentEdit;
     AutoCompleteTextView genreEdit;
     ImageView artworkImageView, bestMatchArtworkImageView;
     TextView bestMatchAlbumTextView, bestMatchArtistTextView, bestMatchTitleTextView;
@@ -153,7 +150,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_onefiledit);
-        Log.w("artworkAction",artworkAction.name());
+        Log.w("artworkAction", artworkAction.name());
 
         Thread.UncaughtExceptionHandler myHandler = new ExceptionReporter(
                 ((Aapplication) getApplication()).getDefaultTracker(),
@@ -209,7 +206,6 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         CardView cardView = findViewById(R.id.cardView);
 
 
-
         appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
@@ -218,8 +214,6 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                 cardView.setAlpha(percentage);
             }
         });
-
-
 
 
         String path = getIntent().getStringExtra("music_file_path");
@@ -300,8 +294,8 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
     private static final int REQUEST_CODE_GALLERY_PICK = 1;
     private static final int REQUEST_CODE_INTERNET_PICK = 2;
 
-    void goToView(View view){
-        if(view!=null){
+    void goToView(View view) {
+        if (view != null) {
             final Rect rect = new Rect(0, 0, view.getWidth(), view.getHeight());
             view.requestRectangleOnScreen(rect, false);
         }
@@ -314,12 +308,12 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         if (v.getId() == R.id.fabSmartSearch) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             if (!smartSearch) {
-                if(this.isOnline()){
+                if (this.isOnline()) {
                     Log.d("sd", "azazaazzaz");
                     smartSearchTask = new SmartSearchTask();
                     smartSearchTask.execute(musicFile.getRealPath());
                     goToView(cardBestSearched);
-                }else{
+                } else {
                     builder.setTitle("");
                     builder.setMessage("Please turn on internet connection and repeat");
                     AlertDialog dialog = builder.create();
@@ -335,15 +329,15 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
             if (!smartSearch) {// если еще не прикрепили тег(MusicFile объект)
-                if(this.isOnline()){
+                if (this.isOnline()) {
                     new SmartSearchTask().execute(musicFile.getRealPath());
-                }else{
+                } else {
                     builder.setTitle("");
                     builder.setMessage("Please turn on internet connection and repeat");
                     AlertDialog dialog = builder.create();
                     dialog.show();
                 }
-            } else if(v.getTag()!=null){
+            } else if (v.getTag() != null) {
                 MusicFile file = (MusicFile) v.getTag();
                 if (file != null) {
                     file.setAlbum_id(musicFile.getAlbum_id());
@@ -358,10 +352,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
             }
 
 
-
         }
-
-
 
         if (v.getId() == R.id.fabPlayer) {
 
@@ -376,7 +367,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                         Intent intent = new Intent(Intent.ACTION_PICK);
                         intent.setType("image/*");
                         intent.setAction(Intent.ACTION_GET_CONTENT);
-                        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_CODE_GALLERY_PICK);
+                        startActivityForResult(Intent.createChooser(intent, getString(R.string.selectpic_string)), REQUEST_CODE_GALLERY_PICK);
                         break;
                     }
                     case 1: {
@@ -395,13 +386,13 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                                     startActivityForResult(intent, REQUEST_CODE_INTERNET_PICK);
                                 }
                             });
-                            builder1.setTitle("Select a source of coverarts");
+                            builder1.setTitle(R.string.selectsource_string);
                             // Create the AlertDialog
                             AlertDialog dialog1 = builder1.create();
                             dialog1.show();
                         } else {
                             builder1.setTitle("");
-                            builder1.setMessage("Please turn on internet connection and repeat");
+                            builder1.setMessage(R.string.turnoninternet_string);
                             AlertDialog dialog1 = builder1.create();
                             dialog1.show();
                         }
@@ -418,10 +409,10 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
             dialog.show();
         }
 
-        if (v.getId()==R.id.cardOtherTags){
+        if (v.getId() == R.id.cardOtherTags) {
             ViewGroup group = findViewById(R.id.layoutOtherTags);
             TransitionManager.beginDelayedTransition(group);
-            if(group.getVisibility()!=View.VISIBLE)group.setVisibility(View.VISIBLE);
+            if (group.getVisibility() != View.VISIBLE) group.setVisibility(View.VISIBLE);
             else group.setVisibility(View.GONE);
         }
 
@@ -485,7 +476,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
     public boolean saveChanges(final MusicFile musicFile, AlertDialog dialog) {
 
-        Log.w("artworkAction",artworkAction.name());
+        Log.w("artworkAction", artworkAction.name());
 
         Bitmap bitmap = null;
 
@@ -588,7 +579,6 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         }
 
 
-
         Bitmap finalBitmap = bitmap;
         MediaStoreUtils.updateFileMediaStoreMedia(musicFile, this, (path, uri) -> {
             Log.i("ExternalStorage", "Scanned " + path + ":");
@@ -639,26 +629,25 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         static final int MSG_DISMISS_DIALOG = 0;
 
 
-
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
 
             AlertDialog.Builder builder = new AlertDialog.Builder(OneFileEditActivity.this);
             builder.setCancelable(false);
-            builder.setMessage("Changes writing...");
+            builder.setMessage(R.string.changeswriting_string);
             dialog = builder.create();
             dialog.show();
-            io.reactivex.Observable.fromCallable(()->{
+            io.reactivex.Observable.fromCallable(() -> {
                 Thread.sleep(5000);
                 return true;
             })
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe((result)->{
+                    .subscribe((result) -> {
                         if (dialog != null && dialog.isShowing()) {
                             dialog.dismiss();
-                            Toast.makeText(OneFileEditActivity.this, "Something wrong", Toast.LENGTH_LONG).show();
+                            Toast.makeText(OneFileEditActivity.this, getString(R.string.something_wrong_string), Toast.LENGTH_LONG).show();
                             OneFileEditActivity.this.setResult(RESULT_OK);
                             finishAfterTransition();
                         }
@@ -717,7 +706,6 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
     class SmartSearchTask extends AsyncTask<String, Double, List<MusicFile>> {
 
 
-
         class FpcaltThread implements FingerPrintThread {
 
 
@@ -763,6 +751,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         ConstraintLayout progressHolderLayout, bestSearchHolderLayout;
         ProgressBar bar;
         TextView textProgress;
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -776,7 +765,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
             searchedView.setVisibility(View.VISIBLE);
 
             textProgress = findViewById(R.id.progressSearchTextView);
-            textProgress.setText("Data loading ...");
+            textProgress.setText(R.string.dataloading_string);
             bar = findViewById(R.id.smartSearchProgressBar);
             bar.setVisibility(View.VISIBLE);
             //qwerty
@@ -795,7 +784,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                     artworkAction = ArtworkAction.CHANGED;
                     newArtworkUri = file.getArtworkUri();
                     OneFileEditActivity.this.initTagsInterface(file);
-                    Toast.makeText(OneFileEditActivity.this, "Tags was applied", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(OneFileEditActivity.this, getString(R.string.tags_apllied_string), Toast.LENGTH_SHORT).show();
                 }
             });
             adapter.bindToRecyclerView(recyclerView);
@@ -804,7 +793,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         @Override
         protected void onProgressUpdate(Double... values) {
             super.onProgressUpdate(values);
-            textProgress.setText("Data loading.Please wait... (" + values[0].shortValue() + "%)");
+            textProgress.setText(getString(R.string.wait_loading_string) + " (" + values[0].shortValue() + "%)");
         }
 
         @Override
@@ -838,7 +827,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                     file.setTitle(id3V2.getTitle());
                     file.setYear(id3V2.getYear());
                     file.setTrackNumber(String.valueOf(id3V2.getNumber()));
-                    if (id3V2.getArtLinks()!=null && !id3V2.getArtLinks().isEmpty()) {
+                    if (id3V2.getArtLinks() != null && !id3V2.getArtLinks().isEmpty()) {
                         file.setArtworkUri(Uri.parse(id3V2.getArtLinks().get(0)));
                     }
                     data.add(file);
@@ -877,7 +866,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                     for (MusicFile file : tracks)
                         adapter.addData(file);
                     cardOthersSearched.setVisibility(View.VISIBLE);
-                    ConstraintLayout lay  = findViewById(R.id.layoutParentSearched);
+                    ConstraintLayout lay = findViewById(R.id.layoutParentSearched);
 
                     //((NestedScrollView)findViewById(R.id.nestedScrollView)).fullScroll(ScrollView.FOCUS_DOWN);
 
@@ -885,15 +874,14 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                 }
 
             } else {
-                textProgress.setText("No mathces :(");
+                textProgress.setText(R.string.no_matches_string);
                 bar.setVisibility(View.GONE);
             }
-            smartSearch=true;
+            smartSearch = true;
 
         }
 
     }
-
 
 
 }

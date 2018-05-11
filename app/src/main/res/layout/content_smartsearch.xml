@@ -27,7 +27,7 @@
                 android:id="@+id/progressSearchTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tap to start smart search"
+                android:text="@string/taptostart_string"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -74,7 +74,7 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="BEST MATCH"
+                android:text="@string/bestmatch_string"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -100,7 +100,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="artist:"
+                android:text="@string/artistsmart_string"
                 app:layout_constraintStart_toEndOf="@+id/bestMathcArtworkImageView"
                 app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
@@ -110,7 +110,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="title:"
+                android:text="@string/titlesmart_string"
                 app:layout_constraintStart_toEndOf="@+id/bestMathcArtworkImageView"
                 app:layout_constraintTop_toBottomOf="@+id/textView4" />
 
@@ -120,7 +120,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="album:"
+                android:text="@string/albumsmart_string"
                 app:layout_constraintStart_toEndOf="@+id/bestMathcArtworkImageView"
                 app:layout_constraintTop_toBottomOf="@+id/textView5" />
 
@@ -196,7 +196,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="4dp"
-                android:text="Other matches :"
+                android:text="@string/othermatches_string"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 

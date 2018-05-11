@@ -4,31 +4,31 @@
     tools:showIn="navigation_view">
 
 
-    <item android:title="Main">
+    <item android:title="">
         <menu>
 
             <item
                 android:id="@+id/nav_settings"
                 android:icon="@drawable/ic_settings_black_24dp"
-                android:title="Settings" />
+                android:title="@string/setting_string" />
             <item
                 android:id="@+id/nav_help"
                 android:icon="@drawable/ic_help_black"
-                android:title="Help" />
+                android:title="@string/help_string" />
             <item
                 android:id="@+id/nav_faq"
                 android:icon="@drawable/ic_help_black"
-                android:title="FAQ" />
+                android:title="@string/faq_string" />
         </menu>
     </item>
 
 
-    <item android:title="Others">
+    <item android:title="">
         <menu>
             <item
                 android:id="@+id/nav_about"
                 android:icon="@drawable/ic_copyright_black_24dp"
-                android:title="About application" />
+                android:title="@string/aboutapp_string" />
         </menu>
     </item>
 
