@@ -72,5 +72,6 @@
     </string-array>
     <string name="selectsource_string">Select the source of coverarts</string>
     <string name="selectpic_string">Select Picture</string>
+    <string name="please_wait_string">Please waiting …</string>
 
 </resources>

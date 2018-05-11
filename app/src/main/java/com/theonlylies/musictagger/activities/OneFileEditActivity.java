@@ -798,7 +798,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
         @Override
         protected List<MusicFile> doInBackground(String... params) {
-            List<ID3V2> result = null;
+            List<ID3V2> result;
             ArrayList<String> list = new ArrayList<>();
             list.add(params[0]);
             try {
@@ -819,7 +819,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                         SmartSearchTask.this.publishProgress(((double) this.state) / ((double) this.getSize()) * 100);
                     }
                 }, 4);
-                ArrayList<MusicFile> data = new ArrayList(result.size());
+                List<MusicFile> data = new ArrayList<>(result.size());
                 for (ID3V2 id3V2 : result) {
                     MusicFile file = new MusicFile();
                     file.setAlbum(id3V2.getAlbum());
