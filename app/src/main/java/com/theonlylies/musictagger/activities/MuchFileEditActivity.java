@@ -10,7 +10,6 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.widget.NestedScrollView;
@@ -19,12 +18,10 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
@@ -37,12 +34,9 @@ import com.bumptech.glide.signature.MediaStoreSignature;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.theonlylies.musictagger.R;
 import com.theonlylies.musictagger.services.ForegroundTagEditService;
-
 import com.theonlylies.musictagger.utils.GlideApp;
-import com.theonlylies.musictagger.utils.adapters.ParcelableMusicFile;
 import com.theonlylies.musictagger.utils.adapters.ListAdapter;
 import com.theonlylies.musictagger.utils.adapters.MusicFile;
-import com.theonlylies.musictagger.utils.edit.MediaStoreUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,11 +55,11 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
     EditText albumEdit,artistEdit,yearEdit,albumArtistEdit,composerEdit,discNumEdit,commentEdit;
     AutoCompleteTextView genreEdit;
     ImageView artworkImageView;
-    ParcelableMusicFile musicFile;
+    MusicFile musicFile;
 
     NestedScrollView nestedScrollView;
     AppBarLayout appBarLayout;
-    ArrayList<ParcelableMusicFile> musicFiles;
+    ArrayList<MusicFile> musicFiles;
 
     RecyclerView selectedRecyclerView;
     ListAdapter selectedAdapter;
@@ -119,9 +113,8 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
         });
 
 
-
-
-        ArrayList<String> files = getIntent().getStringArrayListExtra("files");
+        //ArrayList<String> files = getIntent().getStringArrayListExtra("files");
+        List<MusicFile> files = getIntent().getParcelableArrayListExtra("files");
         musicFiles= new ArrayList<>(files.size());
         selectedAdapter=new ListAdapter(R.layout.item_simple,this);
         selectedRecyclerView.setAdapter(selectedAdapter);
@@ -129,7 +122,7 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
         selectedAdapter.setOnItemClickListener(this);
         selectedAdapter.bindToRecyclerView(selectedRecyclerView);
 
-        new ReadFromMediaStore().execute(files);
+        showDialog(files);
     }
 
 
@@ -284,8 +277,9 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
     static ArtworkAction artworkAction = ArtworkAction.NONE;
 
     public static String BROADCAST_ACTION = "FOREGROUND_SERVICE_ADMT_FINISH";
-    public void saveChanges(ParcelableMusicFile musicFile){
-        musicFile= (ParcelableMusicFile) collectDataFromUI();
+
+    public void saveChanges(MusicFile musicFile) {
+        musicFile = (MusicFile) collectDataFromUI();
         /**
          * Section for album art change if it need !
          */
@@ -347,79 +341,54 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
+    void showDialog(List<MusicFile> file) {
+        musicFiles.add(MusicFile.createEmpty(MuchFileEditActivity.this));
+        musicFiles.addAll(file);
+        List<MusicFile> files = new ArrayList<>();
+        files.addAll(musicFiles);
+        files.remove(0);
+        selectedAdapter.setNewData(files);
 
-    class ReadFromMediaStore extends AsyncTask<ArrayList<String>,Void,ArrayList<ParcelableMusicFile>> {
+        Log.d("musicFile size", String.valueOf(musicFiles.size()));
 
-        Context context;
+        AlertDialog.Builder builder = new AlertDialog.Builder(MuchFileEditActivity.this);
+        List<Map<String, Object>> adapterList = new ArrayList<>();
+        for (MusicFile f : musicFiles) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("title", f.getTitle());
+            map.put("album", f.getAlbum());
+            Log.e("art_uri", f.getArtworkUri().toString());
+            if (f.getArtworkUri() != null) map.put("art", f.getArtworkUri());
+            else
+                map.put("art", Uri.parse("android.resource://" + this.getPackageName() + "/" + R.drawable.vector_artwork_placeholder));
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            context=getApplicationContext();
+            adapterList.add(map);
         }
-
-        @Override
-        protected ArrayList doInBackground(ArrayList<String >... strings) {
-            ArrayList<ParcelableMusicFile> list = new ArrayList<>();
-            for(String s : strings[0]){
-                list.add( new ParcelableMusicFile( MediaStoreUtils.getMusicFileByPath(s,context) ) );
+        // массив имен атрибутов, из которых будут читаться данные
+        String[] from = {"title", "album", "art"};
+        // массив ID View-компонентов, в которые будут вставлять данные
+        int[] to = {R.id.itemSimpleTrNum, R.id.trackAlbum, R.id.artworkImageView};
+        SimpleAdapter adapter = new SimpleAdapter(MuchFileEditActivity.this, adapterList, R.layout.item_simple, from, to);
+        builder.setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                musicFile = musicFiles.get(which);
+                if (which > 0) selectedAdapter.changeSelected(which - 1);
+                initTagsInterface(musicFile);
+                musicFiles.remove(0);
+                dialog.dismiss();
             }
-            return list;
-        }
+        });
+        builder.setTitle("Select tag donor file");
+        builder.setCancelable(false);
+        builder.setNegativeButton("Close", (dialog, which) -> {
+            MuchFileEditActivity.this.setResult(RESULT_CANCELED);
+            finish();
+        });
 
-        @Override
-        protected void onPostExecute(ArrayList<ParcelableMusicFile> file) {
-            super.onPostExecute(file);
+        // Create the AlertDialog
+        AlertDialog dialog = builder.create();
 
-            musicFiles.add(new ParcelableMusicFile(MusicFile.createEmpty()));
-            musicFiles.addAll(file);
-            ArrayList<MusicFile> files = new ArrayList<>();
-            files.addAll(musicFiles);
-            files.remove(0);
-            selectedAdapter.setNewData(files);//FIXME very strange behaviour of javac
-
-            Log.d("musicFile size", String.valueOf(musicFiles.size()));
-
-            //TODO adapter extends ListAdapter and choosing file for tags source
-            AlertDialog.Builder builder = new AlertDialog.Builder(MuchFileEditActivity.this);
-            List<Map<String, Object>> adapterList = new ArrayList<>();
-            for (MusicFile f : musicFiles) {
-                Map<String, Object> map = new HashMap<>();
-                map.put("title", f.getTitle());
-                map.put("album", f.getAlbum());
-                if (f.getArtworkUri() != null) map.put("art", f.getArtworkUri());
-                else map.put("art", Uri.parse("android.resource://" + context.getPackageName()
-                        + "/" + R.drawable.vector_artwork_placeholder));
-                Log.e("art_uri", ((Uri) map.get("art")).toString());
-                adapterList.add(map);
-            }
-            // массив имен атрибутов, из которых будут читаться данные
-            String[] from = {"title", "album", "art"};
-            // массив ID View-компонентов, в которые будут вставлять данные
-            int[] to = {R.id.itemSimpleTrNum, R.id.trackAlbum, R.id.artworkImageView};
-            SimpleAdapter adapter = new SimpleAdapter(MuchFileEditActivity.this, adapterList, R.layout.item_simple, from, to);
-            builder.setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    musicFile = (ParcelableMusicFile) musicFiles.get(which);
-                    if(which>0) selectedAdapter.changeSelected(which-1);
-                    initTagsInterface(musicFile);
-                    musicFiles.remove(0);
-                    dialog.dismiss();
-                }
-            });
-            builder.setTitle("Select tag donor file");
-            builder.setCancelable(false);
-            builder.setNegativeButton("Close", (dialog, which) -> {
-                MuchFileEditActivity.this.setResult(RESULT_CANCELED);
-                finish();
-            });
-
-            // Create the AlertDialog
-            AlertDialog dialog = builder.create();
-
-            dialog.show();
-
-        }
+        dialog.show();
     }
 }

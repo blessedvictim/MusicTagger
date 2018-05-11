@@ -12,7 +12,6 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.theonlylies.musictagger.utils.adapters.ParcelableMusicFile;
 import com.theonlylies.musictagger.utils.PreferencesManager;
 import com.theonlylies.musictagger.utils.adapters.MusicFile;
 
@@ -102,10 +101,10 @@ public class MediaStoreUtils {
     }
 
 
-    static public void updateMuchFilesMediaStore(List<ParcelableMusicFile> musicFiles, Context context,
+    static public void updateMuchFilesMediaStore(List<MusicFile> musicFiles, Context context,
                                                  MediaScannerConnection.OnScanCompletedListener listener) {
         ArrayList<String> paths = new ArrayList<>(musicFiles.size());
-            for (ParcelableMusicFile q : musicFiles) {
+        for (MusicFile q : musicFiles) {
                 paths.add(q.getRealPath());
             }
 

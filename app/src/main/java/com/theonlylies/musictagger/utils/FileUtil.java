@@ -20,7 +20,6 @@ import android.support.v4.provider.DocumentFile;
 import android.util.Log;
 
 import com.theonlylies.musictagger.utils.adapters.MusicFile;
-import com.theonlylies.musictagger.utils.edit.MediaStoreUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,8 +31,6 @@ import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.channels.FileChannel;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,8 +78,6 @@ public abstract class FileUtil {
             //TODO create write check for prove this preference
             try {
                 DocumentFile file1 = getDocumentFile(new File(path), false, context);
-                Log.d("canWriteThisFileSAF", String.valueOf(file1.canWrite()));
-                //DocumentFile file = DocumentFile.fromTreeUri(context, Uri.parse(access));
                 if (file1 != null && file1.canWrite()) return true;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -554,7 +549,6 @@ public abstract class FileUtil {
      */
     public static DocumentFile getDocumentFile(final File file, final boolean isDirectory, Context context) {
         String baseFolder = getExtSdCardFolder(file, context);
-        Log.d("baseFolder", baseFolder);
         boolean originalDirectory = false;
         if (baseFolder == null) {
             return null;
@@ -588,7 +582,7 @@ public abstract class FileUtil {
         for (int i = 0; i < parts.length; i++) {
             //my implementation
             if (document != null) {
-                Log.w("parts", parts[i]);
+                //Log.w("parts", parts[i]);
                 document = document.findFile(parts[i]);
             }
 

@@ -288,6 +288,10 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
             setResult(RESULT_CANCELED);
             finish();
         }
+
+        /*if(id==R.id.test){  //FIXME for test !!!
+            Log.e("test", String.valueOf(FileUtil.canWriteThisFileSAF(this,this.musicFile.getRealPath())));
+        }*/
         return super.onOptionsItemSelected(item);
     }
 
@@ -515,8 +519,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                 }
             }
             tagManager.save();
-        } else if (FileUtil.fileOnSdCard(new File(musicFile.getRealPath())) /*&&
-                FileUtil.canWriteThisFileSAF(this, musicFile.getRealPath())*/) {
+        } else if (FileUtil.fileOnSdCard(new File(musicFile.getRealPath())) && FileUtil.canWriteThisFileSAF(this, musicFile.getRealPath())) {
             Log.d("OneFileEdit", "file on sdcard ! EDITITNG!");
             MusicCache cache = new MusicCache(this);
             try {
@@ -553,8 +556,8 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
             }
 
         } else {
-            Log.d("OneFileEdit", "fuck you sd card access");
-            //Toast.makeText(this,"fuck you sd card access",Toast.LENGTH_SHORT).show();
+            Log.d("OneFileEdit", "fuck you sd card access :/");
+            Toast.makeText(this, "Seems there is problem with removable sd card", Toast.LENGTH_SHORT).show();
             return false;
         }
 

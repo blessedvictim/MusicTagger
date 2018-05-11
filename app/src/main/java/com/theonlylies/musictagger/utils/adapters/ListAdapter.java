@@ -7,7 +7,6 @@ import android.widget.Filter;
 import android.widget.Filterable;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.signature.MediaStoreSignature;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.theonlylies.musictagger.R;
 import com.theonlylies.musictagger.utils.GlideApp;
@@ -33,7 +32,6 @@ public class ListAdapter extends BaseQuickAdapter<MusicFile, ViewHolder>
 
     private List<MusicFile> dataModelsFULL;
     private Context context;
-
     public ListAdapter(int layoutResId, Context context) {
         super(layoutResId);
         dataModelsFULL = new ArrayList<>();
@@ -98,7 +96,6 @@ public class ListAdapter extends BaseQuickAdapter<MusicFile, ViewHolder>
         helper.trackArtist.setText(item.getArtist());
         GlideApp.with(context)
                 .load(item.getArtworkUri())
-                .signature(new MediaStoreSignature("lol",System.currentTimeMillis(),3))
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .skipMemoryCache(true)
                 .error(R.drawable.vector_artwork_placeholder)

@@ -1,7 +1,6 @@
 package com.theonlylies.musictagger.activities;
 
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
@@ -33,6 +32,12 @@ public class HelpActivity extends AppCompatActivity {
         webSettings.setDisplayZoomControls(false);
         webSettings.setSupportZoom(true);
         webSettings.setDefaultTextEncodingName("utf-8");
+        String localePrefix;
+        /*if(Build.VERSION.SDK_INT<24)
+            localePrefix=this.getResources().getConfiguration().locale.getLanguage();
+        else
+            localePrefix=this.getResources().getConfiguration().getLocales().get(0).getLanguage();*/
+
         webView.loadUrl("file:///android_asset/" + getString(R.string.helpFileName));
     }
 

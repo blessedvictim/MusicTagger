@@ -36,7 +36,7 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
         ConstraintLayout layout = findViewById(R.id.splashLayout);
-        layout.animate().alpha(1).setDuration(900).withEndAction(() -> initPermissions());
+        layout.animate().alpha(1).setDuration(900).withEndAction(this::initPermissions);
     }
 
     @Override
@@ -62,7 +62,6 @@ public class SplashActivity extends AppCompatActivity {
     private void initPermissions() {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
-            Log.d("LOL", "QweQQW");
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
             builder.setMessage("You must provide storage write permissons for get this app work")
@@ -109,7 +108,7 @@ public class SplashActivity extends AppCompatActivity {
             Uri uri = resultData.getData();
             if (uri == null) {
                 Toast.makeText(this, R.string.null_uri_string, Toast.LENGTH_LONG).show();
-                PreferencesManager.putValue(this, "sdcard_uri", "");
+                PreferencesManager.putValue(this, "sdcard_uri", null);
             } else {
                 final int takeFlags = resultData.getFlags()
                         & (Intent.FLAG_GRANT_READ_URI_PERMISSION

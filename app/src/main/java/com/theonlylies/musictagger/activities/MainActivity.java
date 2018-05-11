@@ -11,7 +11,6 @@ import android.os.Handler;
 import android.os.Process;
 import android.provider.MediaStore;
 import android.support.design.widget.NavigationView;
-import android.support.transition.Explode;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -20,7 +19,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.ActionMode;
@@ -43,18 +41,12 @@ import com.theonlylies.musictagger.utils.adapters.ExpandBlockAdapter;
 import com.theonlylies.musictagger.utils.adapters.ListAdapter;
 import com.theonlylies.musictagger.utils.adapters.MusicFile;
 import com.theonlylies.musictagger.utils.adapters.SimpleListAdapter;
-import com.theonlylies.musictagger.utils.edit.MediaStoreUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
-import java8.util.stream.Collectors;
-import java8.util.stream.StreamSupport;
-import lombok.experimental.var;
 
 enum ListState {
     SIMPLE,
@@ -368,6 +360,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+        if (id == R.id.action_reload) {
+            createList(this.state);
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -492,13 +487,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 @Override
                 public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                     if (item.getItemId() == R.id.cab_button1) {
-                        Intent intent = new Intent(getApplicationContext(), MuchFileEditActivity.class);
-                        ArrayList<String> files = new ArrayList<>();
-                        for (MusicFile file : ((ListAdapter) adapter).getSelectedFiles()) {
-                            files.add(file.getRealPath());
+                        ArrayList<MusicFile> files = (ArrayList<MusicFile>) ((ListAdapter) adapter).getSelectedFiles();
+                        if (files.size() == 1) {
+                            Intent intent = new Intent(getApplicationContext(), OneFileEditActivity.class);
+                            intent.putExtra("music_file_path", files.get(0).getRealPath());
+                            intent.putExtra("pos", position);
+                            startActivityForResult(intent, REQUEST_UPDATE_CODE);
+                        } else {
+                            Intent intent = new Intent(getApplicationContext(), MuchFileEditActivity.class);
+                            intent.putParcelableArrayListExtra("files", files);
+                            startActivityForResult(intent, REQUEST_UPDATE_ALL_CODE);
                         }
-                        intent.putStringArrayListExtra("files", files);
-                        startActivityForResult(intent, REQUEST_UPDATE_ALL_CODE);
+
                     }
                     return true;
                 }
@@ -587,7 +587,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         @Override
         protected Void doInBackground(Void... voids) {
-            MediaStoreUtils.dumpAlbums(MainActivity.this);
             Process.setThreadPriority(Process.THREAD_PRIORITY_DISPLAY);
             final Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
             final String[] cursor_cols = {
@@ -604,7 +603,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (cursor != null) {
                 try {
                     double count = cursor.getCount();
-                    Log.d("cursor count", String.valueOf(count));
                     while (cursor.moveToNext()) {
                         MusicFile musicFile = new MusicFile();
 
@@ -614,7 +612,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         String data = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
                         if (!data.endsWith("mp3")) continue;
                         String albumId = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
-                        Log.w("title", title);
                         String id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
                         Uri albumArtUri = ContentUris.withAppendedId(Uri.parse("content://media/external/audio/albumart"), Long.decode(albumId));
                         musicFile.setAlbum(album);
@@ -661,7 +658,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             TransitionManager.beginDelayedTransition(progressLayout);
             progressLayout.setVisibility(View.GONE);
             recyclerView.scheduleLayoutAnimation();
-            Log.e("onPostExec adapterData", String.valueOf(adapterData.size()));
         }
     }
 

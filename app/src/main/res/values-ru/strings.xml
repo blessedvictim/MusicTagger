@@ -1,0 +1,74 @@
+<resources>
+    <string name="app_name">Advanced Music Tagger</string>
+    <string name="activity_muchfileedit_name">Альбомный режим</string>
+    <string name="activity_onefileedit_name">Одиночный режим</string>
+    <string name="activity_coverart_name">Выберите обложку альбома</string>
+    <string name="activity_faq_name">FAQ</string>
+    <string name="activity_help_name">Помощь</string>
+    <string name="activity_about_name">О функционале</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_crop">Обрезать изображение</string>
+
+    <!-- General string -->
+    <string name="wait_loading_string">Пожалуйста, подождите, мы загружаем данные…</string>
+    <string name="turnoninternet_string">Пожалуйста, включите интернет и повторите попытку</string>
+    <string name="changeswriting_string">Изменения применяются…</string>
+    <string name="something_wrong_string">Что-то пошло не так</string>
+
+    <!-- HTML resources links -->
+    <string name="faqFileName">faq/index.html</string>
+    <string name="helpFileName">help/index.html</string>
+    <string name="aboutFileName">about/index.html</string>
+
+    <!-- sd alert dialog stings -->
+    <string name="sd_access_attention_string">Следуйте инструкции на изображении и выберите каталог sd-карты</string>
+    <string name="null_uri_string">Вы неправильно указали путь! Если у вас есть sd-карта, то измените её каталог в настройках</string>
+
+    <!-- MainActivity stings -->
+    <string name="setting_string">Настройки</string>
+    <string name="help_string">Помощь</string>
+    <string name="faq_string">FAQ</string>
+    <string name="aboutapp_string">О Приложении</string>
+
+    <!-- Edit tags stings -->
+    <string name="title_string">Трек</string>
+    <string name="album_string">Альбом</string>
+    <string name="artist_string">Исполнитель</string>
+    <string name="genre_string">Жанр</string>
+    <string name="year_string">Год</string>
+    <string name="tracknum_string">Номер трека</string>
+    <string name="composer_string">Композитор</string>
+    <string name="discnum_string">Номер диска</string>
+    <string name="albumartist_string">Исполнитель альбома</string>
+    <string name="comment_string">Комментарий</string>
+
+    <string name="selectedfiles_string">Выбранные файлы</string>
+    <string name="othertags_string">Другие теги</string>
+    <string name="filepath_string">Путь к файлу</string>
+    <string name="changefilename_string">Изменить имя файла</string>
+
+    <!-- Smart search stings -->
+    <string name="titlesmart_string">Трек:</string>
+    <string name="albumsmart_string">Альбом:</string>
+    <string name="artistsmart_string">Исполнитель:</string>
+    <string name="bestmatch_string">Лучшее совпадение</string>
+    <string name="othermatches_string">Другие совпадения:</string>
+    <string name="taptostart_string">Начать умный поиск</string>
+    <string name="dataloading_string">Ищем данные…</string>
+    <string name="tags_apllied_string">Изменения применены</string>
+    <string name="no_matches_string">Увы, мы ничего не нашли</string>
+
+    <!-- Change album art actions strings -->
+    <string-array name="image_actions">
+        <item>Выбрать обложку из памяти устройства</item>
+        <item>Найти обложку в сети</item>
+        <item>Удалить обложку</item>
+    </string-array>
+    <string name="selectsource_string">Выберите источник для поиска обложки</string>
+    <string name="selectpic_string">Выберите изображение</string>
+    <string name="please_wait_string">Пожалуйста, подождите…</string>
+
+</resources>

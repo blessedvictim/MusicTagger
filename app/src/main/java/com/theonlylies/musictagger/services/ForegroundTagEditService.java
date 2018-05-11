@@ -22,7 +22,6 @@ import com.theonlylies.musictagger.activities.MuchFileEditActivity;
 import com.theonlylies.musictagger.utils.FileUtil;
 import com.theonlylies.musictagger.utils.GlideApp;
 import com.theonlylies.musictagger.utils.MusicCache;
-import com.theonlylies.musictagger.utils.adapters.ParcelableMusicFile;
 import com.theonlylies.musictagger.utils.adapters.MusicFile;
 import com.theonlylies.musictagger.utils.edit.BitmapUtils;
 import com.theonlylies.musictagger.utils.edit.MediaStoreUtils;
@@ -55,8 +54,8 @@ public class ForegroundTagEditService extends IntentService {
     protected void onHandleIntent(@Nullable Intent intent) {
         if (intent != null) {
             final ResultReceiver resultReceiver = intent.getParcelableExtra("result");
-            ArrayList<ParcelableMusicFile> files = intent.getParcelableArrayListExtra("files");
-            ParcelableMusicFile destinationMusicFile = intent.getParcelableExtra("dest_file");
+            ArrayList<MusicFile> files = intent.getParcelableArrayListExtra("files");
+            MusicFile destinationMusicFile = intent.getParcelableExtra("dest_file");
             String uri = intent.getStringExtra("bitmap");
             artworkAction = (ArtworkAction) intent.getSerializableExtra("artwork_action");
             Log.e("artworkAction", artworkAction.name());
@@ -76,7 +75,7 @@ public class ForegroundTagEditService extends IntentService {
     int scannedCount = 0;
     //TODO если выбрать много файлов без альбумарта и сохранить без выбора или удаление картинки то TagManager попытается записать битмап из вектора что приведет к исключению
 
-    public void saveChanges(final ParcelableMusicFile destMusicFile, final ArrayList<ParcelableMusicFile> sources, final Uri artworkUri, ArtworkAction artworkAction) {
+    public void saveChanges(final MusicFile destMusicFile, final ArrayList<MusicFile> sources, final Uri artworkUri, ArtworkAction artworkAction) {
         int succesed = 0;
         Bitmap bmp = null;
         if (artworkUri != null) {
@@ -96,7 +95,7 @@ public class ForegroundTagEditService extends IntentService {
             }
         }
 
-        for (ParcelableMusicFile f : sources) {
+        for (MusicFile f : sources) {
             boolean haveSdCardAccess = FileUtil.canWriteThisFileSAF(this, f.getRealPath());
             if (!FileUtil.fileOnSdCard(new File(f.getRealPath()))) {
                 Log.d("OneFileEdit", "file on internal !all nice...");
