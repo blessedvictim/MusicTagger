@@ -45,10 +45,12 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.android.gms.analytics.ExceptionReporter;
 import com.theonlylies.musictagger.Aapplication;
 import com.theonlylies.musictagger.R;
+import com.theonlylies.musictagger.utils.BitmapCache;
 import com.theonlylies.musictagger.utils.FileUtil;
 import com.theonlylies.musictagger.utils.GlideApp;
 import com.theonlylies.musictagger.utils.MusicCache;
 import com.theonlylies.musictagger.utils.PreferencesManager;
+import com.theonlylies.musictagger.utils.SmartSearchHelper;
 import com.theonlylies.musictagger.utils.adapters.ListAdapter;
 import com.theonlylies.musictagger.utils.adapters.MusicFile;
 import com.theonlylies.musictagger.utils.edit.BitmapUtils;
@@ -267,19 +269,31 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         Log.d("id", String.valueOf(id));
 
         //noinspection SimplifiableIfStatement
-        /*if (id == R.id.action_crop) {
+        if (id == R.id.action_crop) {
             File cache = new File(getCacheDir(), "lol");
             if(cache.exists()) cache.delete();
             Uri uri;
             if(artworkAction==ArtworkAction.CHANGED)uri=newArtworkUri;
             else  if(artworkAction==ArtworkAction.NONE)uri=this.musicFile.getArtworkUri();
             else uri=null;
-            if(uri!=null)
-            UCrop.of(this.musicFile.getArtworkUri(), Uri.fromFile(cache))
-                    .withAspectRatio(1, 1)
-                    .withMaxResultSize(800, 800)
-                    .start(this);
-        }*/
+            if(uri!=null) {
+                //TODO
+                BitmapCache bitmapCache = new BitmapCache(this);
+                try {
+                    Uri cachedUri = bitmapCache.cacheBitmap(GlideApp.with(this).asBitmap().load(uri).submit().get());
+                    UCrop.of(cachedUri, Uri.fromFile(cache))
+                            .withAspectRatio(1, 1)
+                            .withMaxResultSize(800, 800)
+                            .start(this);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+        }
+
+
         if (id == R.id.action_save_file) {
             //saveChanges(musicFile);
             new WriteChanges().execute(musicFile);
@@ -346,14 +360,18 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                 if (file != null) {
                     file.setAlbum_id(musicFile.getAlbum_id());
                     file.setRealPath(musicFile.getRealPath());
-                    artworkAction = ArtworkAction.CHANGED;
-                    newArtworkUri = file.getArtworkUri();
+                    if (file.getArtworkUri() != null) {
+                        artworkAction = ArtworkAction.CHANGED;
+                        newArtworkUri = file.getArtworkUri();
+                    }
+
                     initTagsInterface(file);
                     //NEW
                     Toast.makeText(this, "Tags was applied", Toast.LENGTH_SHORT).show();
 
                 }
             }
+
 
 
         }
@@ -477,6 +495,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         musicFile.setComposer(composerEdit.getText().toString());
         return musicFile;
     }
+
 
     public boolean saveChanges(final MusicFile musicFile, AlertDialog dialog) {
 
@@ -678,6 +697,10 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
         @Override
         protected MusicFile doInBackground(String... strings) {
+
+            //
+            MediaStoreUtils.dumpAlbums(OneFileEditActivity.this);
+            //
             MusicFile file = MediaStoreUtils.getMusicFileByPath(strings[0], context);
             MusicFile file1 = TagManager.getMusicFileByPath(strings[0]);
             file1.setAlbum_id(file.getAlbum_id());
@@ -766,7 +789,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
             cardOthersSearched = findViewById(R.id.cardOthersSearched);
             searchedView = findViewById(R.id.cardSearched);
             searchedView.setVisibility(View.VISIBLE);
-
+            //NEW
             textProgress = findViewById(R.id.progressSearchTextView);
             textProgress.setText(R.string.dataloading_string);
             bar = findViewById(R.id.smartSearchProgressBar);
@@ -784,8 +807,10 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                     MusicFile file = (MusicFile) adapter.getData().get(position);
                     file.setAlbum_id(musicFile.getAlbum_id());
                     file.setRealPath(musicFile.getRealPath());
-                    artworkAction = ArtworkAction.CHANGED;
-                    newArtworkUri = file.getArtworkUri();
+                    if (file.getArtworkUri() != null) {
+                        artworkAction = ArtworkAction.CHANGED;
+                        newArtworkUri = file.getArtworkUri();
+                    }
                     OneFileEditActivity.this.initTagsInterface(file);
                     Toast.makeText(OneFileEditActivity.this, getString(R.string.tags_apllied_string), Toast.LENGTH_SHORT).show();
                 }
@@ -796,7 +821,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         @Override
         protected void onProgressUpdate(Double... values) {
             super.onProgressUpdate(values);
-            textProgress.setText(getString(R.string.wait_loading_string) + " (" + values[0].shortValue() + "%)");
+            textProgress.setText(getString(R.string.dataloading_string) + " (" + values[0].shortValue() + "%)");
         }
 
         @Override
@@ -825,14 +850,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                 List<MusicFile> data = new ArrayList<>(result.size());
                 for (ID3V2 id3V2 : result) {
                     MusicFile file = new MusicFile();
-                    file.setAlbum(id3V2.getAlbum());
-                    file.setArtist(id3V2.getArtist());
-                    file.setTitle(id3V2.getTitle());
-                    file.setYear(id3V2.getYear());
-                    file.setTrackNumber(String.valueOf(id3V2.getNumber()));
-                    if (id3V2.getArtLinks() != null && !id3V2.getArtLinks().isEmpty()) {
-                        file.setArtworkUri(Uri.parse(id3V2.getArtLinks().get(0)));
-                    }
+                    SmartSearchHelper.ID3V2inMusicFile(id3V2, file);
                     data.add(file);
                 }
 
@@ -877,8 +895,8 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                 }
 
             } else {
-                textProgress.setText(R.string.no_matches_string);
                 bar.setVisibility(View.GONE);
+                textProgress.setText(R.string.no_matches_string);
             }
             smartSearch = true;
 

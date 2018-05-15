@@ -43,6 +43,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import java8.util.stream.Collectors;
+import java8.util.stream.StreamSupport;
+
 import static com.theonlylies.musictagger.utils.edit.MediaStoreUtils.GENRES;
 
 /**
@@ -56,6 +59,7 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
     AutoCompleteTextView genreEdit;
     ImageView artworkImageView;
     MusicFile musicFile;
+    List<MusicFile> allFiles;
 
     NestedScrollView nestedScrollView;
     AppBarLayout appBarLayout;
@@ -114,15 +118,15 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
 
 
         //ArrayList<String> files = getIntent().getStringArrayListExtra("files");
-        List<MusicFile> files = getIntent().getParcelableArrayListExtra("files");
-        musicFiles= new ArrayList<>(files.size());
+        allFiles = getIntent().getParcelableArrayListExtra("files");
+        musicFiles = new ArrayList<>(allFiles.size());
         selectedAdapter=new ListAdapter(R.layout.item_simple,this);
         selectedRecyclerView.setAdapter(selectedAdapter);
         selectedRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         selectedAdapter.setOnItemClickListener(this);
         selectedAdapter.bindToRecyclerView(selectedRecyclerView);
 
-        showDialog(files);
+        showDialog(allFiles);
     }
 
 
@@ -144,6 +148,12 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .into(artworkImageView);
         newArtworkUri=file.getArtworkUri();
+
+
+        // if artworks different change to setup donor
+        if (StreamSupport.stream(allFiles).map((f) -> f.getArtworkUri()).distinct().collect(Collectors.toList()).size() > 1 && file.getArtworkUri() != null) {
+            artworkAction = ArtworkAction.CHANGED;
+        }
         //dumpMedia(this);
         //dumpAlbums(this);
     }

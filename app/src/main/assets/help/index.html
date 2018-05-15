@@ -1,125 +1,134 @@
 <!doctype html>
 <html lang="en">
-  <head>
+<head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <style media="screen">
-    img {
-      display: inline-block;
-      height: auto;
-      max-width: 60%;
-}
+        img {
+            display: inline-block;
+            height: auto;
+            max-width: 60%;
+        }
 
-.card-header {
-    padding: .75rem 1.25rem;
-    margin-bottom: 0;
-    background-color: rgb(251, 251, 251)!important;
-    border-bottom: 2px solid rgba(69, 64, 97, 0.125)!important;
-}
+        .card-header {
+            padding: .75rem 1.25rem;
+            margin-bottom: 0;
+            background-color: rgb(251, 251, 251)!important;
+            border-bottom: 2px solid rgba(69, 64, 97, 0.125)!important;
+        }
 
-.card {
-    position: relative;
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-    -ms-flex-direction: column;
-    flex-direction: column;
-    min-width: 0;
-    word-wrap: break-word;
-    background-color: #fff;
-    background-clip: border-box;
-    border: 0px solid rgba(0,0,0,.125)!important;
-    border-radius: .25rem;
-}
+        .card {
+            position: relative;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-orient: vertical;
+            -webkit-box-direction: normal;
+            -ms-flex-direction: column;
+            flex-direction: column;
+            min-width: 0;
+            word-wrap: break-word;
+            background-color: #fff;
+            background-clip: border-box;
+            border: 0px solid rgba(0,0,0,.125)!important;
+            border-radius: .25rem;
+        }
 
-.btn-link {
-    font-weight: 400;
-    color: #383e44!important;
-    background-color: transparent;
-}
+        .btn-link {
+            font-weight: 400;
+            color: #383e44!important;
+            background-color: transparent;
+        }
 
-.iconic{
-  max-width: 10%;
-}
+        .iconic{
+            max-width: 10%;
+        }
     </style>
-
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="../css/bootstrap.min.css">
-  </head>
-  <body>
-  <div class="card">
-    <div class="card-header" id="headingOne" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-      <h5 class="mb-0">
-        <button class="btn btn-link collapsed" >
-          Начало работы
-        </button>
-      </h5>
+</head>
+<body>
+<div class="card">
+    <div class="card-header" id="headingThree" data-toggle="collapse" data-target="#collapseThree"
+         aria-expanded="false" aria-controls="collapseThree">
+        <h5 class="mb-0">
+            <button class="btn btn-link collapsed">
+                Start, library view
+            </button>
+        </h5>
     </div>
-
+    <div id="collapseThree" class="collapse" aria-labelledby="headingThree"
+         data-parent="#accordion">
+        <div class="card-body">
+            Main library view.
+            <img src="images/lib-main.jpg" class="rounded mx-auto d-block" alt=""><br>
+            Open group menu for using group
+            <img src="images/lib-group.jpg" class="rounded mx-auto d-block" alt=""><br>
+            and choose <i>albums</i>.<br>
+            Also you could use alphabetical sort by choosing this in sort menu.
+            <img src="images/lib-sort.jpg" class="rounded mx-auto d-block" alt=""><br>
+        </div>
+    </div>
+</div>
+<div class="card">
+    <div class="card-header" id="headingOne" data-toggle="collapse" data-target="#collapseOne"
+         aria-expanded="false" aria-controls="collapseOne">
+        <h5 class="mb-0">
+            <button class="btn btn-link collapsed">
+                Data edit
+            </button>
+        </h5>
+    </div>
     <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
-      <div class="card-body">
-        Главный экран с вашими трэками.
-        <img src="images/1.jpg" class="rounded mx-auto d-block" alt=""><br>
+        <div class="card-body">
+            You can open to edit view by tap on track's card.
+            Here you can edit tag's data: title, artist name, album name and etc.
+            <img src="images/single-mode.jpg" class="rounded mx-auto d-block" alt=""><br>
 
-         Кликните на одном из них и вы попадете в меню изменнения тегов. Здесь вы можете изменять имя исполнителя, название альбома, наименование трэка и многое другое
-         <img src="images/1.jpg" class="rounded mx-auto d-block" alt=""><br>
-
-        По клику на иконку применения изменений - <img src="images/3.jpg" class="iconic" alt="">, ваши измененные теги применятся к аудиофайлу.<br>
+            When you tap on <i>save</i> icon - <img src="images/single-mode-apply-icon.jpg"
+                                                    class="iconic" alt="">,
+            your tags apply to media file.<br>
+        </div>
     </div>
-  </div>
-  </div>
-  <div class="card">
-    <div class="card-header" id="headingTwo" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-      <h5 class="mb-0">
-        <button class="btn btn-link collapsed">
-          "Умный" поиск
-        </button>
-      </h5>
+</div>
+<div class="card">
+    <div class="card-header" id="headingTwo" data-toggle="collapse" data-target="#collapseTwo"
+         aria-expanded="false" aria-controls="collapseTwo">
+        <h5 class="mb-0">
+            <button class="btn btn-link collapsed">
+                Smart search
+            </button>
+        </h5>
     </div>
     <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
-      <div class="card-body">
-        Воспользуйтесь умным подбором тегов для вашего трека. Для этого нажмите на иконку smart search на экране изменения тегов - <img src="images/3.jpg" class="iconic" alt=""><br>
-        Или нажмите на виджет, пролистав экран в самый низ - <img src="images/3.jpg" class="iconic" alt=""><br>
-      </div>
+        <div class="card-body">
+            Use smart search for looks up track's tags. Tap on <i>smart search</i> icon
+            in track edit view - <img src="images/single-mode-smart-search-icon.jpg" class="iconic"
+                                      alt=""><br>
+            Also you can tap on widget in the bottom of edit view - <img
+                src="images/single-mode-smart-search-widget.jpg" class="iconic" alt=""><br>
+        </div>
     </div>
-  </div>
-  <div class="card">
-    <div class="card-header" id="headingThree" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-      <h5 class="mb-0">
-        <button class="btn btn-link collapsed">
-        Отображение библиотеки треков
-        </button>
-      </h5>
-    </div>
-    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
-      <div class="card-body">
-        Чтобы включить группировку по альбомам откройте меню с видом отображением *скрин* и выберите пункт albums.<br>
-        Так же можно включить сортировку по алфавиту выбрав соотеветственный пункт в меню. *скрин*<br>
-
-      </div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-header" id="headingFour" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-      <h5 class="mb-0">
-        <button class="btn btn-link collapsed">
-        Пункт настройки
-        </button>
-      </h5>
+</div>
+<div class="card">
+    <div class="card-header" id="headingFour" data-toggle="collapse" data-target="#collapseFour"
+         aria-expanded="false" aria-controls="collapseFour">
+        <h5 class="mb-0">
+            <button class="btn btn-link collapsed">
+                Settings
+            </button>
+        </h5>
     </div>
     <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordion">
-      <div class="card-body">
-      Тут шото пэзда ничего непонятна
-      </div>
+        <div class="card-body">
+            Under construct <!--TODO-->
+        </div>
     </div>
-  </div>
 </div>
 
-    <script src="../js/jquery-3.2.1.slim.min.js"></script>
-    <script src="../js/popper.min.js"></script>
-    <script src="../js/bootstrap.min.js"></script>
-  </body>
+<script src="../js/jquery-3.2.1.slim.min.js"></script>
+<script src="../js/popper.min.js"></script>
+<script src="../js/bootstrap.min.js"></script>
+</body>
 </html>

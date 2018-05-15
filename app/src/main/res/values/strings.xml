@@ -14,7 +14,7 @@
     <string name="action_crop">Crop image</string>
 
     <!-- General string -->
-    <string name="wait_loading_string">Please wait,data loading…</string>
+    <string name="wait_loading_string">Loading…</string>
     <string name="turnoninternet_string">Please turn on internet connection and repeat</string>
     <string name="changeswriting_string">Changes writing…</string>
     <string name="something_wrong_string">Something wrong</string>

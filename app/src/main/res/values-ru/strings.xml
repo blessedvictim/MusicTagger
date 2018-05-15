@@ -13,7 +13,7 @@
     <string name="action_crop">Обрезать изображение</string>
 
     <!-- General string -->
-    <string name="wait_loading_string">Пожалуйста, подождите, мы загружаем данные…</string>
+    <string name="wait_loading_string">Поиск…</string>
     <string name="turnoninternet_string">Пожалуйста, включите интернет и повторите попытку</string>
     <string name="changeswriting_string">Изменения применяются…</string>
     <string name="something_wrong_string">Что-то пошло не так</string>

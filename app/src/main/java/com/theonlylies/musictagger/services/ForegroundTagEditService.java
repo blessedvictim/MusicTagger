@@ -65,7 +65,6 @@ public class ForegroundTagEditService extends IntentService {
                     break;
                 }
                 default:
-
                     saveChanges(destinationMusicFile, files, null, artworkAction);
             }
 
