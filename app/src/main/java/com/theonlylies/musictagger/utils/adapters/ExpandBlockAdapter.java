@@ -99,11 +99,6 @@ public class ExpandBlockAdapter extends BaseQuickAdapter<BlockItem, BlockViewHol
     @Override
     public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
         if (view.getId() == R.id.expandButton) {
-            /*RecyclerView rv = (RecyclerView) getViewByPosition(getRecyclerView(), position, R.id.musicItemRecyclerView);
-            TransitionManager.beginDelayedTransition(rv);
-            BlockItem item = getItem(position);
-            item.visible = !item.visible;
-            rv.setVisibility(item.visible ? View.VISIBLE : View.GONE);*/
             expandItem(position);
             Log.d("ExpandBlockAdapter", "expandButton");
         }

@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.os.Process;
 import android.provider.MediaStore;
 import android.support.design.widget.NavigationView;
@@ -437,10 +438,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Log.d("MainActivity", "groupEditButton click");
                 Intent intent = new Intent(getApplicationContext(), MuchFileEditActivity.class);
                 ArrayList<String> files = new ArrayList<>();
-                for (MusicFile file : ((ExpandBlockAdapter) adapter).getItem(position).getMusicFiles()) {
-                    files.add(file.getRealPath());
-                }
-                intent.putStringArrayListExtra("files", files);
+                intent.putParcelableArrayListExtra("files", (ArrayList<? extends Parcelable>) ((ExpandBlockAdapter) adapter).getItem(position).getMusicFiles());
                 startActivityForResult(intent, REQUEST_UPDATE_ALL_CODE);
             } else {
                 Log.d("expandItem", "ex");

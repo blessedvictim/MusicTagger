@@ -111,6 +111,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     protected void onDestroy() {
+        if (bitmapCache != null) bitmapCache.clearCache();
         Log.d("onDestroy", "syka");
         if (smartSearchTask != null && smartSearchTask.getStatus() == AsyncTask.Status.RUNNING)
             smartSearchTask.cancel(true);
@@ -894,6 +895,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
     }
 
+    BitmapCache bitmapCache;
     class LoadImage extends AsyncTask<Void, Void, Bitmap> {
 
         Uri uri;
@@ -909,9 +911,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
             try {
                 return GlideApp.with(OneFileEditActivity.this).asBitmap().load(this.uri).submit().get();
 
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
             return null;
@@ -920,12 +920,12 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             super.onPostExecute(bitmap);
-            BitmapCache bitmapCache = new BitmapCache(OneFileEditActivity.this);
+            bitmapCache = new BitmapCache(OneFileEditActivity.this);
             try {
                 bitmapCache.reactiveCacheBitmap(bitmap)
+                        .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe((cachedUri) -> {
-                            Log.e("rxjava", "subscribe");
                             UCrop.of(cachedUri, Uri.fromFile(cache))
                                     .withAspectRatio(1, 1)
                                     .withMaxResultSize(800, 800)
