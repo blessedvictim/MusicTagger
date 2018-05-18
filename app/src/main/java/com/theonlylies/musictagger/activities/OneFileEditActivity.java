@@ -271,23 +271,14 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_crop) {
             File cache = new File(getCacheDir(), "lol");
-            if(cache.exists()) cache.delete();
+            if (cache.exists()) cache.delete();
             Uri uri;
-            if(artworkAction==ArtworkAction.CHANGED)uri=newArtworkUri;
-            else  if(artworkAction==ArtworkAction.NONE)uri=this.musicFile.getArtworkUri();
-            else uri=null;
-            if(uri!=null) {
-                //TODO
-                BitmapCache bitmapCache = new BitmapCache(this);
-                try {
-                    Uri cachedUri = bitmapCache.cacheBitmap(GlideApp.with(this).asBitmap().load(uri).submit().get());
-                    UCrop.of(cachedUri, Uri.fromFile(cache))
-                            .withAspectRatio(1, 1)
-                            .withMaxResultSize(800, 800)
-                            .start(this);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            if (artworkAction == ArtworkAction.CHANGED) uri = newArtworkUri;
+            else if (artworkAction == ArtworkAction.NONE) uri = this.musicFile.getArtworkUri();
+            else uri = null;
+            if (uri != null) {
+                //i hate this construction
+                new LoadImage(uri, cache).execute();
 
             }
 
@@ -371,7 +362,6 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
                 }
             }
-
 
 
         }
@@ -902,6 +892,49 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
         }
 
+    }
+
+    class LoadImage extends AsyncTask<Void, Void, Bitmap> {
+
+        Uri uri;
+        File cache;
+
+        public LoadImage(Uri uri, File cacheFile) {
+            this.cache = cacheFile;
+            this.uri = uri;
+        }
+
+        @Override
+        protected Bitmap doInBackground(Void... voids) {
+            try {
+                return GlideApp.with(OneFileEditActivity.this).asBitmap().load(this.uri).submit().get();
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            super.onPostExecute(bitmap);
+            BitmapCache bitmapCache = new BitmapCache(OneFileEditActivity.this);
+            try {
+                bitmapCache.reactiveCacheBitmap(bitmap)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe((cachedUri) -> {
+                            Log.e("rxjava", "subscribe");
+                            UCrop.of(cachedUri, Uri.fromFile(cache))
+                                    .withAspectRatio(1, 1)
+                                    .withMaxResultSize(800, 800)
+                                    .start(OneFileEditActivity.this);
+                        });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 
