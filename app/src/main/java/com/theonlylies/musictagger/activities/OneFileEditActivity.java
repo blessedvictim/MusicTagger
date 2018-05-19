@@ -111,7 +111,8 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     protected void onDestroy() {
-        if (bitmapCache != null) bitmapCache.clearCache();
+        if (bitmapCache != null)
+            Log.w("bitmap cache clear", String.valueOf(bitmapCache.clearCache()));
         Log.d("onDestroy", "syka");
         if (smartSearchTask != null && smartSearchTask.getStatus() == AsyncTask.Status.RUNNING)
             smartSearchTask.cancel(true);

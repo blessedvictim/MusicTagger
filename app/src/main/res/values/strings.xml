@@ -1,5 +1,6 @@
 <resources>
 
+    <string name="team_name">Weak Team</string>
     <string name="app_name">Advanced Music Tagger</string>
     <string name="activity_muchfileedit_name">Album mode</string>
     <string name="activity_onefileedit_name">Single mode</string>
@@ -73,5 +74,6 @@
     <string name="selectsource_string">Select the source of coverarts</string>
     <string name="selectpic_string">Select Picture</string>
     <string name="please_wait_string">Please waiting …</string>
+    <string name="save_changes_string">Save changes</string>
 
 </resources>

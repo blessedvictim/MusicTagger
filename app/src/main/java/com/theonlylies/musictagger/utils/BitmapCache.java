@@ -56,8 +56,7 @@ public class BitmapCache {
     }
 
 
-    public void clearCache() {
-        if (cachedFile != null)
-            cachedFile.delete();
+    public boolean clearCache() {
+        return cachedFile != null && cachedFile.delete();
     }
 }

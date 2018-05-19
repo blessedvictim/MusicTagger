@@ -6,12 +6,13 @@
         android:id="@+id/action_crop"
         android:orderInCategory="2"
         android:title="@string/action_crop"
-        app:showAsAction="never" />
+        app:showAsAction="never"
+        android:visible="false" />
     <item
         android:id="@+id/action_save_file"
         android:icon="@drawable/ic_done"
         android:orderInCategory="1"
-        android:title="@string/action_crop"
+        android:title="@string/save_changes_string"
         app:showAsAction="ifRoom" />
 
     <!-- <item

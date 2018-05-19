@@ -23,7 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
-        android:text="Advanced tag editor"
+        android:text="@string/app_name"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="@color/colorAccent"
         android:textSize="16sp" />
@@ -32,7 +32,7 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="What a fuck team?"
+        android:text="@string/team_name"
         android:textColor="@color/cardview_light_background"
         android:textSize="14sp" />
 

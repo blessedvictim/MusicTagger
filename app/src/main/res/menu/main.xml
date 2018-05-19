@@ -13,7 +13,7 @@
 
     <item
         android:id="@+id/action_reload"
-        android:icon="@android:drawable/ic_menu_rotate"
+        android:icon="@drawable/ic_replay"
         android:orderInCategory="100"
         android:title="action_search"
         app:showAsAction="ifRoom" />

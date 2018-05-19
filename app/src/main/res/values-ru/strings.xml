@@ -19,9 +19,9 @@
     <string name="something_wrong_string">Что-то пошло не так</string>
 
     <!-- HTML resources links -->
-    <string name="faqFileName">faq/index.html</string>
-    <string name="helpFileName">help/index.html</string>
-    <string name="aboutFileName">about/index.html</string>
+    <string name="faqFileName">faq/index-ru.html</string>
+    <string name="helpFileName">help/index-ru.html</string>
+    <string name="aboutFileName">about/index-ru.html</string>
 
     <!-- sd alert dialog stings -->
     <string name="sd_access_attention_string">Следуйте инструкции на изображении и выберите каталог sd-карты</string>
@@ -70,5 +70,6 @@
     <string name="selectsource_string">Выберите источник для поиска обложки</string>
     <string name="selectpic_string">Выберите изображение</string>
     <string name="please_wait_string">Пожалуйста, подождите…</string>
+    <string name="save_changes_string">Сохранить изменения</string>
 
 </resources>
