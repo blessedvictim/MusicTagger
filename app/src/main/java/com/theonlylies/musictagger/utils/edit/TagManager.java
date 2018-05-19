@@ -9,7 +9,6 @@ import org.jaudiotagger.audio.exceptions.CannotReadException;
 import org.jaudiotagger.audio.exceptions.CannotWriteException;
 import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
 import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
-import org.jaudiotagger.audio.mp3.MP3AudioHeader;
 import org.jaudiotagger.audio.mp3.MP3File;
 import org.jaudiotagger.tag.FieldDataInvalidException;
 import org.jaudiotagger.tag.FieldKey;
@@ -121,6 +120,7 @@ public class TagManager {
      */
     public void setTagsFromMusicFile(MusicFile musicFile) {
         setTitle(musicFile.getTitle());
+        setTrackNum(musicFile.getTrackNumber());
         this.setGeneralTagsFromMusicFile(musicFile);
     }
 
@@ -129,7 +129,6 @@ public class TagManager {
         setArtist(musicFile.getArtist());
         setGenre(musicFile.getGenre());
         setYear(musicFile.getYear());
-        setAlbumArtist(musicFile.getAlbumArtist());
         setComment(musicFile.getComment());
         setComposer(musicFile.getComposer());
         setDiscNum(musicFile.getDiscNumber());

@@ -86,7 +86,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
     FloatingActionButton fabPlayer;
 
-    EditText titleEdit, albumEdit, artistEdit, yearEdit, trackNumberEdit, albumArtistEdit, composerEdit, discNumEdit, commentEdit;
+    EditText titleEdit, albumEdit, artistEdit, yearEdit, trackNumberEdit, composerEdit, discNumEdit, commentEdit;
     AutoCompleteTextView genreEdit;
     ImageView artworkImageView, bestMatchArtworkImageView;
     TextView bestMatchAlbumTextView, bestMatchArtistTextView, bestMatchTitleTextView;
@@ -174,7 +174,6 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         genreEdit = findViewById(R.id.genreEdit);
         commentEdit = findViewById(R.id.commentEdit);
         composerEdit = findViewById(R.id.composerEdit);
-        albumArtistEdit = findViewById(R.id.albumArtistEdit);
         discNumEdit = findViewById(R.id.discNumEdit);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_dropdown_item_1line, GENRES);
@@ -483,7 +482,6 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         musicFile.setGenre(genreEdit.getText().toString());
         musicFile.setDiscNumber(discNumEdit.getText().toString());
         musicFile.setComment(commentEdit.getText().toString());
-        musicFile.setAlbumArtist(albumArtistEdit.getText().toString());
         musicFile.setComposer(composerEdit.getText().toString());
         return musicFile;
     }
@@ -931,7 +929,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                                     .withAspectRatio(1, 1)
                                     .withMaxResultSize(800, 800)
                                     .start(OneFileEditActivity.this);
-                        });
+                        }).dispose();
             } catch (Exception e) {
                 e.printStackTrace();
             }

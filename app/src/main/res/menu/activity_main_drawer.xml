@@ -4,9 +4,7 @@
     tools:showIn="navigation_view">
 
 
-    <item android:title="">
-        <menu>
-
+    <group android:id="@+id/group1">
             <item
                 android:id="@+id/nav_settings"
                 android:icon="@drawable/ic_settings_black_24dp"
@@ -19,17 +17,14 @@
                 android:id="@+id/nav_faq"
                 android:icon="@drawable/ic_help_black"
                 android:title="@string/faq_string" />
-        </menu>
-    </item>
 
+    </group>
 
-    <item android:title="">
-        <menu>
+    <group android:id="@+id/group2">
             <item
                 android:id="@+id/nav_about"
                 android:icon="@drawable/ic_copyright_black_24dp"
                 android:title="@string/aboutapp_string" />
-        </menu>
-    </item>
+    </group>
 
 </menu>

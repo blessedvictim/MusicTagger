@@ -55,7 +55,7 @@ import static com.theonlylies.musictagger.utils.edit.MediaStoreUtils.GENRES;
 public class MuchFileEditActivity extends AppCompatActivity implements View.OnClickListener,BaseQuickAdapter.OnItemClickListener {
 
 
-    EditText albumEdit,artistEdit,yearEdit,albumArtistEdit,composerEdit,discNumEdit,commentEdit;
+    EditText albumEdit, artistEdit, yearEdit, composerEdit, discNumEdit, commentEdit;
     AutoCompleteTextView genreEdit;
     ImageView artworkImageView;
     MusicFile musicFile;
@@ -82,7 +82,6 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
         genreEdit = findViewById(R.id.genreEdit);
         commentEdit = findViewById(R.id.commentEdit);
         composerEdit = findViewById(R.id.composerEdit);
-        albumArtistEdit = findViewById(R.id.albumArtistEdit);
         discNumEdit = findViewById(R.id.discNumberEdit);
 
         artworkImageView = findViewById(R.id.artwortImageView);
@@ -338,7 +337,6 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
         musicFile.setGenre(genreEdit.getText().toString());
         musicFile.setDiscNumber(discNumEdit.getText().toString());
         musicFile.setComment(commentEdit.getText().toString());
-        musicFile.setAlbumArtist(albumArtistEdit.getText().toString());
         musicFile.setComposer(composerEdit.getText().toString());
         return musicFile;
     }
