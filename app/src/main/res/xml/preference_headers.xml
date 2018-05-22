@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="Storage settings">
+    <PreferenceCategory android:title="@string/storage_string">
         <ListPreference
             android:defaultValue="4"
             android:entries="@array/rename_files_rules"
             android:entryValues="@array/rename_files_entries"
             android:key="rename-rule"
-            android:title="File renaming rules"
+            android:title="@string/storage_rename_string_title"
             android:summary="%s" />
         <EditTextPreference
             android:focusable="false"
@@ -15,17 +15,17 @@
             android:maxLines="3"
             android:selectAllOnFocus="true"
             android:singleLine="false"
-            android:summary="you needn't this if you haven't sd card"
-            android:title="Select sd card path" />
+            android:summary="@string/storage_select_string_summary"
+            android:title="@string/storage_select_string_title" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="Search settings">
+    <PreferenceCategory android:title="@string/search_string">
         <ListPreference
             android:defaultValue="albumartist"
             android:entries="@array/artwork_search_rules"
             android:entryValues="@array/artwork_search_rules_entries"
             android:key="artwork-rule-term"
-            android:title="Rule for album cover search term"
+            android:title="@string/search_albumart_string_title"
             android:summary="%s" />
 
         <ListPreference
@@ -33,19 +33,19 @@
             android:entries="@array/artwork_search_count"
             android:entryValues="@array/artwork_search_count_entries"
             android:key="artwork-rule-count"
-            android:summary="this setting can use a lot of internet traffic"
-            android:title="Count of album cover search results" />
+            android:summary="@string/search_artworkcount_string_summary"
+            android:title="@string/search_artworkcount_string_title" />
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="Tag settings">
+    <PreferenceCategory android:title="@string/tags_string">
         <SwitchPreference
             android:defaultValue="false"
             android:inputType="textMultiLine"
             android:key="switch_preference_1"
             android:maxLines="3"
             android:enabled="false"
-            android:title="Resolve controversial situations when in one album the fans have different tags?" />
+            android:title="@string/tags_resolving_string_title" />
     </PreferenceCategory>
 
 

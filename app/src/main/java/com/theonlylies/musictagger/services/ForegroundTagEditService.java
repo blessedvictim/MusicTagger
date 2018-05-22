@@ -7,6 +7,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.ResultReceiver;
@@ -190,6 +191,8 @@ public class ForegroundTagEditService extends IntentService {
 
                             Notification notification = new NotificationCompat.Builder(context, "my_channel_01")
                                     .setSmallIcon(R.mipmap.ic_launcher)
+                                    .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
+                                            R.mipmap.ic_launcher))
                                     .setContentTitle("Update tags finshed!")
                                     .setContentText("Files was edited")
                                     .setLargeIcon(finalBmp)

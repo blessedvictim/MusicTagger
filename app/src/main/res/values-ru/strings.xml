@@ -71,5 +71,18 @@
     <string name="selectpic_string">Выберите изображение</string>
     <string name="please_wait_string">Пожалуйста, подождите…</string>
     <string name="save_changes_string">Сохранить изменения</string>
+    <string name="attention_string">Внимание</string>
+    <string name="write_access_string">Вы должны предоставить права доступа записи памяти чтобы использовать приложение</string>
+    <string name="sd_write_access_string">Вы должны указать корневоц каталог для вашей флешки, чтобы приложение имело доступ к записи</string>
+    <string name="storage_string">Память</string>
+    <string name="storage_select_string_summary">не нужно если у вас нет флешки</string>
+    <string name="storage_select_string_title">Выберите корневой каталог флешки</string>
+    <string name="storage_rename_string_title">Правило переименования файла</string>
+    <string name="search_string">Поиск</string>
+    <string name="search_albumart_string_title">Правило поиска обложки</string>
+    <string name="search_artworkcount_string_title">"Максимальное количество находимых вариантов обложек "</string>
+    <string name="search_artworkcount_string_summary">эта настройка может увеличить потребление трафика</string>
+    <string name="tags_string">Теги</string>
+    <string name="tags_resolving_string_title">Разрешать спорные ситуации в музыкальной коллекции</string>
 
 </resources>

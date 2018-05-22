@@ -9,29 +9,147 @@ import com.theonlylies.musictagger.R;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * Created by linuxoid on 20.12.17.
  */
 
 public class MusicFile implements Parcelable {
-    @Getter @Setter protected String title;
-    @Getter @Setter protected String artist;
-    @Getter @Setter protected String album;
-    @Getter @Setter protected String realPath;
-    @Getter @Setter protected String genre;
-    @Getter @Setter protected String trackNumber;
-    @Getter @Setter protected String year;
-    @Getter @Setter protected String discNumber;
-    @Getter @Setter protected String albumArtist;
-    @Getter @Setter protected String comment;
-    @Getter @Setter protected String composer;
-    @Getter @Setter protected Uri artworkUri;
-    @Getter @Setter protected String artworkPath;
-    @Getter @Setter public AtomicInteger progress;
-    @Getter @Setter protected long album_id;
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getArtist() {
+        return artist;
+    }
+
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
+
+    public String getAlbum() {
+        return album;
+    }
+
+    public void setAlbum(String album) {
+        this.album = album;
+    }
+
+    public String getRealPath() {
+        return realPath;
+    }
+
+    public void setRealPath(String realPath) {
+        this.realPath = realPath;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public String getTrackNumber() {
+        return trackNumber;
+    }
+
+    public void setTrackNumber(String trackNumber) {
+        this.trackNumber = trackNumber;
+    }
+
+    public String getYear() {
+        return year;
+    }
+
+    public void setYear(String year) {
+        this.year = year;
+    }
+
+    public String getDiscNumber() {
+        return discNumber;
+    }
+
+    public void setDiscNumber(String discNumber) {
+        this.discNumber = discNumber;
+    }
+
+    public String getAlbumArtist() {
+        return albumArtist;
+    }
+
+    public void setAlbumArtist(String albumArtist) {
+        this.albumArtist = albumArtist;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public String getComposer() {
+        return composer;
+    }
+
+    public void setComposer(String composer) {
+        this.composer = composer;
+    }
+
+    public Uri getArtworkUri() {
+        return artworkUri;
+    }
+
+    public void setArtworkUri(Uri artworkUri) {
+        this.artworkUri = artworkUri;
+    }
+
+    public String getArtworkPath() {
+        return artworkPath;
+    }
+
+    public void setArtworkPath(String artworkPath) {
+        this.artworkPath = artworkPath;
+    }
+
+    public AtomicInteger getProgress() {
+        return progress;
+    }
+
+    public void setProgress(AtomicInteger progress) {
+        this.progress = progress;
+    }
+
+    public long getAlbum_id() {
+        return album_id;
+    }
+
+    public void setAlbum_id(long album_id) {
+        this.album_id = album_id;
+    }
+
+    protected String title;
+    protected String artist;
+    protected String album;
+    protected String realPath;
+    protected String genre;
+    protected String trackNumber;
+    protected String year;
+    protected String discNumber;
+    protected String albumArtist;
+    protected String comment;
+    protected String composer;
+    protected Uri artworkUri;
+    protected String artworkPath;
+    public AtomicInteger progress;
+    protected long album_id;
 
     /**
      * set all fields like @file stay unchanged title and realPath

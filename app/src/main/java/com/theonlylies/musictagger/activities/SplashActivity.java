@@ -48,7 +48,7 @@ public class SplashActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setView(R.layout.sd_dialog)
-                .setTitle("Attention");
+                .setTitle(R.string.attention_string);
         builder.setPositiveButton("Ok", (dialog, id) -> {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
             startActivityForResult(intent, OPEN_TREE_REQUEST_CODE);
@@ -64,8 +64,8 @@ public class SplashActivity extends AppCompatActivity {
                 != PackageManager.PERMISSION_GRANTED) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-            builder.setMessage("You must provide storage write permissons for get this app work")
-                    .setTitle("Attention");
+            builder.setMessage(R.string.write_access_string)
+                    .setTitle(R.string.attention_string);
             builder.setPositiveButton("Ok", (dialog, id) -> ActivityCompat.requestPermissions(SplashActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET}, 5));
 
@@ -128,9 +128,9 @@ public class SplashActivity extends AppCompatActivity {
 
         }else if(requestCode == OPEN_TREE_REQUEST_CODE){
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("You must provide ds storage write permissons for get this app work\nPlease select root sd-card directory")
-                    .setTitle("Attention");
-            builder.setPositiveButton("setup", (dialog, id) -> openSdCardTree());
+            builder.setMessage(R.string.sd_access_attention_string)
+                    .setTitle(R.string.attention_string);
+            builder.setPositiveButton("Ok", (dialog, id) -> openSdCardTree());
 
             AlertDialog dialog = builder.create();
             dialog.show();

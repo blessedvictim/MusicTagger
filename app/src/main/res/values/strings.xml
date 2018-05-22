@@ -1,6 +1,6 @@
 <resources>
 
-    <string name="team_name">Weak Team</string>
+    <string name="team_name" translatable="false">Weak Team</string>
     <string name="app_name">Advanced Music Tagger</string>
     <string name="activity_muchfileedit_name">Album mode</string>
     <string name="activity_onefileedit_name">Single mode</string>
@@ -75,5 +75,18 @@
     <string name="selectpic_string">Select Picture</string>
     <string name="please_wait_string">Please waiting …</string>
     <string name="save_changes_string">Save changes</string>
+    <string name="attention_string">Attention</string>
+    <string name="write_access_string">You must provide storage write permissons for get this app work</string>
+    <string name="sd_write_access_string">You must provide ds storage write permissons for get this app work\\nPlease select root sd-card directory</string>
+    <string name="storage_string">Storage</string>
+    <string name="storage_select_string_summary">you needn\'t this if you haven\'t sd card</string>
+    <string name="storage_select_string_title">Select sd card path</string>
+    <string name="storage_rename_string_title">File renaming rules</string>
+    <string name="search_string">Search</string>
+    <string name="search_albumart_string_title">Rule for album cover search term</string>
+    <string name="search_artworkcount_string_title">Count of album cover search results</string>
+    <string name="search_artworkcount_string_summary">this setting can use a lot of internet traffic</string>
+    <string name="tags_string">Tags</string>
+    <string name="tags_resolving_string_title">Resolve controversial situations when in one album the fans have different tags?</string>
 
 </resources>

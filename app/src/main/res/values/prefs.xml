@@ -7,7 +7,7 @@
         <item>title.mp3</item>
         <item>none(stay as is)</item>
     </string-array>
-    <string-array name="rename_files_entries">
+    <string-array translatable="false" name="rename_files_entries">
         <item>0</item>
         <item>1</item>
         <item>2</item>
@@ -18,18 +18,18 @@
         <item>Use only album title</item>
         <item>Use album title + artist name</item>
     </string-array>
-    <string-array name="artwork_search_rules_entries">
+    <string-array translatable="false" name="artwork_search_rules_entries">
         <item>album</item>
         <item>albumartist</item>
     </string-array>
 
-    <string-array name="artwork_search_count">
+    <string-array translatable="false" name="artwork_search_count">
         <item>4</item>
         <item>8</item>
         <item>12</item>
         <item>16</item>
     </string-array>
-    <string-array name="artwork_search_count_entries">
+    <string-array translatable="false" name="artwork_search_count_entries">
         <item>4</item>
         <item>8</item>
         <item>12</item>

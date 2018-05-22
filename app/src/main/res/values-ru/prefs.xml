@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="rename_files_rules">
+        <item>трек-альбом-исполнитель.mp3</item>
+        <item>трек-альбом.mp3</item>
+        <item>трек-исполнитель.mp3</item>
+        <item>трек.mp3</item>
+        <item>оставлять как есть</item>
+    </string-array>
+
+    <string-array name="artwork_search_rules">
+        <item>Использовать только название альбома</item>
+        <item>Использовать название альбома и иполнителя</item>
+    </string-array>
+
+</resources>

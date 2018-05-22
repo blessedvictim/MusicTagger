@@ -24,7 +24,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
-import lombok.experimental.var;
 
 /**
  * Created by Alexander Polumestniy on 29.12.2017.
@@ -60,8 +59,8 @@ public class TagManager {
     }
 
     static public MusicFile getMusicFileByPath(String path){
-        var tagManager = new TagManager(path);
-        var musicFile = new MusicFile();
+        TagManager tagManager = new TagManager(path);
+        MusicFile musicFile = new MusicFile();
         musicFile.setComposer(tagManager.getComposer());
         musicFile.setAlbum(tagManager.getAlbum());
         musicFile.setAlbumArtist(tagManager.getAlbumArtist());
