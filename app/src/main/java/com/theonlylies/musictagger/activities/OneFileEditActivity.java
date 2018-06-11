@@ -387,8 +387,8 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                         AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
                         if (this.isOnline()) {
                             Intent intent = new Intent(this, CoverArtGridActivity.class);
-                            intent.putExtra("album", this.albumEdit.getText().toString());
-                            intent.putExtra("artist", this.artistEdit.getText().toString());
+                            intent.putExtra("album", this.albumEdit.getText().toString().trim());
+                            intent.putExtra("artist", this.artistEdit.getText().toString().trim());
 
                             builder1.setItems(new CharSequence[]{"MusicBrainz", "LastFM"}, new DialogInterface.OnClickListener() {
                                 @Override
@@ -509,8 +509,10 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
             switch (artworkAction) {
                 case CHANGED: {
                     try {
-                        bitmap = GlideApp.with(getApplicationContext())
+                        bitmap = GlideApp.with(this)
                                 .asBitmap()
+                                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                                .skipMemoryCache(true)
                                 .centerCrop()
                                 .load(newArtworkUri)
                                 .submit()
@@ -688,9 +690,6 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         @Override
         protected MusicFile doInBackground(String... strings) {
 
-            //
-            MediaStoreUtils.dumpAlbums(OneFileEditActivity.this);
-            //
             MusicFile file = MediaStoreUtils.getMusicFileByPath(strings[0], context);
             MusicFile file1 = TagManager.getMusicFileByPath(strings[0]);
             file1.setAlbum_id(file.getAlbum_id());

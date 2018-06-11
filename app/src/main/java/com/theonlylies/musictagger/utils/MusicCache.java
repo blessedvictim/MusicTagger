@@ -1,13 +1,11 @@
 package com.theonlylies.musictagger.utils;
 
 import android.content.Context;
-import android.support.v4.provider.DocumentFile;
 import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 
 /**
@@ -67,7 +65,7 @@ public class MusicCache {
 
             outputStream.close();
             inStream.close();
-            Log.d("cached file deleted ? ",Boolean.toString(deleteCachedFile()));
+            deleteCachedFile();
         } catch (Exception e) {
             e.printStackTrace();
         }

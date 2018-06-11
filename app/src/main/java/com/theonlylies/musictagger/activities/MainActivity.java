@@ -42,6 +42,7 @@ import com.theonlylies.musictagger.utils.adapters.ExpandBlockAdapter;
 import com.theonlylies.musictagger.utils.adapters.ListAdapter;
 import com.theonlylies.musictagger.utils.adapters.MusicFile;
 import com.theonlylies.musictagger.utils.adapters.SimpleListAdapter;
+import com.theonlylies.musictagger.utils.edit.MediaStoreUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -198,6 +199,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onResume() {
         Log.d("onResume", "syka");
         //if(recyclerView.getAdapter().getItemCount()<1)createList(state);
+        //
+        MediaStoreUtils.dumpAlbums(this);
+        //
         super.onResume();
     }
 
@@ -600,7 +604,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             final Cursor cursor = getContentResolver().query(uri, cursor_cols, where, null, null);
             if (cursor != null) {
                 try {
-                    double count = cursor.getCount();
                     while (cursor.moveToNext()) {
                         MusicFile musicFile = new MusicFile();
 

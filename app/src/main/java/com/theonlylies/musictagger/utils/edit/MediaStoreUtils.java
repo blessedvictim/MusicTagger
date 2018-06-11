@@ -168,13 +168,19 @@ public class MediaStoreUtils {
         String albumart_path;
         if (cursor != null && cursor.moveToFirst()) {
             albumart_path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM_ART));
+            cursor.close();
             /////////
             if (albumart_path != null) {
+                Log.d("album art path", albumart_path);
+
                 File file = new File(albumart_path);
-                return file.delete();
+                Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
+                boolean deleted = file.delete();
+                int deletedFromStore = context.getContentResolver().delete(ContentUris.withAppendedId(sArtworkUri, album_id), null, null);
+                Log.d("album art delete", String.valueOf(deleted));
+                Log.d("album delete from store", String.valueOf(deletedFromStore));
+                return deleted;
             }
-            Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
-            int deleted = context.getContentResolver().delete(ContentUris.withAppendedId(sArtworkUri, album_id), null, null);
         }
         return false;
     }
