@@ -6,7 +6,6 @@
       <module fileurl="file://$PROJECT_DIR$/BaseRecyclerViewAdapterHelper/BaseRecyclerViewAdapterHelper.iml" filepath="$PROJECT_DIR$/BaseRecyclerViewAdapterHelper/BaseRecyclerViewAdapterHelper.iml" />
       <module fileurl="file://$PROJECT_DIR$/MusicTagger.iml" filepath="$PROJECT_DIR$/MusicTagger.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/clans-fab/clans-fab.iml" filepath="$PROJECT_DIR$/clans-fab/clans-fab.iml" />
       <module fileurl="file://$PROJECT_DIR$/gson-2.8.2/gson-2.8.2.iml" filepath="$PROJECT_DIR$/gson-2.8.2/gson-2.8.2.iml" />
       <module fileurl="file://$PROJECT_DIR$/jaudiotagger-2.2.3/jaudiotagger-2.2.3.iml" filepath="$PROJECT_DIR$/jaudiotagger-2.2.3/jaudiotagger-2.2.3.iml" />
       <module fileurl="file://$PROJECT_DIR$/slf4j-android-1.6.1-RC1/slf4j-android-1.6.1-RC1.iml" filepath="$PROJECT_DIR$/slf4j-android-1.6.1-RC1/slf4j-android-1.6.1-RC1.iml" />

@@ -27,6 +27,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
@@ -35,6 +36,7 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.theonlylies.musictagger.R;
 import com.theonlylies.musictagger.services.ForegroundTagEditService;
 import com.theonlylies.musictagger.utils.GlideApp;
+import com.theonlylies.musictagger.utils.PreferencesManager;
 import com.theonlylies.musictagger.utils.adapters.ListAdapter;
 import com.theonlylies.musictagger.utils.adapters.MusicFile;
 
@@ -206,6 +208,8 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
 
         if (v.getId() == R.id.fabImage) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            String album=albumEdit.getText().toString();
+            String artist=artistEdit.getText().toString();
             builder.setItems(R.array.image_actions, (dialog, which) -> {
                 switch (which) {
                     case 0: {
@@ -216,6 +220,17 @@ public class MuchFileEditActivity extends AppCompatActivity implements View.OnCl
                         break;
                     }
                     case 1: {
+                        boolean albumartist = PreferencesManager.getStringValue(MuchFileEditActivity.this, "artwork-rule-term", "albumartist")
+                                .equals("albumartist");
+                        Log.e("albumartist", String.valueOf(albumartist));
+                        if(albumartist && (album==null || artist == null || (album.isEmpty() || artist.isEmpty()))){
+                            Toast.makeText(this,"Album or Artist is empty, fill in first",Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        if(albumartist==false && (album==null  || album.isEmpty()) ){
+                            Toast.makeText(this,"Album is empty, fill in first",Toast.LENGTH_SHORT).show();
+                            return;
+                        }
                         android.support.v7.app.AlertDialog.Builder builder1 = new android.support.v7.app.AlertDialog.Builder(this);
                         if (this.isOnline()) {
                             Intent intent = new Intent(this, CoverArtGridActivity.class);

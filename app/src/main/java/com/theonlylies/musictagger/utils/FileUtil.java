@@ -112,6 +112,7 @@ public abstract class FileUtil {
         File extFile = Environment.getExternalStorageDirectory();
         if (files.length > 1) {
             for (File f : files) {
+                if(f==null)continue;
                 if (f.getPath().startsWith(extFile.getPath())) continue;
                 else return f.getPath();
             }

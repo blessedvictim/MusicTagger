@@ -374,6 +374,9 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
         if (v.getId() == R.id.fabImage) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            String album=albumEdit.getText().toString();
+            String artist=artistEdit.getText().toString();
+
             builder.setItems(R.array.image_actions, (dialog, which) -> {
                 switch (which) {
                     case 0: {
@@ -384,6 +387,17 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                         break;
                     }
                     case 1: {
+                        boolean albumartist = PreferencesManager.getStringValue(OneFileEditActivity.this, "artwork-rule-term", "albumartist")
+                                .equals("albumartist");
+                        Log.e("albumartist", String.valueOf(albumartist));
+                        if(albumartist && (album==null || artist == null || (album.isEmpty() || artist.isEmpty()))){
+                            Toast.makeText(this,"Album or Artist is empty, fill in first",Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        if(albumartist==false && (album==null  || album.isEmpty()) ){
+                            Toast.makeText(this,"Album is empty, fill in first",Toast.LENGTH_SHORT).show();
+                            return;
+                        }
                         AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
                         if (this.isOnline()) {
                             Intent intent = new Intent(this, CoverArtGridActivity.class);
@@ -518,7 +532,11 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                                 .submit()
                                 .get();
                         bitmap = BitmapUtils.getCenterCropedBitmap(bitmap);
-                        tagManager.setArtwork(bitmap);
+                        if(bitmap!=null){
+                            tagManager.setArtwork(bitmap);
+                            //Toast.makeText(this,"Artwork wasn't loaded",Toast.LENGTH_SHORT).show();
+                        }
+
                     } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
                     }
@@ -548,7 +566,10 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
                                     .submit()
                                     .get();
                             bitmap = BitmapUtils.getCenterCropedBitmap(bitmap);
-                            tagManager.setArtwork(bitmap);
+                            if(bitmap!=null){
+                                tagManager.setArtwork(bitmap);
+                                //Toast.makeText(this,"Artwork wasn't loaded",Toast.LENGTH_SHORT).show();
+                            }
                         } catch (InterruptedException | ExecutionException e) {
                             e.printStackTrace();
                         }
@@ -567,8 +588,8 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
             }
 
         } else {
-            Log.d("OneFileEdit", "fuck you sd card access :/");
-            Toast.makeText(this, "Seems there is problem with removable sd card", Toast.LENGTH_SHORT).show();
+                Log.d("OneFileEdit", "fuck you sd card access :/");
+                //Toast.makeText(this, "Seems there is problem with removable sd card", Toast.LENGTH_SHORT).show();
             return false;
         }
 
@@ -894,6 +915,7 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
     }
 
     BitmapCache bitmapCache;
+
     class LoadImage extends AsyncTask<Void, Void, Bitmap> {
 
         Uri uri;

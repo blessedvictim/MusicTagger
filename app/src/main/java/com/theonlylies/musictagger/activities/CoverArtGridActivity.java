@@ -169,7 +169,7 @@ public class CoverArtGridActivity extends AppCompatActivity {
                         };
 
                 }
-            } catch (NoMatchesException e) {
+            } catch (NoMatchesException | IllegalArgumentException e) {
                 e.printStackTrace();
                 return false;
             }

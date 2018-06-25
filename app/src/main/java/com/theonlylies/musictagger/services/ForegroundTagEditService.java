@@ -103,7 +103,10 @@ public class ForegroundTagEditService extends IntentService {
                 tagManager.setGeneralTagsFromMusicFile(destMusicFile);
                 switch (artworkAction) {
                     case CHANGED: {
-                        tagManager.setArtwork(bmp);
+                        if(bmp!=null){
+                            tagManager.setArtwork(bmp);
+                            //Toast.makeText(this,"Artwork wasn't loaded",Toast.LENGTH_SHORT).show();
+                        }
                         break;
                     }
                     case DELETED: {
@@ -123,7 +126,10 @@ public class ForegroundTagEditService extends IntentService {
                     tagManager.setGeneralTagsFromMusicFile(destMusicFile);
                     switch (artworkAction) {
                         case CHANGED: {
-                            tagManager.setArtwork(bmp);
+                            if(bmp!=null){
+                                tagManager.setArtwork(bmp);
+                                //Toast.makeText(this,"Artwork wasn't loaded",Toast.LENGTH_SHORT).show();
+                            }
                             break;
                         }
                         case DELETED: {
@@ -142,7 +148,7 @@ public class ForegroundTagEditService extends IntentService {
 
             } else {
                 Log.d("Foreground service", "fuck you sd card access");
-                Toast.makeText(this, "fuck you sd card access", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Make sure that access to the microsd", Toast.LENGTH_SHORT).show();
             }
         }
 
