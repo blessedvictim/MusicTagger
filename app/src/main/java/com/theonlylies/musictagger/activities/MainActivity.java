@@ -130,7 +130,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        //recyclerView.addItemDecoration(new DividerItemDecoration(getResources().getDrawable( R.drawable.divider )));
 
 
         /**
@@ -175,6 +174,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //
         adapterData = new ArrayList<>();
 
+
         createList(state);
     }
 
@@ -212,23 +212,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void sortAdapter(int sortState) {
         stateSort = ListStateSort.values()[sortState];
+        int size = recyclerView.getAdapter().getItemCount();
         if (recyclerView.getAdapter() instanceof ExpandBlockAdapter) {
-            if (stateSort == ListStateSort.AZtitle) {
+
+            if (stateSort == ListStateSort.AZtitle)
                 Collections.sort(((ExpandBlockAdapter) recyclerView.getAdapter()).getData(), (f1, f2) -> f1.getBlockName().compareToIgnoreCase(f2.getBlockName()));
-                recyclerView.getAdapter().notifyDataSetChanged();
-            } else {
+            else
                 Collections.sort(((ExpandBlockAdapter) recyclerView.getAdapter()).getData(), (f1, f2) -> f2.getBlockName().compareToIgnoreCase(f1.getBlockName()));
-                recyclerView.getAdapter().notifyDataSetChanged();
-            }
         } else {
-            if (stateSort == ListStateSort.AZtitle) {
+            if (stateSort == ListStateSort.AZtitle)
                 Collections.sort(((ListAdapter) recyclerView.getAdapter()).getData(), (f1, f2) -> f1.getTitle().compareToIgnoreCase(f2.getTitle()));
-                recyclerView.getAdapter().notifyDataSetChanged();
-            } else {
+            else
                 Collections.sort(((ListAdapter) recyclerView.getAdapter()).getData(), (f1, f2) -> f2.getTitle().compareToIgnoreCase(f1.getTitle()));
-                recyclerView.getAdapter().notifyDataSetChanged();
-            }
         }
+
+
+        List lol = new ArrayList();
+        if(recyclerView.getAdapter() instanceof ListAdapter){
+            lol.addAll( ((ListAdapter)recyclerView.getAdapter()).getData());
+            ((ListAdapter) recyclerView.getAdapter()).getData().clear();
+            recyclerView.getAdapter().notifyDataSetChanged();
+            ((ListAdapter) recyclerView.getAdapter()).setNewData(lol);
+            recyclerView.getAdapter().notifyDataSetChanged();
+        } else {
+            lol.addAll( ((ExpandBlockAdapter)recyclerView.getAdapter()).getData());
+            ((ExpandBlockAdapter) recyclerView.getAdapter()).getData().clear();
+            recyclerView.getAdapter().notifyDataSetChanged();
+            ((ExpandBlockAdapter) recyclerView.getAdapter()).setNewData(lol);
+            recyclerView.getAdapter().notifyDataSetChanged();
+        }
+
+
 
     }
 
@@ -557,10 +571,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         if (file.getAlbum_id() == albumId) blockList.add(file);
 
                     item.setMusicFiles(blockList);
-                    if(state==ListState.GROUP_ALBUM){
+                    if (state == ListState.GROUP_ALBUM) {
                         item.setBlockName(blockList.get(0).getAlbum());
                         item.setBlockScName(blockList.get(0).getArtist());
-                    }else{
+                    } else {
                         item.setBlockName(blockList.get(0).getArtist());
                         item.setBlockScName(blockList.get(0).getAlbum());
                     }
@@ -577,6 +591,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         return blockItems;
     }
+
     private class ReadMediaStoreTask extends AsyncTask<Void, Void, Void> {
 
         RelativeLayout progressLayout;

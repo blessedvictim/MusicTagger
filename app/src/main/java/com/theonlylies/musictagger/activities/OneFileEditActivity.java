@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
@@ -43,6 +44,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.android.gms.analytics.ExceptionReporter;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.theonlylies.musictagger.Aapplication;
 import com.theonlylies.musictagger.R;
 import com.theonlylies.musictagger.utils.BitmapCache;
@@ -95,7 +97,6 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
 
     CardView cardBestSearched;
     NestedScrollView nestedScrollView;
-    AppBarLayout appBarLayout;
     Context context;
 
     Uri newArtworkUri;
@@ -116,33 +117,40 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         Log.d("onDestroy", "syka");
         if (smartSearchTask != null && smartSearchTask.getStatus() == AsyncTask.Status.RUNNING)
             smartSearchTask.cancel(true);
-        if (mp3Play != null && mp3Play.isPlaying()) mp3Play.reset();
+        if (mediaPlayer != null)
+            mediaPlayer.release();
         Log.d("onDestroy", "syka2");
         super.onDestroy();
     }
 
+    @Override
+    protected void onPause() {
+        if (mediaPlayer != null) mediaPlayer.release();
+        super.onPause();
+    }
+
     VectorDrawable drawPlay, drawPause;
 
-    MediaPlayer mp3Play = new MediaPlayer();
+    MediaPlayer mediaPlayer = new MediaPlayer();
     boolean play = false;
 
     void swapAnimationOfplayer() {
 
         if (!play) {
             try {
-                mp3Play.setDataSource(this, Uri.parse(this.musicFile.getRealPath()));
-                mp3Play.prepare();
-                mp3Play.setLooping(false);
-                mp3Play.start();
+                mediaPlayer.setDataSource(this, Uri.parse(this.musicFile.getRealPath()));
+                mediaPlayer.prepare();
+                mediaPlayer.setLooping(false);
+                mediaPlayer.start();
                 fabPlayer.setImageDrawable(drawPause);
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
         } else {
-            if (mp3Play.isPlaying()) {
-                mp3Play.stop();
-                mp3Play.reset();
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+                mediaPlayer.reset();
             }
 
             fabPlayer.setImageDrawable(drawPlay);
@@ -203,20 +211,6 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-
-        appBarLayout = findViewById(R.id.app_bar_much_act);
-        CardView cardView = findViewById(R.id.cardView);
-
-
-        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            @Override
-            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                int offset = appBarLayout.getTotalScrollRange() - Math.abs(verticalOffset);
-                float percentage = (offset / (float) appBarLayout.getTotalScrollRange());
-                cardView.setAlpha(percentage);
-            }
-        });
 
 
         String path = getIntent().getStringExtra("music_file_path");
@@ -434,13 +428,6 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
             });
             AlertDialog dialog = builder.create();
             dialog.show();
-        }
-
-        if (v.getId() == R.id.cardOtherTags) {
-            ViewGroup group = findViewById(R.id.layoutOtherTags);
-            TransitionManager.beginDelayedTransition(group);
-            if (group.getVisibility() != View.VISIBLE) group.setVisibility(View.VISIBLE);
-            else group.setVisibility(View.GONE);
         }
 
     }
@@ -693,7 +680,6 @@ public class OneFileEditActivity extends AppCompatActivity implements View.OnCli
         protected Boolean doInBackground(MusicFile... files) {
             return saveChanges(files[0], dialog);
             //return saveChangesTEST(files[0], dialog);
-
         }
 
     }

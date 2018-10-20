@@ -43,9 +43,9 @@
     <string name="artist_string">Artist</string>
     <string name="genre_string">Genre</string>
     <string name="year_string">Year</string>
-    <string name="tracknum_string">Track number</string>
+    <string name="tracknum_string">Track#</string>
     <string name="composer_string">Composer</string>
-    <string name="discnum_string">Disc number</string>
+    <string name="discnum_string">Disc#</string>
     <string name="albumartist_string">Album artist</string>
     <string name="comment_string">Comment</string>
 

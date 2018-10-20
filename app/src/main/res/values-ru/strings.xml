@@ -39,9 +39,9 @@
     <string name="artist_string">Исполнитель</string>
     <string name="genre_string">Жанр</string>
     <string name="year_string">Год</string>
-    <string name="tracknum_string">Номер трека</string>
+    <string name="tracknum_string">Трек#</string>
     <string name="composer_string">Композитор</string>
-    <string name="discnum_string">Номер диска</string>
+    <string name="discnum_string">Диск#</string>
     <string name="albumartist_string">Исполнитель альбома</string>
     <string name="comment_string">Комментарий</string>
 

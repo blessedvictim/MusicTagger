@@ -8,14 +8,10 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/AudioAnalyze" />
             <option value="$PROJECT_DIR$/BaseRecyclerViewAdapterHelper" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/clans-fab" />
             <option value="$PROJECT_DIR$/gson-2.8.2" />
-            <option value="$PROJECT_DIR$/jaudiotagger-2.2.3" />
             <option value="$PROJECT_DIR$/slf4j-android-1.6.1-RC1" />
-            <option value="$PROJECT_DIR$/streamsupport-1.6.1" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
